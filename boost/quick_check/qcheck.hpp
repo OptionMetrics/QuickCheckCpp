@@ -8,35 +8,34 @@
 // NOTE: This library is not yet an official Boost library.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_QUICK_CHECK_QCHECK_HPP_INCLUDED
-#define BOOST_QUICK_CHECK_QCHECK_HPP_INCLUDED
+#ifndef QCHK_QCHECK_HPP_INCLUDED
+#define QCHK_QCHECK_HPP_INCLUDED
 
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/quick_check/qcheck_results.hpp>
-#include <boost/fusion/container/generation/make_vector.hpp>
+#include <boost/fusion/functional/invocation/invoke_function_object.hpp>
 
-QKCK_BOOST_NAMESPACE_BEGIN
+QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
     template<typename Property, typename Config>
-    typename Property::qcheck_results_type
+    qcheck_results<typename Config::args_type>
     qcheck(Property const &prop, Config &config)
     {
-        typename Property::qcheck_results_type results;
+        qcheck_results<typename Config::args_type> results;
 
         for(std::size_t n = 0; n < config.test_count(); ++n)
         {
-            typename Property::args_type args =
-                fusion::make_vector(config.get_int(), config.get_int());
-            if(!prop(fusion::at_c<0>(args), fusion::at_c<1>(args)))
-                results.failures_.push_back(args);
+            auto args = config.gen();
+            if(!fusion::invoke_function_object(prop, args))
+                results.failures.push_back(args);
         }
 
         return results;
     }
 }
 
-QKCK_BOOST_NAMESPACE_END
+QCHK_BOOST_NAMESPACE_END
 
 #endif

@@ -8,37 +8,74 @@
 // NOTE: This library is not yet an official Boost library.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_QUICK_CHECK_QCHECK_RESULTS_HPP_INCLUDED
-#define BOOST_QUICK_CHECK_QCHECK_RESULTS_HPP_INCLUDED
+#ifndef QCHK_QCHECK_RESULTS_HPP_INCLUDED
+#define QCHK_QCHECK_RESULTS_HPP_INCLUDED
 
+#include <iosfwd>
 #include <vector>
-#include <boost/fusion/container/vector.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
-#include <boost/optional.hpp>
 
-QKCK_BOOST_NAMESPACE_BEGIN
+QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
-    template<typename A, typename B /* extra args ...*/ >
+    namespace detail
+    {
+        struct disp
+        {
+            disp(std::ostream &sout, bool &first)
+              : sout_(sout)
+              , first_(first)
+            {}
+
+            template<typename Value>
+            void operator()(Value const &val) const
+            {
+                this->sout_ << (this->first_ ? "" : ",") << val;
+                this->first_ = false;
+            }
+        private:
+            std::ostream &sout_;
+            bool &first_;
+        };
+    }
+
+    template<typename Args>
+    struct qcheck_args
+      : Args
+    {
+        qcheck_args(Args const &args)
+          : Args(args)
+        {}
+
+        friend std::ostream &operator<<(std::ostream &sout, qcheck_args const &args)
+        {
+            bool first = true;
+            sout << "(";
+            fusion::for_each(args, detail::disp(sout, first));
+            return sout << ")";
+        }
+    };
+
+    template<typename Args>
     struct qcheck_results
     {
     public:
         qcheck_results()
-          : failures_()
+          : failures()
         {}
 
         bool success() const
         {
-            return this->failures_.empty();
+            return this->failures.empty();
         }
 
-    //private:
-        std::vector<fusion::vector<A, B> > failures_;
+        std::vector<qcheck_args<Args> > failures;
     };
 
 }
 
-QKCK_BOOST_NAMESPACE_END
+QCHK_BOOST_NAMESPACE_END
 
 #endif

@@ -8,17 +8,21 @@
 // NOTE: This library is not yet an official Boost library.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_QUICK_CHECK_QUICK_CHECK_HPP_FWD_INCLUDED
-#define BOOST_QUICK_CHECK_QUICK_CHECK_HPP_FWD_INCLUDED
+#ifndef QCHK_QUICK_CHECK_HPP_FWD_INCLUDED
+#define QCHK_QUICK_CHECK_HPP_FWD_INCLUDED
 
 #include <boost/proto/proto.hpp>
 #include <boost/phoenix/core.hpp>
 
-#define QKCK_BOOST_NAMESPACE_BEGIN namespace boost {
-#define QKCK_BOOST_NAMESPACE_END }
-#define QKCK_BOOST_NAMESPACE boost
+#define QCHK_MAX_ARITY 10
 
-QKCK_BOOST_NAMESPACE_BEGIN
+#define QCHK_BOOST_NAMESPACE_BEGIN namespace boost {
+#define QCHK_BOOST_NAMESPACE_END }
+#define QCHK_BOOST_NAMESPACE boost
+
+#define QCHK_RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
+
+QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
@@ -28,8 +32,11 @@ namespace quick_check
     namespace pheonix = boost::phoenix;
 
     using namespace phoenix::placeholders;
+
+    template<typename Map>
+    struct config;
 }
 
-QKCK_BOOST_NAMESPACE_END
+QCHK_BOOST_NAMESPACE_END
 
 #endif

@@ -8,15 +8,15 @@
 // NOTE: This library is not yet an official Boost library.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_QUICK_CHECK_PROPERTY_HPP_INCLUDED
-#define BOOST_QUICK_CHECK_PROPERTY_HPP_INCLUDED
+#ifndef QCHK_PROPERTY_HPP_INCLUDED
+#define QCHK_PROPERTY_HPP_INCLUDED
 
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/function.hpp>
 #include <boost/fusion/container/vector.hpp>
 #include <boost/quick_check/qcheck_results.hpp>
 
-QKCK_BOOST_NAMESPACE_BEGIN
+QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
@@ -24,9 +24,6 @@ namespace quick_check
     struct property
     {
     public:
-        typedef qcheck_results<A, B> qcheck_results_type;
-        typedef fusion::vector<A, B> args_type;
-
         template<typename Actor>
         property(phoenix::actor<Actor> const &actor)
           : pred_(actor)
@@ -43,6 +40,6 @@ namespace quick_check
     };
 }
 
-QKCK_BOOST_NAMESPACE_END
+QCHK_BOOST_NAMESPACE_END
 
 #endif
