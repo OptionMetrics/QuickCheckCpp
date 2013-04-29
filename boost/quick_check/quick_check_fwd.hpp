@@ -33,7 +33,7 @@ namespace quick_check
 
     using namespace phoenix::placeholders;
 
-    template<typename Map>
+    template<typename Map, typename Rng>
     struct config;
 }
 

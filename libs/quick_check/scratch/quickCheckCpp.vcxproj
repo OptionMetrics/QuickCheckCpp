@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\boost\quick_check\config.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\generator.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\property.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\qcheck.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\qcheck_results.hpp" />

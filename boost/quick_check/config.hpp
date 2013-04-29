@@ -11,14 +11,17 @@
 #ifndef QCHK_CONFIG_HPP_INCLUDED
 #define QCHK_CONFIG_HPP_INCLUDED
 
+#include <utility>
+#include <boost/mpl/size_t.hpp>
 #include <boost/mpl/accumulate.hpp>
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/placeholders.hpp>
 #include <boost/mpl/min_max.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/identity.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/fusion/mpl.hpp>
-#include <boost/utility/result_of.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <boost/fusion/container/vector.hpp>
 #include <boost/fusion/container/vector/convert.hpp>
 #include <boost/fusion/container/generation/make_vector.hpp>
@@ -28,14 +31,17 @@
 #include <boost/fusion/sequence/intrinsic/has_key.hpp>
 #include <boost/fusion/sequence/intrinsic/value_at_key.hpp>
 #include <boost/fusion/view/joint_view.hpp>
+#include <boost/fusion/algorithm/query/find_if.hpp>
 #include <boost/fusion/algorithm/transformation/push_front.hpp>
 #include <boost/fusion/algorithm/transformation/transform.hpp>
+#include <boost/fusion/algorithm/transformation/filter_if.hpp>
 #include <boost/fusion/algorithm/iteration/accumulate.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/add_const.hpp>
 #include <boost/is_placeholder.hpp>
+#include <boost/random/mersenne_twister.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -43,10 +49,12 @@ namespace quick_check
 {
     namespace detail
     {
-        template<typename Map>
-        config<Map> make_config(Map const &map)
+        struct rng_ {};
+
+        template<typename Map, typename Rng>
+        config<Map, Rng> make_config(Map const &map, Rng const &rng)
         {
-            return config<Map>(map);
+            return config<Map, Rng>(map, rng);
         }
 
         struct PhxPlaceholder
@@ -56,16 +64,23 @@ namespace quick_check
             >
         {};
 
-        struct Tmp
+        struct DoInsert
           : proto::call<proto::functional::make_pair(
-                proto::call<proto::functional::push_back(
+                proto::functional::push_back(
                     proto::call<proto::functional::first(proto::_state)>
                   , proto::make<fusion::pair<
-                        proto::call<proto::_value(proto::_left)>
-                      , proto::call<proto::functional::second(proto::_state)>
+                        proto::_value(proto::_left)
+                      , proto::functional::second(proto::_state)
                     >(proto::functional::second(proto::_state))>
-                )>
-              , proto::call<proto::_value(proto::_left)>
+                )
+              , proto::_value(proto::_left)
+            )>
+        {};
+
+        struct CollectTerminal
+          : proto::call<proto::functional::make_pair(
+                proto::make<fusion::map<>()>
+              , proto::_value(proto::_right)
             )>
         {};
 
@@ -73,20 +88,11 @@ namespace quick_check
           : proto::or_<
                 proto::when<
                     proto::assign<PhxPlaceholder, proto::terminal<proto::_> >
-                  , proto::call<proto::functional::make_pair(
-                        proto::call<proto::functional::push_back(
-                            proto::make<fusion::map<>()>
-                          , proto::make<fusion::pair<
-                                proto::_value(proto::_left)
-                              , proto::_value(proto::_right)
-                            >(proto::_value(proto::_right))>
-                        )>
-                      , proto::_value(proto::_left)
-                    )>
+                  , DoInsert(proto::_, CollectTerminal)
                 >
               , proto::when<
                     proto::assign<PhxPlaceholder, RngCollection>
-                  , proto::call<Tmp(proto::_, RngCollection(proto::_right))>
+                  , DoInsert(proto::_, RngCollection(proto::_right))
                 >
             >
         {};
@@ -125,32 +131,33 @@ namespace quick_check
         {};
 
         template<typename Map
+               , typename Rng
                , typename Placeholder
                , typename ValueAtKey = typename safe_value_at_key<Map, Placeholder>::type>
         struct my_value_at_key
         {
-            typedef typename boost::result_of<ValueAtKey()>::type type;
-            static type call(Map &map)
+            typedef typename std::result_of<ValueAtKey(Rng &)>::type type;
+            static type call(Map &map, Rng &rng)
             {
-                return fusion::at_key<Placeholder>(map)();
+                return fusion::at_key<Placeholder>(map)(rng);
             }
         };
 
-        template<typename Map, typename Placeholder, int I>
-        struct my_value_at_key<Map, Placeholder, phoenix::argument<I> >
+        template<typename Map, typename Rng, typename Placeholder, int I>
+        struct my_value_at_key<Map, typename Rng, Placeholder, phoenix::argument<I> >
         {
-            typedef typename my_value_at_key<Map, phoenix::argument<I> >::type type;
-            static type call(Map &map)
+            typedef typename my_value_at_key<Map, Rng, phoenix::argument<I> >::type type;
+            static type call(Map &map, Rng &rng)
             {
-                return my_value_at_key<Map, phoenix::argument<I> >::call(map);
+                return my_value_at_key<Map, phoenix::argument<I> >::call(map, rng);
             }
         };
 
-        template<typename Map, typename Placeholder>
-        struct my_value_at_key<Map, Placeholder, fusion::void_>
+        template<typename Map, typename Rng, typename Placeholder>
+        struct my_value_at_key<Map, Rng, Placeholder, fusion::void_>
         {
             typedef fusion::void_ type;
-            static type call(Map &map)
+            static type call(Map &, Rng &)
             {
                 return fusion::void_();
             }
@@ -174,7 +181,7 @@ namespace quick_check
           : fusion::result_of::as_vector<State>
         {};
 
-        template<typename Map>
+        template<typename Map, typename Rng>
         struct index_fun
         {
             template<typename Sig>
@@ -182,33 +189,87 @@ namespace quick_check
             
             template<typename This, typename Placeholder>
             struct result<This(Placeholder)>
-              : detail::my_value_at_key<
-                    Map
-                  , typename boost::remove_const<
-                        typename boost::remove_reference<Placeholder>::type
+            {
+                typedef
+                    typename detail::my_value_at_key<
+                        Map
+                      , Rng
+                      , typename boost::remove_const<
+                            typename boost::remove_reference<Placeholder>::type
+                        >::type
                     >::type
-                >
-            {};
+                type;
+            };
 
-            explicit index_fun(Map & map)
+            index_fun(Map &map, Rng &rng)
               : map_(map)
+              , rng_(rng)
             {}
 
             template<typename Placeholder>
-            typename detail::my_value_at_key<Map, Placeholder>::type
+            typename detail::my_value_at_key<Map, Rng, Placeholder>::type
             operator()(Placeholder) const
             {
-                return detail::my_value_at_key<Map, Placeholder>::call(this->map_);
+                return detail::my_value_at_key<Map, Rng, Placeholder>::call(this->map_, this->rng_);
             }
 
         private:
             Map &map_;
+            Rng &rng_;
         };
+
+        struct RngInit
+          : proto::when<
+                proto::assign<
+                    proto::terminal<rng_>
+                  , proto::terminal<proto::_>
+                >
+              , proto::_value(proto::_right)
+            >
+        {};
+
+        //template<typename Algo>
+        //struct checked
+        //{
+        //    template<typename Sig>
+        //    struct result;
+
+        //    template<typename This, typename Expr>
+        //    struct result<This(Expr)>
+        //      : mpl::eval_if<
+        //            proto::matches<Expr, Algo>
+        //          , std::result_of<Algo(Expr)>
+        //          , mpl::identity<fusion::nil_>
+        //        >
+        //    {};
+
+        //    template<typename Expr>
+        //    typename boost::lazy_enable_if<
+        //        proto::matches<Expr, Algo>
+        //      , std::result_of<Algo(Expr)>
+        //    >::type
+        //    operator()(Expr const &expr) const
+        //    {
+        //        return Algo()(expr);
+        //    }
+
+        //    template<typename Expr>
+        //    typename boost::disable_if<
+        //        proto::matches<Expr, Algo>
+        //      , std::pair<fusion::nil_, int>
+        //    >::type
+        //    operator()(Expr const &) const
+        //    {
+        //        BOOST_MPL_ASSERT((proto::matches<Expr, Algo>));
+        //        return std::make_pair(fusion::nil_(), 0);
+        //    }
+        //};
     }
 
-    template<typename Map>
+    template<typename Map, typename Rng>
     struct config
     {
+    private:
         typedef
             typename mpl::accumulate<
                 typename mpl::transform<
@@ -224,17 +285,19 @@ namespace quick_check
             typename detail::make_indices<arg_count::value>::type
         indices_type;
 
+    public:
         typedef
             typename fusion::result_of::as_vector<
                 typename fusion::result_of::transform<
                     indices_type
-                  , detail::index_fun<Map>
+                  , detail::index_fun<Map, Rng>
                 >::type
             >::type
         args_type;
 
-        explicit config(Map const &map)
+        config(Map const &map, Rng const &rng)
           : map_(map)
+          , rng_(rng)
         {}
 
         std::size_t test_count() const
@@ -245,28 +308,19 @@ namespace quick_check
         args_type gen()
         {
             return fusion::as_vector(
-                fusion::transform(indices_type(), detail::index_fun<Map>(this->map_))
+                fusion::transform(indices_type(), detail::index_fun<Map, Rng>(this->map_, this->rng_))
             );
-        }
-
-        template<typename Placeholder>
-        typename detail::my_value_at_key<
-            Map
-          , typename proto::result_of::value<Placeholder>::type
-        >::type
-        next(Placeholder const &placeholder)
-        {
-            return detail::my_value_at_key<
-                Map
-              , typename proto::result_of::value<Placeholder>::type
-            >::call(this->map_);
         }
 
     private:
         Map map_;
+        Rng rng_;
     };
 
+    proto::terminal<detail::rng_>::type const _rng = {};
+
 #define BOOST_PROTO_LOCAL_MACRO(N, typename_A, A_const_ref, A_const_ref_a, a)   \
+                                                                                \
     template<typename_A(N)>                                                     \
     auto make_config(A_const_ref_a(N))                                          \
     QCHK_RETURN(                                                                \
@@ -275,7 +329,12 @@ namespace quick_check
                 fusion::accumulate(                                             \
                     fusion::transform(                                          \
                         fusion::transform(                                      \
-                            fusion::make_vector(a(N))                           \
+                            fusion::filter_if<                                  \
+                                proto::matches<                                 \
+                                    mpl::_                                      \
+                                  , detail::RngCollection                       \
+                                >                                               \
+                            >(fusion::make_vector(a(N)))                        \
                           , detail::RngCollection()                             \
                         )                                                       \
                       , proto::functional::first()                              \
@@ -284,9 +343,15 @@ namespace quick_check
                   , detail::fusion_join()                                       \
                 )                                                               \
             )                                                                   \
+          , detail::RngInit()(                                                  \
+                *fusion::find_if<proto::matches<mpl::_, detail::RngInit> >(     \
+                    fusion::make_vector(a(N), _rng = boost::random::mt11213b()) \
+                )                                                               \
+            )                                                                   \
         )                                                                       \
     )                                                                           \
     /**/
+
 #define BOOST_PROTO_LOCAL_a BOOST_PROTO_a
 #define BOOST_PROTO_LOCAL_LIMITS (1, BOOST_PP_DEC(QCHK_MAX_ARITY))
 #include BOOST_PROTO_LOCAL_ITERATE()
