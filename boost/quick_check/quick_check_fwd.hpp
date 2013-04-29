@@ -13,6 +13,8 @@
 
 #include <boost/proto/proto.hpp>
 #include <boost/phoenix/core.hpp>
+#include <boost/preprocessor/enum_params_with_a_default.hpp>
+#include <boost/preprocessor/arithmetic/dec.hpp>
 
 #define QCHK_MAX_ARITY 10
 
@@ -35,6 +37,10 @@ namespace quick_check
 
     template<typename Map, typename Rng>
     struct config;
+
+    template<typename A, BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PP_DEC(QCHK_MAX_ARITY), typename B, void)>
+    struct property;
+
 }
 
 QCHK_BOOST_NAMESPACE_END

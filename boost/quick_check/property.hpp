@@ -12,6 +12,10 @@
 #define QCHK_PROPERTY_HPP_INCLUDED
 
 #include <boost/quick_check/quick_check_fwd.hpp>
+#include <boost/preprocessor/iteration/local.hpp>
+#include <boost/preprocessor/enum_params.hpp>
+#include <boost/preprocessor/enum_params_with_a_default.hpp>
+#include <boost/preprocessor/arithmetic/dec.hpp>
 #include <boost/function.hpp>
 #include <boost/fusion/container/vector.hpp>
 #include <boost/quick_check/qcheck_results.hpp>
@@ -20,23 +24,43 @@ QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
-    template<typename A, typename B /*... and more*/>
-    struct property
+    namespace detail
     {
+        template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(QCHK_MAX_ARITY, typename A, void)>
+        struct property_impl
+        {
+            typedef boost::function<bool(BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A))> type;
+        };
+
+    #define BOOST_PP_LOCAL_MACRO(N)                                                                 \
+        template<BOOST_PP_ENUM_PARAMS(N, typename A)>                                               \
+        struct property_impl<BOOST_PP_ENUM_PARAMS(N, A)>                                            \
+        {                                                                                           \
+            typedef boost::function<bool(BOOST_PP_ENUM_PARAMS(N, A))> type;                         \
+        };                                                                                          \
+        /**/
+
+    #define BOOST_PP_LOCAL_LIMITS (1, BOOST_PP_DEC(QCHK_MAX_ARITY))
+    #include BOOST_PP_LOCAL_ITERATE()
+    }
+
+    template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
+    struct property
+      : private detail::property_impl<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::type
+    {
+    private:
+        typedef typename
+            detail::property_impl<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::type
+        function_type;
+
     public:
         template<typename Actor>
         property(phoenix::actor<Actor> const &actor)
-          : pred_(actor)
+          : function_type(actor)
         {}
 
         typedef bool result_type; // for TR1
-        bool operator()(A const &a, B const &b) const
-        {
-            return this->pred_(a, b);
-        }
-
-    private:
-        boost::function<bool(A, B)> pred_;
+        using function_type::operator();
     };
 }
 
