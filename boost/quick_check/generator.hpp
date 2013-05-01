@@ -12,6 +12,7 @@
 #define QCHK_GENERATOR_HPP_INCLUDED
 
 #include <boost/quick_check/quick_check_fwd.hpp>
+#include <boost/quick_check/detail/array.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/normal_distribution.hpp>

@@ -29,14 +29,14 @@ namespace quick_check
         template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(QCHK_MAX_ARITY, typename A, void)>
         struct property_impl
         {
-            typedef boost::function<bool(BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A))> type;
+            typedef bool type(BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A));
         };
 
     #define BOOST_PP_LOCAL_MACRO(N)                                                                 \
         template<BOOST_PP_ENUM_PARAMS(N, typename A)>                                               \
         struct property_impl<BOOST_PP_ENUM_PARAMS(N, A)>                                            \
         {                                                                                           \
-            typedef boost::function<bool(BOOST_PP_ENUM_PARAMS(N, A))> type;                         \
+            typedef bool type(BOOST_PP_ENUM_PARAMS(N, A));                         \
         };                                                                                          \
         /**/
 
@@ -46,21 +46,23 @@ namespace quick_check
 
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
     struct property
-      : private detail::property_impl<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::type
+      : private boost::function<
+            typename detail::property_impl<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::type
+        >
     {
     private:
         typedef typename
             detail::property_impl<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::type
-        function_type;
+        sig_type;
 
     public:
         template<typename Actor>
         property(phoenix::actor<Actor> const &actor)
-          : function_type(actor)
+          : boost::function<sig_type>(actor)
         {}
 
         typedef bool result_type; // for TR1
-        using function_type::operator();
+        using boost::function<sig_type>::operator();
     };
 }
 
