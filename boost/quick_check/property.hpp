@@ -12,9 +12,10 @@
 #define QCHK_PROPERTY_HPP_INCLUDED
 
 #include <boost/quick_check/quick_check_fwd.hpp>
+#include <boost/preprocessor/facilities/intercept.hpp>
 #include <boost/preprocessor/iteration/local.hpp>
-#include <boost/preprocessor/enum_params.hpp>
-#include <boost/preprocessor/enum_params_with_a_default.hpp>
+#include <boost/preprocessor/repetition/enum_binary_params.hpp>
+#include <boost/preprocessor/repetition/enum_params_with_a_default.hpp>
 #include <boost/preprocessor/arithmetic/dec.hpp>
 #include <boost/function.hpp>
 #include <boost/fusion/container/vector.hpp>
@@ -26,17 +27,36 @@ namespace quick_check
 {
     namespace detail
     {
+        template<typename T>
+        struct wrap_array
+        {
+            typedef T type;
+        };
+
+        template<typename T, std::size_t N>
+        struct wrap_array<T[N]>
+        {
+            typedef detail::array<T[N]> type;
+        };
+
         template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(QCHK_MAX_ARITY, typename A, void)>
         struct property_impl
         {
-            typedef bool type(BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A));
+            typedef bool type(
+                BOOST_PP_ENUM_BINARY_PARAMS(
+                    QCHK_MAX_ARITY
+                  , typename wrap_array<A, >::type BOOST_PP_INTERCEPT
+                )
+            );
         };
 
     #define BOOST_PP_LOCAL_MACRO(N)                                                                 \
         template<BOOST_PP_ENUM_PARAMS(N, typename A)>                                               \
         struct property_impl<BOOST_PP_ENUM_PARAMS(N, A)>                                            \
         {                                                                                           \
-            typedef bool type(BOOST_PP_ENUM_PARAMS(N, A));                         \
+            typedef bool type(                                                                      \
+                BOOST_PP_ENUM_BINARY_PARAMS(N, typename wrap_array<A, >::type BOOST_PP_INTERCEPT)   \
+            );                                                                                      \
         };                                                                                          \
         /**/
 

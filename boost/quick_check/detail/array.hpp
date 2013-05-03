@@ -15,6 +15,7 @@
 #include <boost/array.hpp>
 #include <boost/fusion/adapted/boost_array.hpp>
 #include <boost/fusion/view/transform_view.hpp>
+#include <boost/fusion/algorithm/iteration/fold.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/view/zip_view.hpp>
 #include <boost/quick_check/detail/operators.hpp>
@@ -54,6 +55,18 @@ namespace quick_check
         struct array<T[N]>
         {
             boost::array<T, N> elems;
+
+            struct smart_bool_t { int m; };
+            typedef int smart_bool_t::* unspecified_bool_type;
+            operator unspecified_bool_type() const
+            {
+                struct and_ : std::unary_function<T, bool> {
+                    bool operator()(bool b, T const&t) const {
+                        return b && static_cast<T>(t);
+                    }
+                };
+                return fusion::fold(this->elems, true, and_()) ? &smart_bool_t::m : 0;
+            }
         };
 
 #define QCHK_UNARY_ARRAY_OP(OP, FUN)                                    \
@@ -64,18 +77,30 @@ namespace quick_check
             array<decltype(OP boost::declval<T>())[N]> out;             \
             fusion::copy(                                               \
                 make_transform_view(x.elems, FUN())                     \
-              , out.elems);                                             \
+              , out.elems                                               \
+            );                                                          \
             return out;                                                 \
         }                                                               \
         /**/
 
-#define QCHK_UNARY_ARRAY_INPLACE_OP(OP, FUN)                            \
+#define QCHK_UNARY_ARRAY_PREXXX_OP(OP, FUN)                             \
         template<typename T, std::size_t N>                             \
         array<T[N]> &                                                   \
         operator OP(array<T[N]> &x)                                     \
         {                                                               \
             fusion::for_each(x.elems, FUN());                           \
             return x;                                                   \
+        }                                                               \
+        /**/
+
+#define QCHK_UNARY_ARRAY_POSTXXX_OP(OP, FUN)                            \
+        template<typename T, std::size_t N>                             \
+        array<T[N]> &                                                   \
+        operator OP(array<T[N]> &x, int)                                \
+        {                                                               \
+            array<T[N]> out = x;                                        \
+            fusion::for_each(x.elems, FUN());                           \
+            return out;                                                 \
         }                                                               \
         /**/
 
@@ -114,28 +139,10 @@ namespace quick_check
         QCHK_UNARY_ARRAY_OP(~, complement)
         QCHK_UNARY_ARRAY_OP(!, logical_not)
 
-        QCHK_UNARY_ARRAY_INPLACE_OP(++, pre_inc)
-        QCHK_UNARY_ARRAY_INPLACE_OP(--, pre_dec)
-
-        // post_inc
-        template<typename T, std::size_t N>
-        array<T[N]>
-        operator ++(array<T[N]> &x, int)
-        {
-            array<T[N]> out = x;
-            fusion::for_each(x.elems, post_inc());
-            return out;
-        }
-
-        // post_dec
-        template<typename T, std::size_t N>
-        array<T[N]>
-        operator --(array<T[N]> &x, int)
-        {
-            array<T[N]> out = x;
-            fusion::for_each(x.elems, post_dec());
-            return out;
-        }
+        QCHK_UNARY_ARRAY_PREXXX_OP(++, pre_inc)
+        QCHK_UNARY_ARRAY_PREXXX_OP(--, pre_dec)
+        QCHK_UNARY_ARRAY_POSTXXX_OP(++, post_inc)
+        QCHK_UNARY_ARRAY_POSTXXX_OP(--, post_dec)
 
         QCHK_BINARY_ARRAY_OP(<<, shift_left)
         QCHK_BINARY_ARRAY_OP(>>, shift_right)

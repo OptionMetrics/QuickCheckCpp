@@ -35,6 +35,16 @@ namespace quick_check
                 this->sout_ << (this->first_ ? "" : ",") << val;
                 this->first_ = false;
             }
+
+            template<typename Value, std::size_t N>
+            void operator()(boost::array<Value, N> const &rg) const
+            {
+                this->sout_ << (this->first_ ? "" : ",") << '{';
+                bool first = true;
+                fusion::for_each(rg, disp(this->sout_, first));
+                this->sout_ << '}';
+                this->first_ = false;
+            }
         private:
             std::ostream &sout_;
             bool &first_;

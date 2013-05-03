@@ -35,6 +35,12 @@ namespace quick_check
 
     using namespace phoenix::placeholders;
 
+    namespace detail
+    {
+        template<typename T>
+        struct array;
+    }
+
     template<typename Map, typename Rng>
     struct config;
 
