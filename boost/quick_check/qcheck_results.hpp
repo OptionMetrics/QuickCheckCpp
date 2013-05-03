@@ -14,7 +14,11 @@
 #include <iosfwd>
 #include <vector>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
+#include <boost/fusion/support/void.hpp>
+#include <boost/fusion/container/generation/make_vector.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
+#include <boost/preprocessor/repetition/enum_binary_params.hpp>
+#include <boost/preprocessor/facilities/intercept.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -49,14 +53,38 @@ namespace quick_check
             std::ostream &sout_;
             bool &first_;
         };
+
+        template<typename T>
+        struct fusion_elem
+        {
+            typedef T type;
+        };
+
+        template<>
+        struct fusion_elem<void>
+        {
+            typedef fusion::void_ type;
+        };
     }
 
-    template<typename Args>
+    template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
     struct qcheck_args
-      : Args
+      : fusion::result_of::make_vector<
+            BOOST_PP_ENUM_BINARY_PARAMS(QCHK_MAX_ARITY,
+                                        typename detail::fusion_elem<A,>::type
+                                        BOOST_PP_INTERCEPT)
+        >::type
     {
-        qcheck_args(Args const &args)
-          : Args(args)
+        typedef
+            typename fusion::result_of::make_vector<
+                BOOST_PP_ENUM_BINARY_PARAMS(QCHK_MAX_ARITY,
+                                            typename detail::fusion_elem<A,>::type
+                                            BOOST_PP_INTERCEPT)
+            >::type
+        args_type;
+
+        qcheck_args(args_type const &args)
+          : args_type(args)
         {}
 
         friend std::ostream &operator<<(std::ostream &sout, qcheck_args const &args)
@@ -68,7 +96,7 @@ namespace quick_check
         }
     };
 
-    template<typename Args>
+    template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
     struct qcheck_results
     {
     public:
@@ -81,7 +109,7 @@ namespace quick_check
             return this->failures.empty();
         }
 
-        std::vector<qcheck_args<Args> > failures;
+        std::vector<qcheck_args<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> > failures;
     };
 
 }

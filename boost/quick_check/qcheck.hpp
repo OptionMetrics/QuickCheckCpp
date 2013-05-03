@@ -16,6 +16,11 @@
 #include <boost/fusion/functional/invocation/invoke_function_object.hpp>
 #include <boost/fusion/container/vector/convert.hpp>
 #include <boost/fusion/algorithm/transformation/transform.hpp>
+#include <boost/fusion/sequence/intrinsic/value_at.hpp>
+#include <boost/fusion/sequence/intrinsic/size.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/identity.hpp>
+#include <boost/preprocessor/repetition/enum.hpp>
 #include <boost/quick_check/detail/array.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
@@ -64,29 +69,70 @@ namespace quick_check
                 return rg.elems;
             }
         };
+
+        template<typename Seq, std::size_t I>
+        struct safe_at_c
+          : mpl::eval_if_c<
+                I >= fusion::result_of::size<Seq>::value
+              , mpl::identity<void>
+              , fusion::result_of::value_at_c<Seq, I>
+            >
+        {};
+
+        #define TYPENAME(Z,N,D) typename
+        #define AT_C(Z,N,D) typename safe_at_c<D, N>::type
+        template<typename Seq, template<BOOST_PP_ENUM(QCHK_MAX_ARITY, TYPENAME, ~)> class T>
+        struct fanout_params
+        {
+            typedef T<BOOST_PP_ENUM(QCHK_MAX_ARITY, AT_C, Seq)> type;
+        };
+        #undef AT_C
+        #undef TYPENAME
     }
 
     template<typename Property, typename Config>
-    qcheck_results<
+    typename detail::fanout_params<
         typename fusion::result_of::as_vector<
             typename fusion::result_of::transform<
                 typename Config::args_type
-                , detail::unpack_array
+              , detail::unpack_array
             >::type
         >::type
-    >
+      , qcheck_results
+    >::type
+
+    //qcheck_results<
+    //    typename fusion::result_of::as_vector<
+    //        typename fusion::result_of::transform<
+    //            typename Config::args_type
+    //          , detail::unpack_array
+    //        >::type
+    //    >::type
+    //>
     qcheck(Property const &prop, Config &config)
     {
         typedef
-            typename fusion::result_of::as_vector<
-                typename fusion::result_of::transform<
-                    typename Config::args_type
-                  , detail::unpack_array
+            typename detail::fanout_params<
+                typename fusion::result_of::as_vector<
+                    typename fusion::result_of::transform<
+                        typename Config::args_type
+                      , detail::unpack_array
+                    >::type
                 >::type
+              , qcheck_results
             >::type
-        args_type;
+        results_type;
 
-        qcheck_results<args_type> results;
+        //typedef
+        //    typename fusion::result_of::as_vector<
+        //        typename fusion::result_of::transform<
+        //            typename Config::args_type
+        //          , detail::unpack_array
+        //        >::type
+        //    >::type
+        //args_type;
+
+        results_type results;
 
         for(std::size_t n = 0; n < config.test_count(); ++n)
         {

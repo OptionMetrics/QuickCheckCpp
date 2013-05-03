@@ -47,6 +47,11 @@ namespace quick_check
     template<typename A, BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PP_DEC(QCHK_MAX_ARITY), typename B, void)>
     struct property;
 
+    template<typename A, BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PP_DEC(QCHK_MAX_ARITY), typename B, void)>
+    struct qcheck_results;
+
+    template<typename typename A, BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PP_DEC(QCHK_MAX_ARITY), typename B, void)>
+    struct qcheck_args;
 }
 
 QCHK_BOOST_NAMESPACE_END
