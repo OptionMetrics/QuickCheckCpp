@@ -20,6 +20,7 @@
 #include <boost/function.hpp>
 #include <boost/fusion/container/vector.hpp>
 #include <boost/quick_check/qcheck_results.hpp>
+#include <boost/quick_check/detail/grammar.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -40,23 +41,36 @@ namespace quick_check
         };
 
         template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(QCHK_MAX_ARITY, typename A, void)>
-        struct property_impl
+        struct property_traits
         {
-            typedef bool type(
+            typedef bool call_signature(
                 BOOST_PP_ENUM_BINARY_PARAMS(
                     QCHK_MAX_ARITY
                   , typename wrap_array<A, >::type BOOST_PP_INTERCEPT
                 )
             );
+            typedef typename
+                fusion::result_of::make_vector<
+                    BOOST_PP_ENUM_BINARY_PARAMS(
+                        QCHK_MAX_ARITY
+                      , typename wrap_array<A, >::type BOOST_PP_INTERCEPT
+                    )
+                >::type
+            args_type;
         };
 
     #define BOOST_PP_LOCAL_MACRO(N)                                                                 \
         template<BOOST_PP_ENUM_PARAMS(N, typename A)>                                               \
-        struct property_impl<BOOST_PP_ENUM_PARAMS(N, A)>                                            \
+        struct property_traits<BOOST_PP_ENUM_PARAMS(N, A)>                                          \
         {                                                                                           \
-            typedef bool type(                                                                      \
+            typedef bool call_signature(                                                            \
                 BOOST_PP_ENUM_BINARY_PARAMS(N, typename wrap_array<A, >::type BOOST_PP_INTERCEPT)   \
             );                                                                                      \
+            typedef typename                                                                        \
+                fusion::result_of::make_vector<                                                     \
+                    BOOST_PP_ENUM_BINARY_PARAMS(N, typename wrap_array<A, >::type BOOST_PP_INTERCEPT) \
+                >::type                                                                             \
+            args_type;                                                                              \
         };                                                                                          \
         /**/
 
@@ -67,22 +81,34 @@ namespace quick_check
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
     struct property
       : private boost::function<
-            typename detail::property_impl<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::type
+            typename detail::property_traits<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::call_signature
         >
     {
     private:
         typedef typename
-            detail::property_impl<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::type
+            detail::property_traits<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::call_signature
         sig_type;
 
+        typedef typename
+            detail::property_traits<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::args_type
+        args_type;
+
+        boost::function<std::string(args_type)> classifier_;
     public:
         template<typename Actor>
         property(phoenix::actor<Actor> const &actor)
-          : boost::function<sig_type>(actor)
+          : boost::function<sig_type>(detail::GetProperty()(actor))
+          , classifier_(detail::GetClassifier()(actor))
         {}
 
         typedef bool result_type; // for TR1
         using boost::function<sig_type>::operator();
+
+        typedef boost::function<std::string(args_type)> classifier_type;
+        classifier_type const &classifier() const
+        {
+            return this->classifier_;
+        }
     };
 }
 

@@ -17,6 +17,7 @@
 #include <boost/quick_check/qcheck_results.hpp>
 #include <boost/quick_check/property.hpp>
 #include <boost/quick_check/generator.hpp>
+#include <boost/quick_check/classify.hpp>
 #include <boost/phoenix/operator.hpp>
 
 #endif

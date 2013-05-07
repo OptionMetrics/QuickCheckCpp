@@ -81,8 +81,10 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\boost\quick_check\classify.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\config.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\detail\array.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\detail\grammar.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\detail\operators.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\property.hpp" />

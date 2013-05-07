@@ -50,5 +50,11 @@
     <ClInclude Include="..\..\..\boost\quick_check\detail\operators.hpp">
       <Filter>quickCheckCpp Files\detail</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\detail\grammar.hpp">
+      <Filter>quickCheckCpp Files\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\classify.hpp">
+      <Filter>quickCheckCpp Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

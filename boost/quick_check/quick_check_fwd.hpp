@@ -37,8 +37,12 @@ namespace quick_check
 
     namespace detail
     {
+        struct classify_;
+
         template<typename T>
         struct array;
+
+        struct qcheck_access;
     }
 
     template<typename Map, typename Rng>

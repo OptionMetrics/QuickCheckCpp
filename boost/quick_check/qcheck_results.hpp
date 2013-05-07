@@ -13,12 +13,15 @@
 
 #include <iosfwd>
 #include <vector>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/identity.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/support/void.hpp>
 #include <boost/fusion/container/generation/make_vector.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #include <boost/preprocessor/facilities/intercept.hpp>
+#include <boost/preprocessor/repetition/enum.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -65,6 +68,80 @@ namespace quick_check
         {
             typedef fusion::void_ type;
         };
+
+        struct unpack_array
+        {
+            template<typename Sig>
+            struct result
+            {};
+
+            template<typename This, typename T>
+            struct result<This(T)>
+            {
+                typedef T type;
+            };
+
+            template<typename This, typename T, std::size_t N>
+            struct result<This(detail::array<T[N]>)>
+            {
+                typedef boost::array<T, N> type;
+            };
+
+            template<typename This, typename T>
+            struct result<This(T &)>
+              : result<This(T)>
+            {};
+
+            template<typename This, typename T>
+            struct result<This(T const &)>
+              : result<This(T)>
+            {};
+
+            template<typename T>
+            T operator()(T const &t) const
+            {
+                return t;
+            }
+
+            template<typename T, std::size_t N>
+            boost::array<T, N> operator()(detail::array<T[N]> const &rg) const
+            {
+                return rg.elems;
+            }
+        };
+
+        template<typename Seq, std::size_t I>
+        struct safe_at_c
+          : mpl::eval_if_c<
+                I >= fusion::result_of::size<Seq>::value
+              , mpl::identity<void>
+              , fusion::result_of::value_at_c<Seq, I>
+            >
+        {};
+
+        #define TYPENAME(Z,N,D) typename
+        #define AT_C(Z,N,D) typename safe_at_c<D, N>::type
+        template<typename Seq, template<BOOST_PP_ENUM(QCHK_MAX_ARITY, TYPENAME, ~)> class T>
+        struct fanout_params
+        {
+            typedef T<BOOST_PP_ENUM(QCHK_MAX_ARITY, AT_C, Seq)> type;
+        };
+        #undef AT_C
+        #undef TYPENAME
+
+        template<typename Args>
+        struct make_qcheck_results_type
+          : detail::fanout_params<
+                typename fusion::result_of::as_vector<
+                    typename fusion::result_of::transform<
+                        Args
+                      , unpack_array
+                    >::type
+                >::type
+              , qcheck_results
+            >
+        {};
+
     }
 
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
@@ -83,8 +160,9 @@ namespace quick_check
             >::type
         args_type;
 
-        qcheck_args(args_type const &args)
+        explicit qcheck_args(args_type const &args, std::string const &classname = std::string())
           : args_type(args)
+          , classname_(classname)
         {}
 
         friend std::ostream &operator<<(std::ostream &sout, qcheck_args const &args)
@@ -92,24 +170,39 @@ namespace quick_check
             bool first = true;
             sout << "(";
             fusion::for_each(args, detail::disp(sout, first));
-            return sout << ")";
+            sout << ")";
+            if(!args.classname_.empty())
+                sout << " (class: " << args.classname_ << ")";
+            return sout;
         }
+    private:
+        std::string classname_;
     };
 
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
     struct qcheck_results
     {
     public:
+        typedef qcheck_args<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> args_type;
+        typedef std::vector<args_type> failures_type;
+
         qcheck_results()
-          : failures()
+          : failures_()
         {}
 
         bool success() const
         {
-            return this->failures.empty();
+            return this->failures_.empty();
         }
 
-        std::vector<qcheck_args<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> > failures;
+        failures_type const &failures() const
+        {
+            return this->failures_;
+        }
+
+    private:
+        friend struct detail::qcheck_access;
+        failures_type failures_;
     };
 
 }
