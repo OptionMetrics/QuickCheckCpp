@@ -39,6 +39,8 @@ namespace quick_check
     {
         struct classify_;
 
+        struct group_by_;
+
         template<typename T>
         struct array;
 

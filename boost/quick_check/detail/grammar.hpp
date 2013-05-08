@@ -23,6 +23,16 @@ namespace quick_check
 {
     namespace detail
     {
+        // group_by(_1 % 5)
+        struct GroupBy
+          : proto::nary_expr<
+                phoenix::detail::tag::function_eval
+              , proto::terminal<detail::group_by_>
+              , phoenix::meta_grammar
+            >
+        {};
+
+        // classify(_1>_2, "greater")
         struct Classify
           : proto::nary_expr<
                 phoenix::detail::tag::function_eval
@@ -32,15 +42,58 @@ namespace quick_check
             >
         {};
 
+        // classify(_1>_2, "greater") | classify(_1<_2, "less") | classify(_1==_2, "equal")
         struct Classifiers
           : proto::or_<
-                proto::bitwise_or<Classifiers, Classifiers>
+                proto::bitwise_or<Classifiers, Classify>
               , Classify
             >
         {};
 
-        struct ClassifiedExpr
-          : proto::bitwise_or<Classifiers, phoenix::meta_grammar>
+        // group_by(_1%2) | classify(_1>_2, "greater") | classify(_1<_2, "less") | classify(_1==_2, "equal")
+        struct GroupedClassifiers
+          : proto::or_<
+                proto::bitwise_or<GroupBy, Classify>
+              , proto::bitwise_or<GroupedClassifiers, Classify>
+            >
+        {};
+
+        // All valid combinations of combinators
+        struct Combinators
+          : proto::or_<
+                GroupBy
+              , Classifiers
+              , GroupedClassifiers
+            >
+        {};
+
+        // Combinators with an expression, or just an expression
+        struct CombinatorExpr
+          : proto::or_<
+                proto::bitwise_or<Combinators, phoenix::meta_grammar>
+              , phoenix::meta_grammar
+            >
+        {};
+
+        // A QuickCheckExpr is one of:
+        //      ordered(_1) >>=
+        //          group_by(_1 % 5) | 
+        //              classify(_1>_2, "greater") | classify(_1<_2, "less") | classify(_1==_2, "equal") |
+        //                  _1 + _2 == _2 + _1
+        // or
+        //      group_by(_1 % 5) | 
+        //          classify(_1>_2, "greater") | classify(_1<_2, "less") | classify(_1==_2, "equal") |
+        //              _1 + _2 == _2 + _1
+        // or
+        //      classify(_1>_2, "greater") | classify(_1<_2, "less") | classify(_1==_2, "equal") |
+        //          _1 + _2 == _2 + _1
+        // or
+        //      _1 + _2 == _2 + _1
+        struct QuickCheckExpr
+          : proto::or_<
+                proto::shift_right_assign<phoenix::meta_grammar, CombinatorExpr>
+              , CombinatorExpr
+            >
         {};
 
     }

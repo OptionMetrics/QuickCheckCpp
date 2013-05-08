@@ -21,7 +21,6 @@
 #include <boost/fusion/functional/invocation/invoke_function_object.hpp>
 #include <boost/proto/make_expr.hpp>
 #include <boost/quick_check/detail/grammar.hpp>
-#include <boost/none.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
