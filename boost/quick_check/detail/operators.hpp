@@ -492,5 +492,4 @@ namespace quick_check
 
 QCHK_BOOST_NAMESPACE_END
 
-
 #endif

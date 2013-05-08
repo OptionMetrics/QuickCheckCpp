@@ -186,7 +186,7 @@ namespace quick_check
         {
             template<typename Sig>
             struct result;
-            
+
             template<typename This, typename Placeholder>
             struct result<This(Placeholder)>
             {
