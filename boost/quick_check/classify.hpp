@@ -16,8 +16,6 @@
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/phoenix/core/actor.hpp>
-#include <boost/phoenix/core/domain.hpp>
-#include <boost/phoenix/core/detail/function_eval.hpp>
 #include <boost/fusion/functional/invocation/invoke_function_object.hpp>
 #include <boost/proto/make_expr.hpp>
 #include <boost/quick_check/detail/grammar.hpp>
@@ -91,41 +89,38 @@ namespace quick_check
             }
         };
 
-        struct FoldClassifiers
+        struct GetClassifiers
           : proto::or_<
                 proto::when<
-                    proto::bitwise_or<FoldClassifiers, FoldClassifiers>
-                  , FoldClassifiers(proto::_left, FoldClassifiers(proto::_right))
-                >
-              , proto::when<
                     Classify
                   , make_classify_args(
-                        proto::_child1
-                      , proto::_value(proto::_child2)
+                        proto::_child0
+                      , proto::_value(proto::_child1)
                       , proto::_state
                     )
                 >
-            >
-        {};
-
-        struct GetClassifier
-          : proto::or_<
-                proto::when<
-                    proto::bitwise_or<FoldClassifiers, phoenix::meta_grammar>
-                  , FoldClassifiers(proto::_left, unclassified_args())
-                >
               , proto::when<
-                    phoenix::meta_grammar
-                  , unclassified_args()
+                    proto::terminal<proto::_>
+                  , proto::_state
+                >
+              , proto::otherwise<
+                    proto::fold<proto::_, proto::_state, GetClassifiers>
                 >
             >
         {};
 
         template<typename Expr>
-        typename boost::result_of<GetClassifier(phoenix::actor<Expr> const &)>::type
-        get_classifier(phoenix::actor<Expr> const & prop)
+        typename boost::result_of<
+            GetClassifiers(Expr const &, unclassified_args const &)
+        >::type
+        get_classifier(Expr const & prop)
         {
-            return GetClassifier()(prop);
+            static_assert(
+                proto::matches<Expr, QuickCheckExpr>::value
+              , "The specified quick-check expression does not match the grammar for "
+                "valid quick-check expressions."
+            );
+            return GetClassifiers()(prop, unclassified_args());
         }
 
         template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
@@ -138,19 +133,14 @@ namespace quick_check
 
     template<typename Expr>
     typename proto::result_of::make_expr<
-        phoenix::detail::tag::function_eval
-      , phoenix::phoenix_domain
-      , detail::classify_
-      , Expr
+        detail::classify_
+      , detail::quick_check_domain
+      , phoenix::actor<Expr>
       , std::string
     >::type const
-    classify(Expr const &e, std::string const& name)
+    classify(phoenix::actor<Expr> const &e, std::string const& name)
     {
-        return proto::make_expr<phoenix::detail::tag::function_eval, phoenix::phoenix_domain>(
-            detail::classify_()
-          , e
-          , name
-        );
+        return proto::make_expr<detail::classify_, detail::quick_check_domain>(e, name);
     }
 }
 

@@ -14,8 +14,6 @@
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/proto/make_expr.hpp>
 #include <boost/phoenix/core/actor.hpp>
-#include <boost/phoenix/core/domain.hpp>
-#include <boost/phoenix/core/detail/function_eval.hpp>
 #include <boost/quick_check/detail/grammar.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
@@ -30,17 +28,13 @@ namespace quick_check
 
     template<typename Expr>
     typename proto::result_of::make_expr<
-        phoenix::detail::tag::function_eval
-      , phoenix::phoenix_domain
-      , detail::group_by_
-      , Expr
+        detail::group_by_
+      , detail::quick_check_domain
+      , phoenix::actor<Expr>
     >::type const
-    group_by(Expr const &e)
+    group_by(phoenix::actor<Expr> const &e)
     {
-        return proto::make_expr<phoenix::detail::tag::function_eval, phoenix::phoenix_domain>(
-            detail::group_by_()
-          , e
-        );
+        return proto::make_expr<detail::group_by_, detail::quick_check_domain>(e);
     }
 }
 

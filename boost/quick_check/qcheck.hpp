@@ -29,25 +29,41 @@ namespace quick_check
 {
     namespace detail
     {
+        struct GetPropertyFromCombinatorExpr
+          : proto::or_<
+                proto::when<
+                    proto::bitwise_or<Combinators, phoenix::meta_grammar>
+                  , proto::_right
+                >
+              , proto::otherwise<
+                    proto::_
+                >
+            >
+        {};
+
         struct GetProperty
           : proto::or_<
                 proto::when<
-                    proto::bitwise_or<Classifiers, phoenix::meta_grammar>
-                  , proto::_right
+                    ConditionalExpr
+                  , CombinatorExpr(proto::_right)
                 >
-              , proto::when<
-                    phoenix::meta_grammar
-                  , proto::_
+              , proto::otherwise<
+                    GetPropertyFromCombinatorExpr
                 >
             >
         {};
 
         template<typename Expr>
         typename boost::result_of<
-            detail::GetProperty(phoenix::actor<Expr> const &)
+            detail::GetProperty(Expr const &)
         >::type
-        get_property(phoenix::actor<Expr> const &prop)
+        get_property(Expr const &prop)
         {
+            static_assert(
+                proto::matches<Expr, QuickCheckExpr>::value
+              , "The specified quick-check expression does not match the grammar for "
+                "valid quick-check expressions."
+            );
             return detail::GetProperty()(prop);
         }
 

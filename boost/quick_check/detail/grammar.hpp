@@ -14,8 +14,6 @@
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/proto/proto.hpp>
 #include <boost/phoenix/core/meta_grammar.hpp>
-#include <boost/phoenix/core/arity.hpp>
-#include <boost/phoenix/core/detail/function_eval.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -24,10 +22,9 @@ namespace quick_check
     namespace detail
     {
         // group_by(_1 % 5)
-        struct GroupBy
+        struct Grouped
           : proto::nary_expr<
-                phoenix::detail::tag::function_eval
-              , proto::terminal<detail::group_by_>
+                detail::group_by_
               , phoenix::meta_grammar
             >
         {};
@@ -35,8 +32,7 @@ namespace quick_check
         // classify(_1>_2, "greater")
         struct Classify
           : proto::nary_expr<
-                phoenix::detail::tag::function_eval
-              , proto::terminal<detail::classify_>
+                detail::classify_
               , phoenix::meta_grammar
               , proto::terminal<std::string>
             >
@@ -53,7 +49,7 @@ namespace quick_check
         // group_by(_1%2) | classify(_1>_2, "greater") | classify(_1<_2, "less") | classify(_1==_2, "equal")
         struct GroupedClassifiers
           : proto::or_<
-                proto::bitwise_or<GroupBy, Classify>
+                proto::bitwise_or<Grouped, Classify>
               , proto::bitwise_or<GroupedClassifiers, Classify>
             >
         {};
@@ -61,7 +57,7 @@ namespace quick_check
         // All valid combinations of combinators
         struct Combinators
           : proto::or_<
-                GroupBy
+                Grouped
               , Classifiers
               , GroupedClassifiers
             >
@@ -73,6 +69,11 @@ namespace quick_check
                 proto::bitwise_or<Combinators, phoenix::meta_grammar>
               , phoenix::meta_grammar
             >
+        {};
+
+        // A quick-check expr that has a conditional test
+        struct ConditionalExpr
+          : proto::shift_right_assign<phoenix::meta_grammar, CombinatorExpr>
         {};
 
         // A QuickCheckExpr is one of:
@@ -91,11 +92,53 @@ namespace quick_check
         //      _1 + _2 == _2 + _1
         struct QuickCheckExpr
           : proto::or_<
-                proto::shift_right_assign<phoenix::meta_grammar, CombinatorExpr>
+                ConditionalExpr
               , CombinatorExpr
             >
         {};
 
+        template<typename Expr>
+        struct quick_check_expr;
+
+        struct quick_check_domain
+          : proto::domain<proto::pod_generator<quick_check_expr>, Combinators>
+        {
+            template<typename T>
+            struct as_child
+              : as_expr<T>
+            {};
+        };
+
+        template<typename Expr>
+        struct quick_check_expr
+        {
+            BOOST_PROTO_BASIC_EXTENDS(Expr, quick_check_expr<Expr>, quick_check_domain)
+        };
+
+        // Ugh, this is SO distasteful
+        template<typename L, typename R>
+        typename proto::result_of::make_expr<
+            proto::tag::bitwise_or
+          , quick_check_domain
+          , quick_check_expr<L>
+          , phoenix::actor<R>
+        >::type const
+        operator | (quick_check_expr<L> const &l, phoenix::actor<R> const &r)
+        {
+            return proto::make_expr<proto::tag::bitwise_or, quick_check_domain>(l, r);
+        }
+
+        template<typename L, typename R>
+        typename proto::result_of::make_expr<
+            proto::tag::shift_right_assign
+          , quick_check_domain
+          , phoenix::actor<L>
+          , quick_check_expr<R>
+        >::type const
+        operator >>= (phoenix::actor<L> const &l, quick_check_expr<R> const &r)
+        {
+            return proto::make_expr<proto::tag::shift_right_assign, quick_check_domain>(l, r);
+        }
     }
 }
 

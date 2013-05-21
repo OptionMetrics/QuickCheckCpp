@@ -95,10 +95,10 @@ namespace quick_check
 
         boost::function<std::string(args_type)> classifier_;
     public:
-        template<typename Actor>
-        property(phoenix::actor<Actor> const &actor)
-          : boost::function<sig_type>(detail::GetProperty()(actor))
-          , classifier_(detail::GetClassifier()(actor))
+        template<typename Expr>
+        property(Expr const &expr, typename boost::enable_if<proto::is_expr<Expr> >::type* = 0)
+          : boost::function<sig_type>(detail::GetProperty()(expr))
+          , classifier_(detail::GetClassifier()(expr))
         {}
 
         typedef bool result_type; // for TR1
