@@ -110,8 +110,9 @@ namespace quick_check
         {};
 
         template<typename Expr>
-        typename boost::result_of<
-            GetClassifiers(Expr const &, unclassified_args const &)
+        typename boost::lazy_enable_if<
+            proto::is_expr<Expr>
+          , boost::result_of<GetClassifiers(Expr const &, unclassified_args const &)>
         >::type
         get_classifier(Expr const & prop)
         {

@@ -59,5 +59,8 @@
     <ClInclude Include="..\..\..\boost\quick_check\group_by.hpp">
       <Filter>quickCheckCpp Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\detail\functional.hpp">
+      <Filter>quickCheckCpp Files\detail</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

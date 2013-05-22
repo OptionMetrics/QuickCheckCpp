@@ -30,13 +30,14 @@
 #include <boost/fusion/sequence/intrinsic/at_key.hpp>
 #include <boost/fusion/sequence/intrinsic/has_key.hpp>
 #include <boost/fusion/sequence/intrinsic/value_at_key.hpp>
-#include <boost/fusion/view/joint_view.hpp>
 #include <boost/fusion/algorithm/query/find_if.hpp>
+#include <boost/fusion/algorithm/transformation/join.hpp>
 #include <boost/fusion/algorithm/transformation/push_front.hpp>
 #include <boost/fusion/algorithm/transformation/transform.hpp>
 #include <boost/fusion/algorithm/transformation/filter_if.hpp>
 #include <boost/fusion/algorithm/iteration/accumulate.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
+#include <boost/quick_check/detail/functional.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/add_const.hpp>
@@ -64,23 +65,36 @@ namespace quick_check
             >
         {};
 
+        struct fusion_as_map
+          : proto::callable, detail::unary<fusion_as_map>
+        {
+            template<typename Seq>
+            typename fusion::result_of::as_map<Seq>::type
+            operator()(Seq const &seq) const
+            {
+                return fusion::as_map(seq);
+            }
+        };
+
         struct DoInsert
           : proto::call<proto::functional::make_pair(
-                proto::functional::push_back(
-                    proto::call<proto::functional::first(proto::_state)>
-                  , proto::make<fusion::pair<
-                        proto::_value(proto::_left)
-                      , proto::functional::second(proto::_state)
-                    >(proto::functional::second(proto::_state))>
-                )
-              , proto::_value(proto::_left)
+                proto::call<fusion_as_map(
+                    proto::functional::push_back(
+                        proto::call<proto::functional::first(proto::_state)>
+                      , proto::make<fusion::pair<
+                            proto::_value(proto::_left)
+                          , proto::_byval(proto::functional::second(proto::_state))
+                        >(proto::functional::second(proto::_state))>
+                    )
+                )>
+              , proto::_byval(proto::_value(proto::_left))
             )>
         {};
 
         struct CollectTerminal
           : proto::call<proto::functional::make_pair(
                 proto::make<fusion::map<>()>
-              , proto::_value(proto::_right)
+              , proto::_byval(proto::_value(proto::_right))
             )>
         {};
 
@@ -98,26 +112,15 @@ namespace quick_check
         {};
 
         struct fusion_join
+          : proto::callable, detail::binary<fusion_join>
         {
-            template<typename Sig>
-            struct result;
-
-            template<typename This, typename A, typename B>
-            struct result<This(A,B)>
-            {
-                typedef
-                    fusion::joint_view<
-                        typename boost::add_const<typename boost::remove_reference<A>::type>::type
-                      , typename boost::add_const<typename boost::remove_reference<B>::type>::type
-                    >
-                type;
-            };
-
             template<typename A, typename B>
-            fusion::joint_view<A const, B const>
+            typename fusion::result_of::as_vector<
+                fusion::joint_view<A const, B const>
+            >::type
             operator()(A const &a, B const &b) const
             {
-                return fusion::joint_view<A const, B const>(a, b);
+                return fusion::as_vector(fusion::join(a, b));
             }
         };
 
@@ -214,6 +217,7 @@ namespace quick_check
             }
 
         private:
+            index_fun &operator=(index_fun const &);
             Map &map_;
             Rng &rng_;
         };
@@ -227,6 +231,36 @@ namespace quick_check
               , proto::_value(proto::_right)
             >
         {};
+
+        template<typename Args>
+        typename fusion::result_of::as_map<
+            typename fusion::result_of::accumulate<
+                typename fusion::result_of::transform<
+                    typename fusion::result_of::transform<
+                        typename fusion::result_of::filter_if<
+                            Args
+                          , proto::matches<
+                                mpl::_
+                              , detail::RngCollection
+                            >
+                        >::type
+                      , detail::RngCollection
+                    >::type
+                  , proto::functional::first
+                >::type
+              , fusion::nil_
+              , detail::fusion_join
+            >::type
+        >::type
+        make_config_map(Args args)
+        {
+            typedef proto::matches<mpl::_, detail::RngCollection> is_rng_collection;
+            auto dists = fusion::as_vector(fusion::filter_if<is_rng_collection>(args));
+            auto tmp0 = fusion::as_vector(fusion::transform(dists, detail::RngCollection()));
+            auto tmp1 = fusion::as_vector(fusion::transform(tmp0, proto::functional::first()));
+            auto tmp3 = fusion::as_vector(fusion::accumulate(tmp1, fusion::nil_(), detail::fusion_join()));
+            return fusion::as_map(tmp3);
+        }
 
         //template<typename Algo>
         //struct checked
@@ -325,24 +359,7 @@ namespace quick_check
     auto make_config(A_const_ref_a(N))                                          \
     QCHK_RETURN(                                                                \
         detail::make_config(                                                    \
-            fusion::as_map(                                                     \
-                fusion::accumulate(                                             \
-                    fusion::transform(                                          \
-                        fusion::transform(                                      \
-                            fusion::filter_if<                                  \
-                                proto::matches<                                 \
-                                    mpl::_                                      \
-                                  , detail::RngCollection                       \
-                                >                                               \
-                            >(fusion::make_vector(a(N)))                        \
-                          , detail::RngCollection()                             \
-                        )                                                       \
-                      , proto::functional::first()                              \
-                    )                                                           \
-                  , fusion::nil_()                                              \
-                  , detail::fusion_join()                                       \
-                )                                                               \
-            )                                                                   \
+            detail::make_config_map(fusion::make_vector(a(N)))                  \
           , detail::RngInit()(                                                  \
                 *fusion::find_if<proto::matches<mpl::_, detail::RngInit> >(     \
                     fusion::make_vector(a(N), _rng = boost::random::mt11213b()) \

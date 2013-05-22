@@ -84,6 +84,7 @@
     <ClInclude Include="..\..\..\boost\quick_check\classify.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\config.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\detail\array.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\detail\functional.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\detail\grammar.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\detail\operators.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator.hpp" />

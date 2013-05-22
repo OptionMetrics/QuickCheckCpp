@@ -45,6 +45,8 @@ namespace quick_check
         struct array;
 
         struct qcheck_access;
+
+        struct ungrouped_args;
     }
 
     template<typename Map, typename Rng>
@@ -58,6 +60,9 @@ namespace quick_check
 
     template<typename typename A, BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PP_DEC(QCHK_MAX_ARITY), typename B, void)>
     struct qcheck_args;
+
+    template<typename>
+    struct grouped_by;
 }
 
 QCHK_BOOST_NAMESPACE_END

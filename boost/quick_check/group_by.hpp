@@ -15,6 +15,7 @@
 #include <boost/proto/make_expr.hpp>
 #include <boost/phoenix/core/actor.hpp>
 #include <boost/quick_check/detail/grammar.hpp>
+#include <boost/fusion/functional/invocation/invoke_function_object.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -24,7 +25,103 @@ namespace quick_check
     {
         struct group_by_
         {};
+
+        struct ungrouped_args
+        {
+            template<typename Args>
+            ungrouped_args operator()(Args &) const
+            {
+                return *this;
+            }
+        };
+
+        template<typename Fun>
+        struct group_args
+        {
+            group_args(Fun const &fun)
+              : fun_(fun)
+            {}
+
+            template<typename Args>
+            typename fusion::result_of::invoke_function_object<Fun, Args>::type
+            operator()(Args &args) const
+            {
+                return fusion::invoke_function_object(this->fun_, args);
+            }
+        private:
+            Fun fun_;
+        };
+
+        struct GetGrouperFromCombinators
+          : proto::or_<
+                proto::when<
+                    Grouped
+                  , group_args<boost::remove_reference<proto::_> >(proto::_)
+                >
+              , proto::when<
+                    proto::bitwise_or<Grouped, Classify>
+                  , group_args<boost::remove_reference<proto::_child(proto::_left)> >(proto::_child(proto::_left))
+                >
+              , proto::when<
+                    proto::bitwise_or<GetGrouperFromCombinators, Classify>
+                  , GetGrouperFromCombinators(proto::_left)
+                >
+            >
+        {};
+
+        struct GetGrouperFromCombinatorExpr
+          : proto::or_<
+                proto::when<
+                    proto::bitwise_or<GetGrouperFromCombinators, phoenix::meta_grammar>
+                  , GetGrouperFromCombinators(proto::_left)
+                >
+              , proto::when<
+                    phoenix::meta_grammar
+                  , proto::make<ungrouped_args>
+                >
+            >
+        {};
+
+        struct GetGrouperFromConditionalExpr
+          : proto::when<
+                proto::shift_right_assign<phoenix::meta_grammar, GetGrouperFromCombinatorExpr>
+              , GetGrouperFromCombinatorExpr(proto::_right)
+            >
+        {};
+
+        struct GetGrouper
+          : proto::or_<
+                GetGrouperFromConditionalExpr
+              , GetGrouperFromCombinatorExpr
+            >
+        {};
+
+        template<typename Expr>
+        typename boost::lazy_enable_if<
+            proto::is_expr<Expr>
+          , boost::result_of<GetGrouper(Expr const &)>
+        >::type
+        get_grouper(Expr const & prop)
+        {
+            static_assert(
+                proto::matches<Expr, QuickCheckExpr>::value
+              , "The specified quick-check expression does not match the grammar for "
+                "valid quick-check expressions."
+            );
+            return GetGrouper()(prop);
+        }
+
+        template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
+        typename property<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::grouper_type const &
+        get_grouper(property<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> const &prop)
+        {
+            return prop.grouper();
+        }
     }
+
+    template<typename>
+    struct grouped_by
+    {};
 
     template<typename Expr>
     typename proto::result_of::make_expr<

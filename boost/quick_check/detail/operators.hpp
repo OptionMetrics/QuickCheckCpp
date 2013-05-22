@@ -13,6 +13,7 @@
 
 #include <boost/utility/declval.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
+#include <boost/quick_check/detail/functional.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -20,34 +21,6 @@ namespace quick_check
 {
     namespace detail
     {
-        template<typename Fun>
-        struct unary
-        {
-            template<typename Sig>
-            struct result
-            {};
-
-            template<typename This, typename T>
-            struct result<This(T)>
-            {
-                typedef decltype(boost::declval<This>()(boost::declval<T>())) type;
-            };
-        };
-
-        template<typename Fun>
-        struct binary
-        {
-            template<typename Sig>
-            struct result
-            {};
-
-            template<typename This, typename T, typename U>
-            struct result<This(T, U)>
-            {
-                typedef decltype(boost::declval<This>()(boost::declval<T>(), boost::declval<U>())) type;
-            };
-        };
-
         /// Function object for the unary + operator.
         struct unary_plus : unary<unary_plus>
         {

@@ -54,8 +54,9 @@ namespace quick_check
         {};
 
         template<typename Expr>
-        typename boost::result_of<
-            detail::GetProperty(Expr const &)
+        typename boost::lazy_enable_if<
+            proto::is_expr<Expr>
+          , boost::result_of<detail::GetProperty(Expr const &)>
         >::type
         get_property(Expr const &prop)
         {
@@ -96,6 +97,7 @@ namespace quick_check
 
         auto const &prop = detail::get_property(prop_);
         auto const &classify = detail::get_classifier(prop_);
+        auto const &groupby = detail::get_grouper(prop_);
 
         for(std::size_t n = 0; n < config.test_count(); ++n)
         {
@@ -107,6 +109,7 @@ namespace quick_check
             if(!static_cast<bool>(fusion::invoke_function_object(prop, args)))
             {
                 std::string classname = classify(args);
+                auto group = groupby(args);
                 detail::qcheck_access::add_failure(
                     results
                   , fusion::as_vector(fusion::transform(args, detail::unpack_array()))

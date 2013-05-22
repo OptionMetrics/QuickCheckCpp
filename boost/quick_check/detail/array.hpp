@@ -62,7 +62,7 @@ namespace quick_check
             {
                 struct and_ : std::unary_function<T, bool> {
                     bool operator()(bool b, T const&t) const {
-                        return b && static_cast<T>(t);
+                        return b && static_cast<bool>(t);
                     }
                 };
                 return fusion::fold(this->elems, true, and_()) ? &smart_bool_t::m : 0;
