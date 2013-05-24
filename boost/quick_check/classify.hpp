@@ -12,6 +12,8 @@
 #define QCHK_CLASSIFY_HPP_INCLUDED
 
 #include <string>
+#include <vector>
+#include <algorithm>
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
@@ -31,19 +33,19 @@ namespace quick_check
 
         struct unclassified_args
         {
-            typedef std::string result_type;
+            typedef std::vector<std::string> result_type;
 
             template<typename Args>
-            std::string operator()(Args &) const
+            result_type operator()(Args &) const
             {
-                return std::string();
+                return result_type();
             }
         };
 
         template<typename Cond, typename Rest = unclassified_args>
         struct classify_args
         {
-            typedef std::string result_type;
+            typedef std::vector<std::string> result_type;
 
             classify_args(Cond const &cond, std::string const &name, Rest const &rest = Rest())
               : cond_(cond)
@@ -52,11 +54,16 @@ namespace quick_check
             {}
 
             template<typename Args>
-            std::string operator()(Args &args) const
+            result_type operator()(Args &args) const
             {
+                result_type res = this->rest_(args);
                 if(static_cast<bool>(fusion::invoke_function_object(this->cond_, args)))
-                    return this->name_;
-                return this->rest_(args);
+                {
+                    // Keep the vector sorted as we build it.
+                    auto it = std::lower_bound(res.begin(), res.end(), this->name_);
+                    res.insert(it, this->name_);
+                }
+                return res;
             }
 
         private:

@@ -77,20 +77,38 @@ namespace quick_check
 
         struct qcheck_access
         {
-            template<typename QchkResults, typename Args>
-            static void add_failure(QchkResults &results, Args &args, std::string const &classname)
+            template<typename QchkResults, typename Args, typename Group>
+            static void add_failure(QchkResults &results, Args &args, std::vector<std::string> const &classes, Group const &group)
             {
-                results.failures_.push_back(typename QchkResults::args_type(args, classname));
+                results.failures_.push_back(typename QchkResults::args_type(args, classes, group));
             }
+        };
+
+        template<typename Property, typename Config>
+        struct get_group_by_type
+        {
+            typedef
+                decltype(
+                    detail::get_grouper(
+                        boost::declval<Property const &>()
+                    )(boost::declval<Config &>().gen())
+                )
+            type;
         };
     }
 
     template<typename Property, typename Config>
-    typename detail::make_qcheck_results_type<typename Config::args_type>::type
+    typename detail::make_qcheck_results_type<
+        typename Config::args_type
+      , typename detail::get_group_by_type<Property, Config>::type
+    >::type
     qcheck(Property const &prop_, Config &config)
     {
-        typedef typename
-            detail::make_qcheck_results_type<typename Config::args_type>::type
+        typedef
+            typename detail::make_qcheck_results_type<
+                typename Config::args_type
+              , typename detail::get_group_by_type<Property, Config>::type
+            >::type
         results_type;
 
         results_type results;
@@ -108,12 +126,13 @@ namespace quick_check
             // negation of each element.
             if(!static_cast<bool>(fusion::invoke_function_object(prop, args)))
             {
-                std::string classname = classify(args);
+                std::vector<std::string> classes = classify(args);
                 auto group = groupby(args);
                 detail::qcheck_access::add_failure(
                     results
                   , fusion::as_vector(fusion::transform(args, detail::unpack_array()))
-                  , classname
+                  , std::move(classes)
+                  , std::move(group)
                 );
             }
         }

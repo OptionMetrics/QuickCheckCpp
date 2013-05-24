@@ -13,12 +13,20 @@
 
 #include <iosfwd>
 #include <vector>
+#include <boost/type_traits/is_void.hpp>
+#include <boost/type_traits/remove_reference.hpp>
+#include <boost/mpl/print.hpp>
+#include <boost/mpl/if.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/support/void.hpp>
 #include <boost/fusion/container/generation/make_vector.hpp>
+#include <boost/fusion/sequence/intrinsic/back.hpp>
+#include <boost/fusion/algorithm/transformation/join.hpp>
+#include <boost/fusion/view/single_view.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
+#include <boost/quick_check/detail/array.hpp>
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #include <boost/preprocessor/facilities/intercept.hpp>
 #include <boost/preprocessor/repetition/enum.hpp>
@@ -29,34 +37,6 @@ namespace quick_check
 {
     namespace detail
     {
-        struct disp
-        {
-            disp(std::ostream &sout, bool &first)
-              : sout_(sout)
-              , first_(first)
-            {}
-
-            template<typename Value>
-            void operator()(Value const &val) const
-            {
-                this->sout_ << (this->first_ ? "" : ",") << val;
-                this->first_ = false;
-            }
-
-            template<typename Value, std::size_t N>
-            void operator()(boost::array<Value, N> const &rg) const
-            {
-                this->sout_ << (this->first_ ? "" : ",") << '{';
-                bool first = true;
-                fusion::for_each(rg, disp(this->sout_, first));
-                this->sout_ << '}';
-                this->first_ = false;
-            }
-        private:
-            std::ostream &sout_;
-            bool &first_;
-        };
-
         template<typename T>
         struct fusion_elem
         {
@@ -67,6 +47,35 @@ namespace quick_check
         struct fusion_elem<void>
         {
             typedef fusion::void_ type;
+        };
+
+        template<typename T>
+        struct fusion_elem<grouped_by<T> >
+        {
+            typedef fusion::void_ type;
+        };
+
+        template<typename T>
+        struct fusion_elem2
+          : mpl::if_<is_void<T>, fusion::void_, T>
+        {};
+
+        template<typename T>
+        struct grouped_by_
+        {
+            typedef ungrouped_args type;
+        };
+
+        template<typename T>
+        struct grouped_by_<grouped_by<T> >
+        {
+            typedef T type;
+        };
+
+        template<typename T, std::size_t N>
+        struct grouped_by_<grouped_by<T[N]> >
+        {
+            typedef detail::array<T[N]> type;
         };
 
         struct unpack_array
@@ -129,8 +138,40 @@ namespace quick_check
         #undef AT_C
         #undef TYPENAME
 
-        template<typename Args>
+        template<typename Args, typename GroupBy>
         struct make_qcheck_results_type
+          : detail::fanout_params<
+                typename fusion::result_of::as_vector<
+                    typename fusion::result_of::join<
+                        typename fusion::result_of::transform<
+                            Args
+                          , unpack_array
+                        >::type
+                      , fusion::single_view<grouped_by<GroupBy> >
+                    >::type
+                >::type
+              , qcheck_results
+            >
+        {};
+
+        template<typename Args, typename Array>
+        struct make_qcheck_results_type<Args, detail::array<Array> >
+          : detail::fanout_params<
+                typename fusion::result_of::as_vector<
+                    typename fusion::result_of::join<
+                        typename fusion::result_of::transform<
+                            Args
+                          , unpack_array
+                        >::type
+                      , fusion::single_view<grouped_by<Array> >
+                    >::type
+                >::type
+              , qcheck_results
+            >
+        {};
+
+        template<typename Args>
+        struct make_qcheck_results_type<Args, detail::ungrouped_args>
           : detail::fanout_params<
                 typename fusion::result_of::as_vector<
                     typename fusion::result_of::transform<
@@ -141,7 +182,6 @@ namespace quick_check
               , qcheck_results
             >
         {};
-
     }
 
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
@@ -160,9 +200,28 @@ namespace quick_check
             >::type
         args_type;
 
-        explicit qcheck_args(args_type const &args, std::string const &classname = std::string())
+        typedef
+            typename detail::grouped_by_<
+                typename remove_reference<
+                    typename fusion::result_of::back<
+                        typename fusion::result_of::make_vector<
+                            BOOST_PP_ENUM_BINARY_PARAMS(QCHK_MAX_ARITY,
+                                                        typename detail::fusion_elem2<A,>::type
+                                                        BOOST_PP_INTERCEPT)
+                        >::type
+                    >::type
+                >::type
+            >::type
+        grouped_by_type;
+
+        explicit qcheck_args(
+            args_type const &args
+          , std::vector<std::string> const &classes = std::vector<std::string>()
+          , grouped_by_type const &group = grouped_by_type()
+        )
           : args_type(args)
-          , classname_(classname)
+          , classes_(classes)
+          , group_(group)
         {}
 
         friend std::ostream &operator<<(std::ostream &sout, qcheck_args const &args)
@@ -171,12 +230,23 @@ namespace quick_check
             sout << "(";
             fusion::for_each(args, detail::disp(sout, first));
             sout << ")";
-            if(!args.classname_.empty())
-                sout << " (class: " << args.classname_ << ")";
+            if(!is_same<grouped_by_type, detail::ungrouped_args>::value)
+            {
+                sout << " (group: " << args.group_ << ")";
+            }
+            if(!args.classes_.empty())
+            {
+                first = true;
+                sout << " (classes: ";
+                std::for_each(args.classes_.begin(), args.classes_.end(), detail::disp(sout, first));
+                sout << ")";
+            }
             return sout;
         }
+
     private:
-        std::string classname_;
+        std::vector<std::string> classes_;
+        grouped_by_type group_;
     };
 
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>

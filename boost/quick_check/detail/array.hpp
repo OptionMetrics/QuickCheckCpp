@@ -11,6 +11,7 @@
 #ifndef QCHK_DETAIL_ARRAY_HPP_INCLUDED
 #define QCHK_DETAIL_ARRAY_HPP_INCLUDED
 
+#include <iosfwd>
 #include <boost/preprocessor/punctuation/comma.hpp>
 #include <boost/array.hpp>
 #include <boost/fusion/adapted/boost_array.hpp>
@@ -18,6 +19,7 @@
 #include <boost/fusion/algorithm/iteration/fold.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/view/zip_view.hpp>
+#include <boost/fusion/algorithm/auxiliary/copy.hpp>
 #include <boost/quick_check/detail/operators.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
@@ -26,6 +28,34 @@ namespace quick_check
 {
     namespace detail
     {
+        struct disp
+        {
+            disp(std::ostream &sout, bool &first)
+              : sout_(sout)
+              , first_(first)
+            {}
+
+            template<typename Value>
+            void operator()(Value const &val) const
+            {
+                this->sout_ << (this->first_ ? "" : ",") << val;
+                this->first_ = false;
+            }
+
+            template<typename Value, std::size_t N>
+            void operator()(boost::array<Value, N> const &rg) const
+            {
+                this->sout_ << (this->first_ ? "" : ",") << '{';
+                bool first = true;
+                fusion::for_each(rg, disp(this->sout_, first));
+                this->sout_ << '}';
+                this->first_ = false;
+            }
+        private:
+            std::ostream &sout_;
+            bool &first_;
+        };
+
         struct noop
         {
             typedef void result_type;
@@ -66,6 +96,14 @@ namespace quick_check
                     }
                 };
                 return fusion::fold(this->elems, true, and_()) ? &smart_bool_t::m : 0;
+            }
+
+            friend std::ostream &operator<<(std::ostream &sout, array const &arr)
+            {
+                bool first = true;
+                sout << "{";
+                fusion::for_each(arr.elems, detail::disp(sout, first));
+                return sout << "}";
             }
         };
 

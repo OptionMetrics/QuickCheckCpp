@@ -261,43 +261,6 @@ namespace quick_check
             auto tmp3 = fusion::as_vector(fusion::accumulate(tmp1, fusion::nil_(), detail::fusion_join()));
             return fusion::as_map(tmp3);
         }
-
-        //template<typename Algo>
-        //struct checked
-        //{
-        //    template<typename Sig>
-        //    struct result;
-
-        //    template<typename This, typename Expr>
-        //    struct result<This(Expr)>
-        //      : mpl::eval_if<
-        //            proto::matches<Expr, Algo>
-        //          , std::result_of<Algo(Expr)>
-        //          , mpl::identity<fusion::nil_>
-        //        >
-        //    {};
-
-        //    template<typename Expr>
-        //    typename boost::lazy_enable_if<
-        //        proto::matches<Expr, Algo>
-        //      , std::result_of<Algo(Expr)>
-        //    >::type
-        //    operator()(Expr const &expr) const
-        //    {
-        //        return Algo()(expr);
-        //    }
-
-        //    template<typename Expr>
-        //    typename boost::disable_if<
-        //        proto::matches<Expr, Algo>
-        //      , std::pair<fusion::nil_, int>
-        //    >::type
-        //    operator()(Expr const &) const
-        //    {
-        //        BOOST_MPL_ASSERT((proto::matches<Expr, Algo>));
-        //        return std::make_pair(fusion::nil_(), 0);
-        //    }
-        //};
     }
 
     template<typename Map, typename Rng>

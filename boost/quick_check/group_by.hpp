@@ -33,6 +33,11 @@ namespace quick_check
             {
                 return *this;
             }
+
+            friend std::ostream &operator<<(std::ostream &sout, ungrouped_args)
+            {
+                return sout;
+            }
         };
 
         template<typename Fun>
