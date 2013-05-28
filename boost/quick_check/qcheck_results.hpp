@@ -11,8 +11,13 @@
 #ifndef QCHK_QCHECK_RESULTS_HPP_INCLUDED
 #define QCHK_QCHECK_RESULTS_HPP_INCLUDED
 
+#include <map>
 #include <iosfwd>
 #include <vector>
+#include <sstream>
+#include <algorithm>
+#include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/type_traits/is_void.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/mpl/print.hpp>
@@ -182,6 +187,22 @@ namespace quick_check
               , qcheck_results
             >
         {};
+
+        template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(QCHK_MAX_ARITY, typename A, void)>
+        struct find_grouped_by_type
+          : detail::grouped_by_<
+                typename remove_reference<
+                    typename fusion::result_of::back<
+                        typename fusion::result_of::make_vector<
+                            BOOST_PP_ENUM_BINARY_PARAMS(QCHK_MAX_ARITY,
+                                                        typename detail::fusion_elem2<A,>::type
+                                                        BOOST_PP_INTERCEPT)
+                        >::type
+                    >::type
+                >::type
+            >
+        {};
+
     }
 
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
@@ -201,16 +222,8 @@ namespace quick_check
         args_type;
 
         typedef
-            typename detail::grouped_by_<
-                typename remove_reference<
-                    typename fusion::result_of::back<
-                        typename fusion::result_of::make_vector<
-                            BOOST_PP_ENUM_BINARY_PARAMS(QCHK_MAX_ARITY,
-                                                        typename detail::fusion_elem2<A,>::type
-                                                        BOOST_PP_INTERCEPT)
-                        >::type
-                    >::type
-                >::type
+            typename detail::find_grouped_by_type<
+                BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)
             >::type
         grouped_by_type;
 
@@ -227,9 +240,9 @@ namespace quick_check
         friend std::ostream &operator<<(std::ostream &sout, qcheck_args const &args)
         {
             bool first = true;
-            sout << "(";
+            sout << "[";
             fusion::for_each(args, detail::disp(sout, first));
-            sout << ")";
+            sout << "]";
             if(!is_same<grouped_by_type, detail::ungrouped_args>::value)
             {
                 sout << " (group: " << args.group_ << ")";
@@ -255,9 +268,17 @@ namespace quick_check
     public:
         typedef qcheck_args<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> args_type;
         typedef std::vector<args_type> failures_type;
+        typedef
+            typename detail::find_grouped_by_type<
+                BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)
+            >::type
+        grouped_by_type;
 
         qcheck_results()
           : failures_()
+          , categories_()
+          , nbr_tests_(0)
+          , first_failed_test_(0)
         {}
 
         bool success() const
@@ -270,9 +291,105 @@ namespace quick_check
             return this->failures_;
         }
 
+        void print_summary(std::ostream &sout = std::cout) const
+        {
+            if(this->success())
+            {
+                sout << boost::format("OK, passed %1% tests.\n") % this->nbr_tests_;
+                // If we have no groups and no classes, we're done.
+                if(this->categories_.size() == 1 &&
+                   std::is_same<grouped_by_type, detail::ungrouped_args>::value &&
+                   this->categories_.begin()->first.second.size() == 0)
+                    return;
+                // Iterate over the categories and print them with percentages
+                for(auto const &p : this->categories_)
+                {
+                    sout << (boost::format("%1$.0d%% %2%.")
+                                % (((double)p.second)/((double)this->nbr_tests_) * 100.)
+                                % category_name(p.first))
+                         << std::endl;
+                }
+            }
+            else
+            {
+                sout << (boost::format("Falsifiable, after %1% tests:\n%2%")
+                            % this->first_failed_test_
+                            % this->failures_[0])
+                     << std::endl;
+            }
+        }
+
     private:
+        typedef
+            std::pair<grouped_by_type, std::vector<std::string> >
+        key_type;
+
+        struct comparator
+          : std::unary_function<key_type, bool>
+        {
+	        bool operator()(key_type const &left, key_type const &right) const
+	        {
+	            return (*this)(left.first, right.first) ||
+		            !(*this)(right.first, right.first) && (*this)(left.second, left.second);
+	        }
+
+        private:
+            template<typename T>
+	        bool operator()(T const &left, T const &right) const
+	        {
+	            return left < right;
+	        }
+
+            template<typename T, std::size_t N>
+	        bool operator()(detail::array<T[N]> const &left, detail::array<T[N]> const &right) const
+	        {
+	            return std::lexicographical_compare(
+                    left.elems.elems, left.elems.elems + N,
+                    right.elems.elems, right.elems.elems + N
+                );
+	        }
+        };
+
+        static std::string category_name(key_type const &p)
+        {
+            std::stringstream sout;
+            std::vector<std::string> tmp = p.second;
+            if(!std::is_same<grouped_by_type, detail::ungrouped_args>::value)
+                tmp.insert(tmp.begin(), boost::lexical_cast<std::string>(p.first));
+            bool first = true;
+            std::for_each(tmp.begin(), tmp.end(), detail::disp(sout, first));
+            return sout.str();
+        }
+
+        typedef typename args_type::args_type inner_args_type;
+
+        void add_failure(
+            inner_args_type const &args
+          , std::vector<std::string> const &classes
+          , grouped_by_type const &group
+        )
+        {
+            failures_.push_back(args_type(args, classes, group));
+            ++categories_[key_type(group, classes)];
+            ++nbr_tests_;
+            if(this->first_failed_test_ == 0)
+                this->first_failed_test_ = this->nbr_tests_;
+        }
+
+        void add_success(
+            std::vector<std::string> const &classes
+          , grouped_by_type const &group
+        )
+        {
+            ++categories_[key_type(group, classes)];
+            ++nbr_tests_;
+        }
+
         friend struct detail::qcheck_access;
         failures_type failures_;
+        std::map<key_type, std::size_t, comparator> categories_;
+        std::size_t nbr_tests_;
+        std::size_t first_failed_test_;
     };
 
 }

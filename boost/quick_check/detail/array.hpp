@@ -38,17 +38,17 @@ namespace quick_check
             template<typename Value>
             void operator()(Value const &val) const
             {
-                this->sout_ << (this->first_ ? "" : ",") << val;
+                this->sout_ << (this->first_ ? "" : ", ") << val;
                 this->first_ = false;
             }
 
             template<typename Value, std::size_t N>
             void operator()(boost::array<Value, N> const &rg) const
             {
-                this->sout_ << (this->first_ ? "" : ",") << '{';
+                this->sout_ << (this->first_ ? "" : ",") << '[';
                 bool first = true;
                 fusion::for_each(rg, disp(this->sout_, first));
-                this->sout_ << '}';
+                this->sout_ << ']';
                 this->first_ = false;
             }
         private:
@@ -101,9 +101,9 @@ namespace quick_check
             friend std::ostream &operator<<(std::ostream &sout, array const &arr)
             {
                 bool first = true;
-                sout << "{";
+                sout << "[";
                 fusion::for_each(arr.elems, detail::disp(sout, first));
-                return sout << "}";
+                return sout << "]";
             }
         };
 

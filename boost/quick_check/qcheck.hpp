@@ -78,9 +78,24 @@ namespace quick_check
         struct qcheck_access
         {
             template<typename QchkResults, typename Args, typename Group>
-            static void add_failure(QchkResults &results, Args &args, std::vector<std::string> const &classes, Group const &group)
+            static void add_failure(
+                QchkResults &results
+              , Args &args
+              , std::vector<std::string> const &classes
+              , Group const &group
+            )
             {
-                results.failures_.push_back(typename QchkResults::args_type(args, classes, group));
+                results.add_failure(args, classes, group);
+            }
+
+            template<typename QchkResults, typename Group>
+            static void add_success(
+                QchkResults &results
+              , std::vector<std::string> const &classes
+              , Group const &group
+            )
+            {
+                results.add_success(classes, group);
             }
         };
 
@@ -120,17 +135,25 @@ namespace quick_check
         for(std::size_t n = 0; n < config.test_count(); ++n)
         {
             auto args = config.gen();
+            std::vector<std::string> classes = classify(args);
+            auto group = groupby(args);
 
             // The static_cast here is so that operator! doesn't get invoked
             // for detail::array, which returns a new array that is the logical
             // negation of each element.
             if(!static_cast<bool>(fusion::invoke_function_object(prop, args)))
             {
-                std::vector<std::string> classes = classify(args);
-                auto group = groupby(args);
                 detail::qcheck_access::add_failure(
                     results
                   , fusion::as_vector(fusion::transform(args, detail::unpack_array()))
+                  , std::move(classes)
+                  , std::move(group)
+                );
+            }
+            else
+            {
+                detail::qcheck_access::add_success(
+                    results
                   , std::move(classes)
                   , std::move(group)
                 );
