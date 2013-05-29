@@ -299,7 +299,12 @@ namespace quick_check
 
         std::size_t test_count() const
         {
-            return 100;
+            return 100; // TODO make this configurable
+        }
+
+        std::size_t upper_limit() const
+        {
+            return 1000; // TODO make this configurable
         }
 
         args_type gen()

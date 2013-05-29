@@ -22,6 +22,9 @@
 #include <boost/fusion/container/vector.hpp>
 #include <boost/quick_check/qcheck_results.hpp>
 #include <boost/quick_check/detail/grammar.hpp>
+#include <boost/quick_check/condition.hpp>
+#include <boost/quick_check/classify.hpp>
+#include <boost/quick_check/group_by.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -136,12 +139,14 @@ namespace quick_check
 
         boost::function<std::vector<std::string>(args_type &)> classifier_;
         boost::function<grouped_by_type(args_type &)> grouper_;
+        boost::function<bool(args_type &)> condition_;
     public:
         template<typename Expr>
         property(Expr const &expr, typename boost::enable_if<proto::is_expr<Expr> >::type* = 0)
           : boost::function<sig_type>(detail::GetProperty()(expr))
           , classifier_(detail::GetClassifiers()(expr, detail::unclassified_args()))
           , grouper_(detail::GetGrouper()(expr))
+          , condition_(detail::GetCondition()(expr))
         {}
 
         typedef bool result_type; // for TR1
@@ -157,6 +162,12 @@ namespace quick_check
         grouper_type const &grouper() const
         {
             return this->grouper_;
+        }
+
+        typedef boost::function<bool(args_type &)> condition_type;
+        condition_type const &condition() const
+        {
+            return this->condition_;
         }
     };
 }

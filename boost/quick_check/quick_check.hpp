@@ -19,6 +19,7 @@
 #include <boost/quick_check/generator.hpp>
 #include <boost/quick_check/classify.hpp>
 #include <boost/quick_check/group_by.hpp>
+#include <boost/quick_check/condition.hpp>
 #include <boost/phoenix/operator.hpp>
 
 #endif

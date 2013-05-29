@@ -279,6 +279,7 @@ namespace quick_check
           , categories_()
           , nbr_tests_(0)
           , first_failed_test_(0)
+          , exhausted_(false)
         {}
 
         bool success() const
@@ -295,20 +296,23 @@ namespace quick_check
         {
             if(this->success())
             {
-                sout << boost::format("OK, passed %1% tests.\n") % this->nbr_tests_;
+                if(this->exhausted_)
+                    sout << (boost::format("Arguments exhausted after %1% tests.\n")
+                                % this->nbr_tests_);
+                else
+                    sout << (boost::format("OK, passed %1% tests.\n")
+                                % this->nbr_tests_);
                 // If we have no groups and no classes, we're done.
-                if(this->categories_.size() == 1 &&
-                   std::is_same<grouped_by_type, detail::ungrouped_args>::value &&
+                if(std::is_same<grouped_by_type, detail::ungrouped_args>::value &&
+                   this->categories_.size() == 1 &&
                    this->categories_.begin()->first.second.size() == 0)
                     return;
                 // Iterate over the categories and print them with percentages
                 for(auto const &p : this->categories_)
-                {
                     sout << (boost::format("%1$.0d%% %2%.")
-                                % (((double)p.second)/((double)this->nbr_tests_) * 100.)
-                                % category_name(p.first))
+                                % ((p.second * 100.) / this->nbr_tests_)
+                                % this->category_name(p.first))
                          << std::endl;
-                }
             }
             else
             {
@@ -323,32 +327,6 @@ namespace quick_check
         typedef
             std::pair<grouped_by_type, std::vector<std::string> >
         key_type;
-
-        struct comparator
-          : std::unary_function<key_type, bool>
-        {
-	        bool operator()(key_type const &left, key_type const &right) const
-	        {
-	            return (*this)(left.first, right.first) ||
-		            !(*this)(right.first, right.first) && (*this)(left.second, left.second);
-	        }
-
-        private:
-            template<typename T>
-	        bool operator()(T const &left, T const &right) const
-	        {
-	            return left < right;
-	        }
-
-            template<typename T, std::size_t N>
-	        bool operator()(detail::array<T[N]> const &left, detail::array<T[N]> const &right) const
-	        {
-	            return std::lexicographical_compare(
-                    left.elems.elems, left.elems.elems + N,
-                    right.elems.elems, right.elems.elems + N
-                );
-	        }
-        };
 
         static std::string category_name(key_type const &p)
         {
@@ -381,15 +359,21 @@ namespace quick_check
           , grouped_by_type const &group
         )
         {
-            ++categories_[key_type(group, classes)];
-            ++nbr_tests_;
+            ++this->categories_[key_type(group, classes)];
+            ++this->nbr_tests_;
+        }
+
+        void exhausted()
+        {
+            this->exhausted_ = true;
         }
 
         friend struct detail::qcheck_access;
         failures_type failures_;
-        std::map<key_type, std::size_t, comparator> categories_;
+        std::map<key_type, std::size_t> categories_;
         std::size_t nbr_tests_;
         std::size_t first_failed_test_;
+        bool exhausted_;
     };
 
 }

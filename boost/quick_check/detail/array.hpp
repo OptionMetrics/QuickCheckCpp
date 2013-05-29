@@ -20,6 +20,12 @@
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/view/zip_view.hpp>
 #include <boost/fusion/algorithm/auxiliary/copy.hpp>
+#include <boost/fusion/sequence/comparison/equal_to.hpp>
+#include <boost/fusion/sequence/comparison/not_equal_to.hpp>
+#include <boost/fusion/sequence/comparison/greater.hpp>
+#include <boost/fusion/sequence/comparison/greater_equal.hpp>
+#include <boost/fusion/sequence/comparison/less.hpp>
+#include <boost/fusion/sequence/comparison/less_equal.hpp>
 #include <boost/quick_check/detail/operators.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
@@ -78,6 +84,15 @@ namespace quick_check
             return fusion::transform_view<Seq0, Seq1, Fun>(s0, s1, f);
         }
 
+        template<typename T>
+        struct and_ : std::unary_function<T, bool>
+        {
+            bool operator()(bool b, T const&t) const
+            {
+                return b && static_cast<bool>(t);
+            }
+        };
+
         template<typename TN>
         struct array;
 
@@ -90,12 +105,7 @@ namespace quick_check
             typedef int smart_bool_t::* unspecified_bool_type;
             operator unspecified_bool_type() const
             {
-                struct and_ : std::unary_function<T, bool> {
-                    bool operator()(bool b, T const&t) const {
-                        return b && static_cast<bool>(t);
-                    }
-                };
-                return fusion::fold(this->elems, true, and_()) ? &smart_bool_t::m : 0;
+                return fusion::fold(this->elems, true, and_<T>()) ? &smart_bool_t::m : 0;
             }
 
             friend std::ostream &operator<<(std::ostream &sout, array const &arr)
@@ -189,12 +199,6 @@ namespace quick_check
         QCHK_BINARY_ARRAY_OP(%, modulus)
         QCHK_BINARY_ARRAY_OP(+, plus)
         QCHK_BINARY_ARRAY_OP(-, minus)
-        QCHK_BINARY_ARRAY_OP(<, less)
-        QCHK_BINARY_ARRAY_OP(>, greater)
-        QCHK_BINARY_ARRAY_OP(<=, less_equal)
-        QCHK_BINARY_ARRAY_OP(>=, greater_equal)
-        QCHK_BINARY_ARRAY_OP(==, equal_to)
-        QCHK_BINARY_ARRAY_OP(!=, not_equal_to)
         QCHK_BINARY_ARRAY_OP(||, logical_or)
         QCHK_BINARY_ARRAY_OP(&&, logical_and)
         QCHK_BINARY_ARRAY_OP(&, bitwise_and)
@@ -213,6 +217,42 @@ namespace quick_check
         QCHK_BINARY_ARRAY_ASSIGN_OP(&=, bitwise_and_assign)
         QCHK_BINARY_ARRAY_ASSIGN_OP(|=, bitwise_or_assign)
         QCHK_BINARY_ARRAY_ASSIGN_OP(^=, bitwise_xor_assign)
+
+        template<typename T, typename U, std::size_t N>
+        bool operator<(array<T[N]> const &x, array<U[N]> const &y)
+        {
+            return fusion::less(x.elems, y.elems);
+        }
+
+        template<typename T, typename U, std::size_t N>
+        bool operator>(array<T[N]> const &x, array<U[N]> const &y)
+        {
+            return fusion::greater(x.elems, y.elems);
+        }
+
+        template<typename T, typename U, std::size_t N>
+        bool operator<=(array<T[N]> const &x, array<U[N]> const &y)
+        {
+            return fusion::less_equal(x.elems, y.elems);
+        }
+
+        template<typename T, typename U, std::size_t N>
+        bool operator>=(array<T[N]> const &x, array<U[N]> const &y)
+        {
+            return fusion::greater_equal(x.elems, y.elems);
+        }
+
+        template<typename T, typename U, std::size_t N>
+        bool operator==(array<T[N]> const &x, array<U[N]> const &y)
+        {
+            return fusion::equal_to(x.elems, y.elems);
+        }
+
+        template<typename T, typename U, std::size_t N>
+        bool operator!=(array<T[N]> const &x, array<U[N]> const &y)
+        {
+            return fusion::not_equal_to(x.elems, y.elems);
+        }
     }
 }
 

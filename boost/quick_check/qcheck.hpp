@@ -22,6 +22,9 @@
 #include <boost/preprocessor/repetition/enum_params.hpp>
 #include <boost/quick_check/detail/array.hpp>
 #include <boost/quick_check/detail/grammar.hpp>
+#include <boost/quick_check/classify.hpp>
+#include <boost/quick_check/group_by.hpp>
+#include <boost/quick_check/condition.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -45,7 +48,7 @@ namespace quick_check
           : proto::or_<
                 proto::when<
                     ConditionalExpr
-                  , CombinatorExpr(proto::_right)
+                  , GetPropertyFromCombinatorExpr(proto::_right)
                 >
               , proto::otherwise<
                     GetPropertyFromCombinatorExpr
@@ -97,6 +100,12 @@ namespace quick_check
             {
                 results.add_success(classes, group);
             }
+
+            template<typename QchkResults>
+            static void exhausted(QchkResults &results)
+            {
+                results.exhausted();
+            }
         };
 
         template<typename Property, typename Config>
@@ -131,11 +140,19 @@ namespace quick_check
         auto const &prop = detail::get_property(prop_);
         auto const &classify = detail::get_classifier(prop_);
         auto const &groupby = detail::get_grouper(prop_);
+        auto const &condition = detail::get_condition(prop_);
 
-        for(std::size_t n = 0; n < config.test_count(); ++n)
+        std::size_t n = 0, total = 0;
+        for(; n < config.test_count() && total < config.upper_limit(); ++total)
         {
             auto args = config.gen();
-            std::vector<std::string> classes = classify(args);
+
+            // Skip this if it is an invalid set of arguments
+            if(!static_cast<bool>(condition(args)))
+                continue;
+
+            ++n; // ok, we've got a valid set of arguments
+            auto classes = classify(args);
             auto group = groupby(args);
 
             // The static_cast here is so that operator! doesn't get invoked
@@ -159,6 +176,10 @@ namespace quick_check
                 );
             }
         }
+
+        // Record whether we had to bail early.
+        if(n != config.test_count())
+            detail::qcheck_access::exhausted(results);
 
         return results;
     }
