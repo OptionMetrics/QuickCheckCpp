@@ -12,8 +12,10 @@
 #define QCHK_DETAIL_ARRAY_HPP_INCLUDED
 
 #include <iosfwd>
+#include <algorithm>
 #include <boost/preprocessor/punctuation/comma.hpp>
 #include <boost/array.hpp>
+#include <boost/fusion/adapted/array.hpp>
 #include <boost/fusion/adapted/boost_array.hpp>
 #include <boost/fusion/view/transform_view.hpp>
 #include <boost/fusion/algorithm/iteration/fold.hpp>
@@ -53,7 +55,7 @@ namespace quick_check
             {
                 this->sout_ << (this->first_ ? "" : ",") << '[';
                 bool first = true;
-                fusion::for_each(rg, disp(this->sout_, first));
+                std::for_each(rg.elems, rg.elems + N, disp(this->sout_, first));
                 this->sout_ << ']';
                 this->first_ = false;
             }
@@ -101,18 +103,47 @@ namespace quick_check
         {
             boost::array<T, N> elems;
 
+            array()
+            {}
+
+            array(T const (&ar)[N])
+            {
+                std::copy(ar, ar + N, elems.elems);
+            }
+
+            array &operator=(array const &that)
+            {
+                elems = that.elems;
+            }
+
+            array &operator=(T (&ar)[N])
+            {
+                std::copy(ar, ar + N, elems.elems);
+            }
+
+            T &operator[](std::size_t n)
+            {
+                return elems.elems[n];
+            }
+
+            T const &operator[](std::size_t n) const
+            {
+                return elems.elems[n];
+            }
+
             struct smart_bool_t { int m; };
             typedef int smart_bool_t::* unspecified_bool_type;
             operator unspecified_bool_type() const
             {
-                return fusion::fold(this->elems, true, and_<T>()) ? &smart_bool_t::m : 0;
+                return std::accumulate(elems.elems, elems.elems + N, true, and_<T>())
+                    ? &smart_bool_t::m : 0;
             }
 
             friend std::ostream &operator<<(std::ostream &sout, array const &arr)
             {
                 bool first = true;
                 sout << "[";
-                fusion::for_each(arr.elems, detail::disp(sout, first));
+                std::for_each(arr.elems.elems, arr.elems.elems + N, detail::disp(sout, first));
                 return sout << "]";
             }
         };
@@ -123,10 +154,7 @@ namespace quick_check
         operator OP(array<T[N]> const &x)                               \
         {                                                               \
             array<decltype(OP boost::declval<T>())[N]> out;             \
-            fusion::copy(                                               \
-                make_transform_view(x.elems, FUN())                     \
-              , out.elems                                               \
-            );                                                          \
+            std::transform(x.elems.elems, x.elems.elems + N, out.elems.elems, FUN()); \
             return out;                                                 \
         }                                                               \
         /**/
@@ -136,7 +164,7 @@ namespace quick_check
         array<T[N]> &                                                   \
         operator OP(array<T[N]> &x)                                     \
         {                                                               \
-            fusion::for_each(x.elems, FUN());                           \
+            std::for_each(x.elems.elems, x.elems.elems + N, FUN());     \
             return x;                                                   \
         }                                                               \
         /**/
@@ -147,7 +175,7 @@ namespace quick_check
         operator OP(array<T[N]> &x, int)                                \
         {                                                               \
             array<T[N]> out = x;                                        \
-            fusion::for_each(x.elems, FUN());                           \
+            std::for_each(x.elems.elems, x.elems.elems + N, FUN());     \
             return out;                                                 \
         }                                                               \
         /**/
@@ -160,11 +188,20 @@ namespace quick_check
             array<                                                      \
                 decltype(boost::declval<T>() OP boost::declval<U>())[N] \
             > out;                                                      \
-            fusion::copy(                                               \
-                make_transform_view(x.elems, y.elems, FUN())            \
-              , out.elems                                               \
-            );                                                          \
+            std::transform(x.elems.elems, x.elems.elems + N, y.elems.elems, out.elems.elems, FUN());\
             return out;                                                 \
+        }                                                               \
+        template<typename T, typename U, std::size_t N>                 \
+        array<decltype(boost::declval<T>() OP boost::declval<U>())[N]>  \
+        operator OP(array<T[N]> const &x, U const (&y)[N])              \
+        {                                                               \
+            return x OP array<U[N]>(y);                                 \
+        }                                                               \
+        template<typename T, typename U, std::size_t N>                 \
+        array<decltype(boost::declval<T>() OP boost::declval<U>())[N]>  \
+        operator OP(T const (&x)[N], array<U[N]> const &y)              \
+        {                                                               \
+            return array<T[N]>(x) OP y;                                 \
         }                                                               \
         /**/
 
@@ -178,6 +215,12 @@ namespace quick_check
               , noop()                                                  \
             );                                                          \
             return x;                                                   \
+        }                                                               \
+        template<typename T, typename U, std::size_t N>                 \
+        array<T[N]> &                                                   \
+        operator OP(array<T[N]> &x, U const (&y)[N])                    \
+        {                                                               \
+            return x OP array<U[N]>(y);                                 \
         }                                                               \
         /**/
 
@@ -218,41 +261,30 @@ namespace quick_check
         QCHK_BINARY_ARRAY_ASSIGN_OP(|=, bitwise_or_assign)
         QCHK_BINARY_ARRAY_ASSIGN_OP(^=, bitwise_xor_assign)
 
-        template<typename T, typename U, std::size_t N>
-        bool operator<(array<T[N]> const &x, array<U[N]> const &y)
-        {
-            return fusion::less(x.elems, y.elems);
-        }
+#define QCHK_BINARY_ARRAY_REL_OP(OP, FUN)                                                           \
+        template<typename T, typename U, std::size_t N>                                             \
+        bool operator OP(array<T[N]> const &x, array<U[N]> const &y)                                \
+        {                                                                                           \
+            return fusion::FUN(x.elems, y.elems);                                                   \
+        }                                                                                           \
+        template<typename T, typename U, std::size_t N>                                             \
+        bool operator OP(array<T[N]> const &x, U const (&y)[N])                                     \
+        {                                                                                           \
+            return fusion::FUN(x.elems, y);                                                         \
+        }                                                                                           \
+        template<typename T, typename U, std::size_t N>                                             \
+        bool operator OP(T const (&x)[N], array<U[N]> const &y)                                     \
+        {                                                                                           \
+            return fusion::FUN(x, y.elems);                                                         \
+        }                                                                                           \
+        /**/
 
-        template<typename T, typename U, std::size_t N>
-        bool operator>(array<T[N]> const &x, array<U[N]> const &y)
-        {
-            return fusion::greater(x.elems, y.elems);
-        }
-
-        template<typename T, typename U, std::size_t N>
-        bool operator<=(array<T[N]> const &x, array<U[N]> const &y)
-        {
-            return fusion::less_equal(x.elems, y.elems);
-        }
-
-        template<typename T, typename U, std::size_t N>
-        bool operator>=(array<T[N]> const &x, array<U[N]> const &y)
-        {
-            return fusion::greater_equal(x.elems, y.elems);
-        }
-
-        template<typename T, typename U, std::size_t N>
-        bool operator==(array<T[N]> const &x, array<U[N]> const &y)
-        {
-            return fusion::equal_to(x.elems, y.elems);
-        }
-
-        template<typename T, typename U, std::size_t N>
-        bool operator!=(array<T[N]> const &x, array<U[N]> const &y)
-        {
-            return fusion::not_equal_to(x.elems, y.elems);
-        }
+        QCHK_BINARY_ARRAY_REL_OP(<, less)
+        QCHK_BINARY_ARRAY_REL_OP(>, greater)
+        QCHK_BINARY_ARRAY_REL_OP(<=, less_equal)
+        QCHK_BINARY_ARRAY_REL_OP(>=, greater_equal)
+        QCHK_BINARY_ARRAY_REL_OP(==, equal_to)
+        QCHK_BINARY_ARRAY_REL_OP(!=, not_equal_to)
     }
 }
 
