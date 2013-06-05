@@ -18,14 +18,11 @@
 #include <algorithm>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/type_traits/is_void.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/mpl/print.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
-#include <boost/fusion/support/void.hpp>
 #include <boost/fusion/container/generation/make_vector.hpp>
 #include <boost/fusion/sequence/intrinsic/back.hpp>
 #include <boost/fusion/algorithm/transformation/join.hpp>
@@ -43,27 +40,15 @@ namespace quick_check
     namespace detail
     {
         template<typename T>
-        struct fusion_elem
-        {
-            typedef T type;
-        };
-
-        template<>
-        struct fusion_elem<void>
-        {
-            typedef fusion::void_ type;
-        };
-
-        template<typename T>
-        struct fusion_elem<grouped_by<T> >
-        {
-            typedef fusion::void_ type;
-        };
-
-        template<typename T>
-        struct fusion_elem2
-          : mpl::if_<is_void<T>, fusion::void_, T>
+        struct fusion_elem_ignore_grouped
+          : fusion_elem<T>
         {};
+
+        template<typename T>
+        struct fusion_elem_ignore_grouped<grouped_by<T> >
+        {
+            typedef fusion::void_ type;
+        };
 
         template<typename T>
         struct grouped_by_
@@ -81,47 +66,6 @@ namespace quick_check
         struct grouped_by_<grouped_by<T[N]> >
         {
             typedef detail::array<T[N]> type;
-        };
-
-        struct unpack_array
-        {
-            template<typename Sig>
-            struct result
-            {};
-
-            template<typename This, typename T>
-            struct result<This(T)>
-            {
-                typedef T type;
-            };
-
-            template<typename This, typename T, std::size_t N>
-            struct result<This(detail::array<T[N]>)>
-            {
-                typedef boost::array<T, N> type;
-            };
-
-            template<typename This, typename T>
-            struct result<This(T &)>
-              : result<This(T)>
-            {};
-
-            template<typename This, typename T>
-            struct result<This(T const &)>
-              : result<This(T)>
-            {};
-
-            template<typename T>
-            T operator()(T const &t) const
-            {
-                return t;
-            }
-
-            template<typename T, std::size_t N>
-            boost::array<T, N> operator()(detail::array<T[N]> const &rg) const
-            {
-                return rg.elems;
-            }
         };
 
         template<typename Seq, std::size_t I>
@@ -195,7 +139,7 @@ namespace quick_check
                     typename fusion::result_of::back<
                         typename fusion::result_of::make_vector<
                             BOOST_PP_ENUM_BINARY_PARAMS(QCHK_MAX_ARITY,
-                                                        typename detail::fusion_elem2<A,>::type
+                                                        typename detail::fusion_elem<A,>::type
                                                         BOOST_PP_INTERCEPT)
                         >::type
                     >::type
@@ -209,14 +153,14 @@ namespace quick_check
     struct qcheck_args
       : fusion::result_of::make_vector<
             BOOST_PP_ENUM_BINARY_PARAMS(QCHK_MAX_ARITY,
-                                        typename detail::fusion_elem<A,>::type
+                                        typename detail::fusion_elem_ignore_grouped<A,>::type
                                         BOOST_PP_INTERCEPT)
         >::type
     {
         typedef
             typename fusion::result_of::make_vector<
                 BOOST_PP_ENUM_BINARY_PARAMS(QCHK_MAX_ARITY,
-                                            typename detail::fusion_elem<A,>::type
+                                            typename detail::fusion_elem_ignore_grouped<A,>::type
                                             BOOST_PP_INTERCEPT)
             >::type
         args_type;

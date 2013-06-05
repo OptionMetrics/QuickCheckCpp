@@ -285,6 +285,47 @@ namespace quick_check
         QCHK_BINARY_ARRAY_REL_OP(>=, greater_equal)
         QCHK_BINARY_ARRAY_REL_OP(==, equal_to)
         QCHK_BINARY_ARRAY_REL_OP(!=, not_equal_to)
+
+        struct unpack_array
+        {
+            template<typename Sig>
+            struct result
+            {};
+
+            template<typename This, typename T>
+            struct result<This(T)>
+            {
+                typedef T type;
+            };
+
+            template<typename This, typename T, std::size_t N>
+            struct result<This(detail::array<T[N]>)>
+            {
+                typedef boost::array<T, N> type;
+            };
+
+            template<typename This, typename T>
+            struct result<This(T &)>
+              : result<This(T)>
+            {};
+
+            template<typename This, typename T>
+            struct result<This(T const &)>
+              : result<This(T)>
+            {};
+
+            template<typename T>
+            T operator()(T const &t) const
+            {
+                return t;
+            }
+
+            template<typename T, std::size_t N>
+            boost::array<T, N> operator()(detail::array<T[N]> const &rg) const
+            {
+                return rg.elems;
+            }
+        };
     }
 }
 
