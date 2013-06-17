@@ -143,7 +143,7 @@ namespace quick_check
         auto const &condition = detail::get_condition(prop_);
 
         std::size_t n = 0, total = 0;
-        for(; n < config.test_count() && total < config.upper_limit(); ++total)
+        for(; n < config.test_count() && total < config.max_test_count(); ++total)
         {
             auto args = config.gen();
 
@@ -155,9 +155,8 @@ namespace quick_check
             auto classes = classify(args);
             auto group = groupby(args);
 
-            // The static_cast here is so that operator! doesn't get invoked
-            // for detail::array, which returns a new array that is the logical
-            // negation of each element.
+            // The static_cast here is mostly historical, but left here for
+            // the sake of strictness.
             if(!static_cast<bool>(fusion::invoke_function_object(prop, args)))
             {
                 detail::qcheck_access::add_failure(

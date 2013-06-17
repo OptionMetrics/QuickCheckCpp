@@ -35,6 +35,29 @@ namespace quick_check
 {
     namespace detail
     {
+        template<int N>
+        void set_size_adl(phoenix::argument<N>, std::size_t)
+        {}
+
+        struct set_size
+        {
+            typedef void result_type;
+
+            set_size(std::size_t size)
+              : size_(size)
+            {}
+
+            template<typename T>
+            void operator()(T &t) const
+            {
+                // Unqualified for ADL
+                set_size_adl(t, this->size_);
+            }
+
+        private:
+            std::size_t size_;
+        };
+
         template<typename Type>
         struct construct
         {
@@ -138,6 +161,11 @@ namespace quick_check
             object_generator operator%(int percent) const
             {
                 return object_generator(gens_, percent);
+            }
+
+            friend void set_size_adl(object_generator &thiz, std::size_t size)
+            {
+                fusion::for_each(thiz.gens_, set_size(size));
             }
 
         private:
@@ -305,6 +333,11 @@ namespace quick_check
                 return result.get();
             }
 
+            friend void set_size_adl(alternate_generator &thiz, std::size_t size)
+            {
+                fusion::for_each(thiz.gens_, set_size(size));
+            }
+
         private:
             boost::random::uniform_int_distribution<int> percent_dist_;
             Gens gens_;
@@ -324,6 +357,9 @@ namespace quick_check
             {
                 return value_;
             }
+
+            friend void set_size_adl(constant_generator &, std::size_t)
+            {}
 
         private:
             Value value_;
@@ -386,6 +422,9 @@ namespace quick_check
 
         using base_type::result_type;
         using base_type::operator();
+
+        friend void set_size_adl(uniform &, std::size_t)
+        {}
     };
 
     template<typename Value, std::size_t N>
@@ -413,6 +452,9 @@ namespace quick_check
             return res;
         }
 
+        friend void set_size_adl(uniform &, std::size_t)
+        {}
+
     private:
         uniform<Value> gen_;
     };
@@ -438,6 +480,9 @@ namespace quick_check
 
         normal(Value a, Value b)
           : base_type(a, b)
+        {}
+
+        friend void set_size_adl(normal &, std::size_t)
         {}
     };
 
@@ -465,6 +510,9 @@ namespace quick_check
             std::generate(res.elems.elems, res.elems.elems + N, [&] { return gen_(rng); });
             return res;
         }
+
+        friend void set_size_adl(normal &, std::size_t)
+        {}
 
     private:
         normal<Value> gen_;
@@ -514,6 +562,11 @@ namespace quick_check
         >(fusion::as_vector(fusion::transform(ctors.gens(), detail::rebind_constructor<T>())));
     }
 
+    template<typename T>
+    detail::constant_generator<T> constant(T const &t)
+    {
+        return detail::constant_generator<T>(t);
+    }
 }
 
 QCHK_BOOST_NAMESPACE_END

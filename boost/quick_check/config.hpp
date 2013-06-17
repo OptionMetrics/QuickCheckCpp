@@ -37,6 +37,7 @@
 #include <boost/fusion/algorithm/transformation/filter_if.hpp>
 #include <boost/fusion/algorithm/iteration/accumulate.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
+#include <boost/quick_check/generator.hpp>
 #include <boost/quick_check/detail/functional.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/type_traits/remove_const.hpp>
@@ -51,11 +52,20 @@ namespace quick_check
     namespace detail
     {
         struct rng_ {};
+        struct test_count_ {};
+        struct max_test_count_ {};
+        struct sized_ {};
 
         template<typename Map, typename Rng>
-        config<Map, Rng> make_config(Map const &map, Rng const &rng)
+        config<Map, Rng> make_config(
+            Map const &map
+          , Rng const &rng
+          , std::size_t test_count
+          , std::size_t max_test_count
+          , std::size_t sized
+        )
         {
-            return config<Map, Rng>(map, rng);
+            return config<Map, Rng>(map, rng, test_count, max_test_count, sized);
         }
 
         struct PhxPlaceholder
@@ -222,15 +232,21 @@ namespace quick_check
             Rng &rng_;
         };
 
-        struct RngInit
+        template<typename Key, typename Callable = proto::callable>
+        struct KeyValue
           : proto::when<
                 proto::assign<
-                    proto::terminal<rng_>
+                    proto::terminal<Key>
                   , proto::terminal<proto::_>
                 >
               , proto::_value(proto::_right)
             >
         {};
+
+        typedef KeyValue<rng_> RngValue;
+        typedef KeyValue<test_count_> TestCountValue;
+        typedef KeyValue<max_test_count_> MaxTestCountValue;
+        typedef KeyValue<sized_> SizedValue;
 
         template<typename Args>
         typename fusion::result_of::as_map<
@@ -292,49 +308,99 @@ namespace quick_check
             >::type
         args_type;
 
-        config(Map const &map, Rng const &rng)
+        config(
+            Map const &map
+          , Rng const &rng
+          , std::size_t test_count
+          , std::size_t max_test_count
+          , std::size_t sized
+        )
           : map_(map)
           , rng_(rng)
-        {}
+          , test_count_(test_count)
+          , max_test_count_(max_test_count)
+          , sized_(sized)
+        {
+            this->resized(sized);
+        }
 
         std::size_t test_count() const
         {
-            return 100; // TODO make this configurable
+            return this->test_count_;
         }
 
-        std::size_t upper_limit() const
+        std::size_t max_test_count() const
         {
-            return 1000; // TODO make this configurable
+            return this->max_test_count_;
+        }
+
+        std::size_t sized() const
+        {
+            return this->sized_;
+        }
+
+        void resized(std::size_t sized)
+        {
+            this->sized_ = sized;
+            typedef proto::functional::second F;
+            fusion::for_each(
+                fusion::transform_view<Map, F>(this->map_, F())
+              , detail::set_size(this->sized_)
+            );
         }
 
         args_type gen()
         {
             return fusion::as_vector(
-                fusion::transform(indices_type(), detail::index_fun<Map, Rng>(this->map_, this->rng_))
+                fusion::transform(
+                    indices_type()
+                  , detail::index_fun<Map, Rng>(this->map_, this->rng_)
+                )
             );
         }
 
     private:
-        Map map_;
+        Map map_; // A map from phx placeholders to generators or other phx placeholders
         Rng rng_;
+        std::size_t test_count_;
+        std::size_t max_test_count_;
+        std::size_t sized_;
     };
 
     proto::terminal<detail::rng_>::type const _rng = {};
+    proto::terminal<detail::test_count_>::type const _test_count = {};
+    proto::terminal<detail::max_test_count_>::type const _max_test_count = {};
+    proto::terminal<detail::sized_>::type const _sized = {};
 
-#define BOOST_PROTO_LOCAL_MACRO(N, typename_A, A_const_ref, A_const_ref_a, a)   \
-                                                                                \
-    template<typename_A(N)>                                                     \
-    auto make_config(A_const_ref_a(N))                                          \
-    QCHK_RETURN(                                                                \
-        detail::make_config(                                                    \
-            detail::make_config_map(fusion::make_vector(a(N)))                  \
-          , detail::RngInit()(                                                  \
-                *fusion::find_if<proto::matches<mpl::_, detail::RngInit> >(     \
-                    fusion::make_vector(a(N), _rng = boost::random::mt11213b()) \
-                )                                                               \
-            )                                                                   \
-        )                                                                       \
-    )                                                                           \
+#define BOOST_PROTO_LOCAL_MACRO(N, typename_A, A_const_ref, A_const_ref_a, a)           \
+                                                                                        \
+    template<typename_A(N)>                                                             \
+    auto make_config(A_const_ref_a(N))                                                  \
+    QCHK_RETURN(                                                                        \
+        detail::make_config(                                                            \
+            detail::make_config_map(fusion::make_vector(a(N)))                          \
+          , detail::RngValue()(                                                         \
+                *fusion::find_if<proto::matches<mpl::_, detail::RngValue> >(            \
+                    fusion::make_vector(a(N), _rng = boost::random::mt11213b())         \
+                )                                                                       \
+            )                                                                           \
+          , detail::TestCountValue()(                                                   \
+                *fusion::find_if<proto::matches<mpl::_, detail::TestCountValue> >(      \
+                    fusion::make_vector(a(N), _test_count = 100u)                       \
+                )                                                                       \
+            )                                                                           \
+          , detail::MaxTestCountValue()(                                                \
+                *fusion::find_if<proto::matches<mpl::_, detail::MaxTestCountValue> >(   \
+                    fusion::make_vector(a(N), _max_test_count = 1000u)                  \
+                )                                                                       \
+            )                                                                           \
+          , detail::SizedValue()(                                                       \
+                *fusion::find_if<proto::matches<mpl::_, detail::SizedValue> >(          \
+                    fusion::make_vector(a(N), _sized = 50u)                             \
+                )                                                                       \
+            )                                                                           \
+        )                                                                               \
+    )                                                                                   \
     /**/
 
 #define BOOST_PROTO_LOCAL_a BOOST_PROTO_a
