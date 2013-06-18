@@ -89,6 +89,11 @@
     <ClInclude Include="..\..\..\boost\quick_check\detail\grammar.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\detail\operators.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\generator\basic_generator.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\generator\class.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\generator\constant.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\generator\normal.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\generator\uniform.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\group_by.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\property.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\qcheck.hpp" />

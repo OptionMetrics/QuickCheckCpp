@@ -16,6 +16,9 @@
     <Filter Include="quickCheckCpp Files\detail">
       <UniqueIdentifier>{885a5ccd-9195-4ae0-ad6c-19c410c6a2e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="quickCheckCpp Files\generator">
+      <UniqueIdentifier>{b7ef7594-8f18-4aa9-9206-b419e67e25d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -64,6 +67,21 @@
     </ClInclude>
     <ClInclude Include="..\..\..\boost\quick_check\condition.hpp">
       <Filter>quickCheckCpp Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\generator\class.hpp">
+      <Filter>quickCheckCpp Files\generator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\generator\basic_generator.hpp">
+      <Filter>quickCheckCpp Files\generator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\generator\constant.hpp">
+      <Filter>quickCheckCpp Files\generator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\generator\uniform.hpp">
+      <Filter>quickCheckCpp Files\generator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\generator\normal.hpp">
+      <Filter>quickCheckCpp Files\generator</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
