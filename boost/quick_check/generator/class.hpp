@@ -145,7 +145,7 @@ namespace quick_check
 
             friend void set_size_adl(object_generator &thiz, std::size_t size)
             {
-                fusion::for_each(thiz.gens_, set_size(size));
+                fusion::for_each(thiz.gens_, detail::set_size(size));
             }
 
         private:
@@ -318,7 +318,7 @@ namespace quick_check
 
             friend void set_size_adl(alternate_generator &thiz, std::size_t size)
             {
-                fusion::for_each(thiz.gens_, set_size(size));
+                fusion::for_each(thiz.gens_, detail::set_size(size));
             }
 
         private:

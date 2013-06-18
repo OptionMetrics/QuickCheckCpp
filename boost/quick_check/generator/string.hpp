@@ -1,0 +1,40 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// \file string.hpp
+// \brief Definition of string_gen, for generating strings.
+//
+// Copyright 2013 OptionMetrics, Inc.
+// Copyright 2013 Eric Niebler
+//
+// NOTE: This library is not yet an official Boost library.
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef QCHK_GENERATOR_STRING_HPP_INCLUDED
+#define QCHK_GENERATOR_STRING_HPP_INCLUDED
+
+#include <string>
+#include <boost/quick_check/quick_check_fwd.hpp>
+#include <boost/quick_check/generator/basic_generator.hpp>
+#include <boost/quick_check/generator/uniform.hpp>
+
+QCHK_BOOST_NAMESPACE_BEGIN
+
+namespace quick_check
+{
+    inline detail::sequence_generator<std::string, uniform<char>, true>
+    string_gen()
+    {
+        typedef detail::sequence_generator<std::string, uniform<char>, true> result_type;
+        return result_type(uniform<char>());
+    }
+
+    inline detail::sequence_generator<std::wstring, uniform<wchar_t>, true>
+    wstring_gen()
+    {
+        typedef detail::sequence_generator<std::wstring, uniform<wchar_t>, true> result_type;
+        return result_type(uniform<wchar_t>());
+    }
+}
+
+QCHK_BOOST_NAMESPACE_END
+
+#endif

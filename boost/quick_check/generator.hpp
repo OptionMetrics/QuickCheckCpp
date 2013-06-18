@@ -16,5 +16,7 @@
 #include <boost/quick_check/generator/constant.hpp>
 #include <boost/quick_check/generator/normal.hpp>
 #include <boost/quick_check/generator/uniform.hpp>
+#include <boost/quick_check/generator/vector.hpp>
+#include <boost/quick_check/generator/string.hpp>
 
 #endif

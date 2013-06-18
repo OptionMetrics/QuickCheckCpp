@@ -28,6 +28,11 @@
 
 #define QCHK_RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
 
+namespace boost
+{
+    namespace random {}
+}
+
 QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
@@ -36,6 +41,7 @@ namespace quick_check
     namespace proto = boost::proto;
     namespace fusion = boost::fusion;
     namespace pheonix = boost::phoenix;
+    namespace random = boost::random;
 
     using namespace phoenix::placeholders;
 
