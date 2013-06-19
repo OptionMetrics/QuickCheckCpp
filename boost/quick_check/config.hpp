@@ -306,7 +306,7 @@ namespace quick_check
                   , detail::index_fun<Map, Rng>
                 >::type
             >::type
-        args_type;
+        result_type;
 
         config(
             Map const &map
@@ -349,7 +349,7 @@ namespace quick_check
             );
         }
 
-        args_type gen()
+        result_type operator()()
         {
             return fusion::as_vector(
                 fusion::transform(

@@ -20,6 +20,20 @@ QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
+    template<typename Generator>
+    detail::sequence_generator<std::basic_string<typename Generator::result_type>, Generator, true>
+    string(Generator const &gen)
+    {
+        typedef
+            detail::sequence_generator<
+                std::basic_string<typename Generator::result_type>
+              , Generator
+              , true
+            >
+        result_type;
+        return result_type(gen);
+    }
+
     inline detail::sequence_generator<std::string, uniform<char>, true>
     string()
     {

@@ -95,5 +95,8 @@
     <ClInclude Include="..\..\..\boost\quick_check\generator\zip.hpp">
       <Filter>quickCheckCpp Files\generator</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\generator\char.hpp">
+      <Filter>quickCheckCpp Files\generator</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

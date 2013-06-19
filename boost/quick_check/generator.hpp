@@ -12,6 +12,7 @@
 #define QCHK_GENERATOR_HPP_INCLUDED
 
 #include <boost/quick_check/generator/basic_generator.hpp>
+#include <boost/quick_check/generator/char.hpp>
 #include <boost/quick_check/generator/class.hpp>
 #include <boost/quick_check/generator/constant.hpp>
 #include <boost/quick_check/generator/normal.hpp>

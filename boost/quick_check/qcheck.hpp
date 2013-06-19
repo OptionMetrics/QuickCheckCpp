@@ -115,7 +115,7 @@ namespace quick_check
                 decltype(
                     detail::get_grouper(
                         boost::declval<Property const &>()
-                    )(boost::declval<Config &>().gen())
+                    )(boost::declval<Config &>()())
                 )
             type;
         };
@@ -124,14 +124,14 @@ namespace quick_check
     /// \brief Run all tests
     template<typename Property, typename Config>
     typename detail::make_qcheck_results_type<
-        typename Config::args_type
+        typename Config::result_type
       , typename detail::get_group_by_type<Property, Config>::type
     >::type
     qcheck(Property const &prop_, Config &config)
     {
         typedef
             typename detail::make_qcheck_results_type<
-                typename Config::args_type
+                typename Config::result_type
               , typename detail::get_group_by_type<Property, Config>::type
             >::type
         results_type;
@@ -146,7 +146,7 @@ namespace quick_check
         std::size_t n = 0, total = 0;
         for(; n < config.test_count() && total < config.max_test_count(); ++total)
         {
-            auto args = config.gen();
+            auto args = config();
 
             // Skip this if it is an invalid set of arguments
             if(!static_cast<bool>(condition(args)))
@@ -187,7 +187,7 @@ namespace quick_check
     /// \overload
     template<typename Property, typename Config>
     typename detail::make_qcheck_results_type<
-        typename Config::args_type
+        typename Config::result_type
       , typename detail::get_group_by_type<Property, Config>::type
     >::type
     qcheck(Property const &prop_, Config &config, std::size_t sized)
