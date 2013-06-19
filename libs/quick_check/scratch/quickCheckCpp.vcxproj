@@ -94,8 +94,10 @@
     <ClInclude Include="..\..\..\boost\quick_check\generator\constant.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator\normal.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator\string.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\generator\transform.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator\uniform.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator\vector.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\generator\zip.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\group_by.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\property.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\qcheck.hpp" />

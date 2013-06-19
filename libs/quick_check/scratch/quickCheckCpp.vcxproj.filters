@@ -89,5 +89,11 @@
     <ClInclude Include="..\..\..\boost\quick_check\generator\string.hpp">
       <Filter>quickCheckCpp Files\generator</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\generator\transform.hpp">
+      <Filter>quickCheckCpp Files\generator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\generator\zip.hpp">
+      <Filter>quickCheckCpp Files\generator</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

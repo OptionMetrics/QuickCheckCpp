@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // \file vector.hpp
-// \brief Definition of vector_gen, for generating vectors.
+// \brief Definition of vector, for generating vectors.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -21,9 +21,18 @@ namespace quick_check
 {
     template<typename Gen>
     detail::sequence_generator<std::vector<typename Gen::result_type>, Gen, true>
-    vector_gen(Gen const &gen)
+    vector(Gen const &gen)
     {
-        return detail::sequence_generator<std::vector<typename Gen::result_type>, Gen, true>(gen);
+        typedef std::vector<typename Gen::result_type> sequence_type;
+        return detail::sequence_generator<sequence_type, Gen, true>(gen);
+    }
+
+    template<typename Gen>
+    detail::sequence_generator<std::vector<typename Gen::result_type>, Gen, true, true>
+    ordered_vector(Gen const &gen)
+    {
+        typedef std::vector<typename Gen::result_type> sequence_type;
+        return detail::sequence_generator<sequence_type, Gen, true, true>(gen);
     }
 }
 

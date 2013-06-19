@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // \file string.hpp
-// \brief Definition of string_gen, for generating strings.
+// \brief Definition of string, for generating strings.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -21,14 +21,14 @@ QCHK_BOOST_NAMESPACE_BEGIN
 namespace quick_check
 {
     inline detail::sequence_generator<std::string, uniform<char>, true>
-    string_gen()
+    string()
     {
         typedef detail::sequence_generator<std::string, uniform<char>, true> result_type;
         return result_type(uniform<char>());
     }
 
     inline detail::sequence_generator<std::wstring, uniform<wchar_t>, true>
-    wstring_gen()
+    wstring()
     {
         typedef detail::sequence_generator<std::wstring, uniform<wchar_t>, true> result_type;
         return result_type(uniform<wchar_t>());

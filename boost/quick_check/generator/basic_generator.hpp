@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // \file class.hpp
-// \brief Definition class_gen, for generating objects of user-defined types.
+// \brief Definition class_, for generating objects of user-defined types.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -47,7 +47,7 @@ namespace quick_check
             std::size_t size_;
         };
 
-        template<typename Seq, typename Gen, bool Reserve = false>
+        template<typename Seq, typename Gen, bool Reserve = false, bool Sort = false>
         struct sequence_generator
         {
             typedef Seq result_type;
@@ -64,6 +64,7 @@ namespace quick_check
                 result_type res;
                 sequence_generator::reserve_(res, size, mpl::bool_<Reserve>());
                 std::generate_n(std::back_inserter(res), size, [&] { return gen_(rng); });
+                sequence_generator::sort_(res, mpl::bool_<Sort>());
                 return res;
             }
 
@@ -82,6 +83,14 @@ namespace quick_check
             static void reserve_(Seq &seq, std::size_t size, mpl::true_)
             {
                 seq.reserve(size);
+            }
+
+            static void sort_(Seq &, mpl::false_)
+            {}
+
+            static void sort_(Seq &seq, mpl::true_)
+            {
+                std::sort(seq.begin(), seq.end());
             }
 
             boost::random::uniform_int_distribution<std::size_t> size_dist_;

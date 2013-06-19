@@ -121,6 +121,7 @@ namespace quick_check
         };
     }
 
+    /// \brief Run all tests
     template<typename Property, typename Config>
     typename detail::make_qcheck_results_type<
         typename Config::args_type
@@ -182,6 +183,19 @@ namespace quick_check
 
         return results;
     }
+
+    /// \overload
+    template<typename Property, typename Config>
+    typename detail::make_qcheck_results_type<
+        typename Config::args_type
+      , typename detail::get_group_by_type<Property, Config>::type
+    >::type
+    qcheck(Property const &prop_, Config &config, std::size_t sized)
+    {
+        config.resized(sized);
+        quick_check::qcheck(prop_, config);
+    }
+
 }
 
 QCHK_BOOST_NAMESPACE_END

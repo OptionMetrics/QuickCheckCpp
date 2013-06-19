@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // \file class.hpp
-// \brief Definition class_gen, for generating objects of user-defined types.
+// \brief Definition class_, for generating objects of user-defined types.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -361,7 +361,7 @@ namespace quick_check
         T                                                                                           \
       , typename fusion::result_of::make_vector<BOOST_PP_ENUM_PARAMS(N, G)>::type                   \
     >                                                                                               \
-    class_gen(BOOST_PP_ENUM_BINARY_PARAMS(N, const G, &g))                                          \
+    class_(BOOST_PP_ENUM_BINARY_PARAMS(N, const G, &g))                                          \
     {                                                                                               \
         return detail::object_generator<                                                            \
             T                                                                                       \
@@ -388,7 +388,7 @@ namespace quick_check
             typename fusion::result_of::transform<Gens, detail::rebind_constructor<T> >::type
         >::type
     >
-    class_gen(detail::constructors<Gens> const &ctors)
+    class_(detail::constructors<Gens> const &ctors)
     {
         return detail::alternate_generator<
             typename fusion::result_of::as_vector<
