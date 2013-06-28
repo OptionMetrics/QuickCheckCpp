@@ -12,7 +12,7 @@
 #define QCHK_QUICK_CHECK_HPP_FWD_INCLUDED
 
 #include <boost/proto/proto.hpp>
-#include <boost/phoenix/core.hpp>
+#include <boost/phoenix/phoenix.hpp>
 #include <boost/preprocessor/repetition/enum_trailing_binary_params.hpp>
 #include <boost/preprocessor/arithmetic/dec.hpp>
 #include <boost/preprocessor/facilities/intercept.hpp>

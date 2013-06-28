@@ -34,6 +34,11 @@ namespace quick_check
                 return *this;
             }
 
+            friend bool operator<(ungrouped_args, ungrouped_args)
+            {
+                return false;
+            }
+
             friend std::ostream &operator<<(std::ostream &sout, ungrouped_args)
             {
                 return sout;

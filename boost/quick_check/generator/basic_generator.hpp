@@ -50,6 +50,12 @@ namespace quick_check
         template<typename Seq, typename Gen, bool Reserve = false, bool Sort = false>
         struct sequence_generator
         {
+        private:
+            typedef
+                boost::random::uniform_int_distribution<std::size_t>
+            size_dist_type;
+
+        public:
             typedef Seq result_type;
 
             explicit sequence_generator(Gen const &gen)
@@ -63,7 +69,11 @@ namespace quick_check
                 std::size_t size = size_dist_(rng);
                 result_type res;
                 sequence_generator::reserve_(res, size, mpl::bool_<Reserve>());
-                std::generate_n(std::back_inserter(res), size, [&] { return gen_(rng); });
+                std::generate_n(
+                    std::back_inserter(res)
+                  , size
+                  , [&] { return gen_(rng); }
+                );
                 sequence_generator::sort_(res, mpl::bool_<Sort>());
                 return res;
             }
@@ -71,7 +81,7 @@ namespace quick_check
             friend void set_size_adl(sequence_generator &thiz, std::size_t size)
             {
                 BOOST_ASSERT(size >= 1);
-                boost::random::uniform_int_distribution<std::size_t>::param_type parm(0, size - 1);
+                size_dist_type::param_type parm(0, size - 1);
                 thiz.size_dist_.param(parm);
                 set_size_adl(thiz.gen_, size); // non-qualified, for ADL
             }
@@ -93,7 +103,7 @@ namespace quick_check
                 std::sort(seq.begin(), seq.end());
             }
 
-            boost::random::uniform_int_distribution<std::size_t> size_dist_;
+            size_dist_type size_dist_;
             Gen gen_;
         };
     }
