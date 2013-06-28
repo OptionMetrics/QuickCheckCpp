@@ -19,6 +19,7 @@
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/type_traits/remove_reference.hpp>
+#include <boost/range/algorithm/for_each.hpp>
 #include <boost/mpl/print.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/identity.hpp>
@@ -195,7 +196,7 @@ namespace quick_check
             {
                 first = true;
                 sout << " (classes: ";
-                std::for_each(args.classes_.begin(), args.classes_.end(), detail::disp(sout, first));
+                boost::for_each(args.classes_, detail::disp(sout, first));
                 sout << ")";
             }
             return sout;
@@ -217,7 +218,12 @@ namespace quick_check
                 BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)
             >::type
         grouped_by_type;
+    private:
+        typedef
+            std::pair<grouped_by_type, std::vector<std::string> >
+        key_type;
 
+    public:
         qcheck_results()
           : failures_()
           , categories_()
@@ -252,11 +258,16 @@ namespace quick_check
                    this->categories_.begin()->first.second.size() == 0)
                     return;
                 // Iterate over the categories and print them with percentages
-                for(auto const &p : this->categories_)
-                    sout << (boost::format("%1$.0d%% %2%.")
-                                % ((p.second * 100.) / this->nbr_tests_)
-                                % this->category_name(p.first))
-                         << std::endl;
+                boost::for_each(
+                    this->categories_
+                  , [&](std::pair<key_type, std::size_t> const &p)
+                    {
+                        sout << (boost::format("%1$.0d%% %2%.")
+                                    % ((p.second * 100.) / this->nbr_tests_)
+                                    % this->category_name(p.first))
+                             << std::endl;
+                    }
+                );
             }
             else
             {
@@ -268,10 +279,6 @@ namespace quick_check
         }
 
     private:
-        typedef
-            std::pair<grouped_by_type, std::vector<std::string> >
-        key_type;
-
         static std::string category_name(key_type const &p)
         {
             std::stringstream sout;

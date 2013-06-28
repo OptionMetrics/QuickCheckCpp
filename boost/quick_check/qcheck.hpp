@@ -11,6 +11,8 @@
 #ifndef QCHK_QCHECK_HPP_INCLUDED
 #define QCHK_QCHECK_HPP_INCLUDED
 
+#include <boost/type_traits/remove_const.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/quick_check/qcheck_results.hpp>
 #include <boost/quick_check/classify.hpp>
@@ -112,11 +114,15 @@ namespace quick_check
         struct get_group_by_type
         {
             typedef
-                decltype(
-                    detail::get_grouper(
-                        boost::declval<Property const &>()
-                    )(boost::declval<Config &>()())
-                )
+                typename boost::remove_const<
+                    typename boost::remove_reference<
+                        decltype(
+                            detail::get_grouper(
+                                boost::declval<Property const &>()
+                            )(boost::declval<Config &>()())
+                        )
+                    >::type
+                >::type
             type;
         };
     }

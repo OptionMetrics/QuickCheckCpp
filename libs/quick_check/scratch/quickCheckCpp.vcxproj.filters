@@ -19,10 +19,16 @@
     <Filter Include="quickCheckCpp Files\generator">
       <UniqueIdentifier>{b7ef7594-8f18-4aa9-9206-b419e67e25d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Example Files">
+      <UniqueIdentifier>{881d96fe-9494-49df-bcdc-a63b5a89dc97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\example\simple.cpp">
+      <Filter>Source Files\Example Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -98,5 +104,10 @@
     <ClInclude Include="..\..\..\boost\quick_check\generator\char.hpp">
       <Filter>quickCheckCpp Files\generator</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\example\Jamfile">
+      <Filter>Source Files\Example Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

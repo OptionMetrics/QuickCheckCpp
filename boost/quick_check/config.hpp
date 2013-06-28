@@ -318,7 +318,7 @@ namespace quick_check
           : map_(map)
           , rng_(rng)
           , test_count_(test_count)
-          , max_test_count_(max_test_count)
+          , max_test_count_(std::max(test_count, max_test_count))
           , sized_(sized)
         {
             this->resized(sized);

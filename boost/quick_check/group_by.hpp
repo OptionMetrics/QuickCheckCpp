@@ -66,7 +66,7 @@ namespace quick_check
           : proto::or_<
                 proto::when<
                     Grouped
-                  , group_args<boost::remove_reference<proto::_> >(proto::_)
+                  , group_args<boost::remove_reference<proto::_child> >(proto::_child)
                 >
               , proto::when<
                     proto::bitwise_or<Grouped, Classify>
