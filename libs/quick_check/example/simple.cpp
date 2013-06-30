@@ -21,11 +21,11 @@ int main()
     auto config = make_config(_1 = die,
                               _2 = one,
                               _rng = rng,
-                              _test_count = 10000/*,
-                              _max_test_count = 10000*/);
+                              _test_count = 10000,
+                              _max_test_count = 15000);
 
     // Here's a property to test:
-    //property<int[3], double[3], grouped_by<int[3]> >
+    //property<int, double, grouped_by<int> >
     auto
         is_reflexive = 
             (_2 > 0 ) >>=

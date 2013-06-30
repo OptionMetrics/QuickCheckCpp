@@ -262,19 +262,19 @@ namespace quick_check
                     this->categories_
                   , [&](std::pair<key_type, std::size_t> const &p)
                     {
-                        sout << (boost::format("%1$.0d%% %2%.")
+                        sout << (boost::format("%1$.0d%% %2%.\n")
                                     % ((p.second * 100.) / this->nbr_tests_)
-                                    % this->category_name(p.first))
-                             << std::endl;
+                                    % this->category_name(p.first));
                     }
                 );
+                sout << std::flush;
             }
             else
             {
-                sout << (boost::format("Falsifiable, after %1% tests:\n%2%")
+                sout << (boost::format("Falsifiable, after %1% tests:\n%2%\n")
                             % this->first_failed_test_
-                            % this->failures_[0])
-                     << std::endl;
+                            % this->failures_[0]);
+                sout << std::flush;
             }
         }
 

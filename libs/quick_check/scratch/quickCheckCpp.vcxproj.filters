@@ -19,8 +19,11 @@
     <Filter Include="quickCheckCpp Files\generator">
       <UniqueIdentifier>{b7ef7594-8f18-4aa9-9206-b419e67e25d8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Example Files">
+    <Filter Include="Example Files">
       <UniqueIdentifier>{881d96fe-9494-49df-bcdc-a63b5a89dc97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Files">
+      <UniqueIdentifier>{d36c0e94-b7e4-4fa9-a544-c60c7da27d86}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -28,7 +31,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\example\simple.cpp">
-      <Filter>Source Files\Example Files</Filter>
+      <Filter>Example Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\basic.cpp">
+      <Filter>Test Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -104,10 +110,24 @@
     <ClInclude Include="..\..\..\boost\quick_check\generator\char.hpp">
       <Filter>quickCheckCpp Files\generator</Filter>
     </ClInclude>
+    <ClInclude Include="..\test\file_dist.hpp">
+      <Filter>Test Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\example\Jamfile">
-      <Filter>Source Files\Example Files</Filter>
+      <Filter>Example Files</Filter>
     </None>
+    <None Include="..\test\Jamfile">
+      <Filter>Test Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\test\normal_double_distribution.txt">
+      <Filter>Test Files</Filter>
+    </Text>
+    <Text Include="..\test\uniform_int_distribution.txt">
+      <Filter>Test Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
