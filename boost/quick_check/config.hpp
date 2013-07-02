@@ -20,6 +20,7 @@
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/mpl/quote.hpp>
 #include <boost/fusion/mpl.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/fusion/container/vector.hpp>
@@ -36,6 +37,7 @@
 #include <boost/fusion/algorithm/transformation/transform.hpp>
 #include <boost/fusion/algorithm/transformation/filter_if.hpp>
 #include <boost/fusion/algorithm/iteration/accumulate.hpp>
+#include <boost/fusion/adapted/mpl.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/quick_check/generator.hpp>
 #include <boost/quick_check/detail/functional.hpp>
@@ -157,12 +159,12 @@ namespace quick_check
         };
 
         template<typename Map, typename Rng, typename Placeholder, int I>
-        struct my_value_at_key<Map, typename Rng, Placeholder, phoenix::argument<I> >
+        struct my_value_at_key<Map, Rng, Placeholder, phoenix::argument<I> >
         {
             typedef typename my_value_at_key<Map, Rng, phoenix::argument<I> >::type type;
             static type call(Map &map, Rng &rng)
             {
-                return my_value_at_key<Map, phoenix::argument<I> >::call(map, rng);
+                return my_value_at_key<Map, Rng, phoenix::argument<I> >::call(map, rng);
             }
         };
 
@@ -248,6 +250,11 @@ namespace quick_check
         typedef KeyValue<max_test_count_> MaxTestCountValue;
         typedef KeyValue<sized_> SizedValue;
 
+        template<typename Expr>
+        struct is_rng_collection
+          : proto::matches<Expr, detail::RngCollection>
+        {};
+
         template<typename Args>
         typename fusion::result_of::as_map<
             typename fusion::result_of::accumulate<
@@ -255,10 +262,7 @@ namespace quick_check
                     typename fusion::result_of::transform<
                         typename fusion::result_of::filter_if<
                             Args
-                          , proto::matches<
-                                mpl::_
-                              , detail::RngCollection
-                            >
+                          , mpl::quote1<is_rng_collection>
                         >::type
                       , detail::RngCollection
                     >::type
@@ -270,8 +274,7 @@ namespace quick_check
         >::type
         make_config_map(Args args)
         {
-            typedef proto::matches<mpl::_, detail::RngCollection> is_rng_collection;
-            auto dists = fusion::as_vector(fusion::filter_if<is_rng_collection>(args));
+            auto dists = fusion::as_vector(fusion::filter_if<mpl::quote1<is_rng_collection> >(args));
             auto tmp0 = fusion::as_vector(fusion::transform(dists, detail::RngCollection()));
             auto tmp1 = fusion::as_vector(fusion::transform(tmp0, proto::functional::first()));
             auto tmp3 = fusion::as_vector(fusion::accumulate(tmp1, fusion::nil_(), detail::fusion_join()));
@@ -285,12 +288,9 @@ namespace quick_check
     private:
         typedef
             typename mpl::accumulate<
-                typename mpl::transform<
-                    Map
-                  , detail::as_size_t<fusion::result_of::first<mpl::_> >
-                >::type
+                Map
               , mpl::size_t<0>
-              , mpl::max<mpl::_1, mpl::_2>
+              , mpl::max<mpl::_1, detail::as_size_t<fusion::result_of::first<mpl::_2> > >
             >::type
         arg_count;
 

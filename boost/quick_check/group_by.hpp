@@ -54,7 +54,7 @@ namespace quick_check
 
             template<typename Args>
             typename fusion::result_of::invoke_function_object<Fun, Args>::type
-            operator()(Args &args) const
+            operator()(Args const &args) const
             {
                 return fusion::invoke_function_object(this->fun_, args);
             }

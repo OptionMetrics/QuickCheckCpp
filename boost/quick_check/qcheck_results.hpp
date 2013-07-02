@@ -168,7 +168,7 @@ namespace quick_check
 
         typedef
             typename detail::find_grouped_by_type<
-                BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)
+                BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)
             >::type
         grouped_by_type;
 
@@ -215,7 +215,7 @@ namespace quick_check
         typedef std::vector<args_type> failures_type;
         typedef
             typename detail::find_grouped_by_type<
-                BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)
+                BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)
             >::type
         grouped_by_type;
     private:
@@ -262,7 +262,7 @@ namespace quick_check
                     this->categories_
                   , [&](std::pair<key_type, std::size_t> const &p)
                     {
-                        sout << (boost::format("%1$.0d%% %2%.\n")
+                        sout << (boost::format("%1$.0f%% %2%.\n")
                                     % ((p.second * 100.) / this->nbr_tests_)
                                     % this->category_name(p.first));
                     }

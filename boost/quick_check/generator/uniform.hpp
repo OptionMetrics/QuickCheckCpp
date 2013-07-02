@@ -52,7 +52,7 @@ namespace quick_check
           : base_type(a, b)
         {}
 
-        using base_type::result_type;
+        using typename base_type::result_type;
         using base_type::operator();
 
         friend void set_size_adl(uniform &, std::size_t)

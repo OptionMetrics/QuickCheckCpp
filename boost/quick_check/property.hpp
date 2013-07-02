@@ -67,7 +67,7 @@ namespace quick_check
         };
 
         template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
-        struct property_traits<BOOST_PP_ENUM_PARAMS(BOOST_PP_DEC(QCHK_MAX_ARITY), typename A), grouped_by<BOOST_PP_CAT(A, BOOST_PP_DEC(QCHK_MAX_ARITY))> >
+        struct property_traits<BOOST_PP_ENUM_PARAMS(BOOST_PP_DEC(QCHK_MAX_ARITY), A), grouped_by<BOOST_PP_CAT(A, BOOST_PP_DEC(QCHK_MAX_ARITY))> >
         {
             typedef bool call_signature(
                 BOOST_PP_ENUM_BINARY_PARAMS(

@@ -85,7 +85,7 @@ namespace quick_check
             template<typename QchkResults, typename Args, typename Group>
             static void add_failure(
                 QchkResults &results
-              , Args &args
+              , Args const &args
               , std::vector<std::string> const &classes
               , Group const &group
             )
