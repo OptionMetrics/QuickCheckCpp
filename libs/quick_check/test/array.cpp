@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file basic.cpp
-// \brief A truly basic test of qcheck functionality
+// \file array.cpp
+// \brief A basic tests with arrays
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -20,8 +20,8 @@ void test_qchk_auto()
 {
     using namespace qchk;
     std::stringstream sout;
-    file_dist<int> di("uniform_int_distribution.txt");
-    file_dist<double> dd("normal_double_distribution.txt");
+    file_dist<int[3]> di("uniform_int_distribution.txt");
+    file_dist<double[3]> dd("normal_double_distribution.txt");
 
     // a quickCheck configuration. Placeholders _1
     // and _2 receive values generated from die and one:
@@ -31,13 +31,16 @@ void test_qchk_auto()
         _max_test_count = 10000
     );
 
+    int izero[3] = {0,0,0};
+    double dzero[3] = {0.,0.,0.};
+
     // Here's a property to test:
     auto
         is_reflexive = 
-            (_1 > 0) >>=
-                group_by(_1 % 3)
-                   | classify(_2>0,"foo")
-                   | classify(_2<0,"bar")
+            (_1 > izero) >>=
+                group_by(_1[0] % 3)
+                   | classify(_2>dzero,"foo")
+                   | classify(_2<dzero,"bar")
                    | ((_1 + _2) == (_2 + _1)) ;
 
     // Test the property. Res is a results object that
@@ -49,10 +52,10 @@ void test_qchk_auto()
         "OK, passed 100 tests.\n"
         "19% 0, bar.\n"
         "17% 0, foo.\n"
-        "17% 1, bar.\n"
+        "16% 1, bar.\n"
         "16% 1, foo.\n"
-        "16% 2, bar.\n"
-        "15% 2, foo.\n"
+        "19% 2, bar.\n"
+        "13% 2, foo.\n"
       , sout.str()
     );
 }
@@ -61,8 +64,8 @@ void test_qchk_prop()
 {
     using namespace qchk;
     std::stringstream sout;
-    file_dist<int> di("uniform_int_distribution.txt");
-    file_dist<double> dd("normal_double_distribution.txt");
+    file_dist<int[3]> di("uniform_int_distribution.txt");
+    file_dist<double[3]> dd("normal_double_distribution.txt");
 
     // a quickCheck configuration. Placeholders _1
     // and _2 receive values generated from die and one:
@@ -72,13 +75,16 @@ void test_qchk_prop()
         _max_test_count = 10000
     );
 
+    int izero[3] = {0,0,0};
+    double dzero[3] = {0.,0.,0.};
+
     // Here's a property to test:
-    property<int, double, grouped_by<int> >
+    property<int[3], double[3], grouped_by<int> >
         is_reflexive = 
-            (_1 > 0) >>=
-                group_by(_1 % 3)
-                   | classify(_2>0,"foo")
-                   | classify(_2<0,"bar")
+            (_1 > izero) >>=
+                group_by(_1[0] % 3)
+                   | classify(_2>dzero,"foo")
+                   | classify(_2<dzero,"bar")
                    | ((_1 + _2) == (_2 + _1)) ;
 
     // Test the property. Res is a results object that
@@ -90,10 +96,10 @@ void test_qchk_prop()
         "OK, passed 100 tests.\n"
         "19% 0, bar.\n"
         "17% 0, foo.\n"
-        "17% 1, bar.\n"
+        "16% 1, bar.\n"
         "16% 1, foo.\n"
-        "16% 2, bar.\n"
-        "15% 2, foo.\n"
+        "19% 2, bar.\n"
+        "13% 2, foo.\n"
       , sout.str()
     );
 }
@@ -104,7 +110,7 @@ using namespace boost::unit_test;
 //
 test_suite* init_unit_test_suite( int argc, char* argv[] )
 {
-    test_suite *test = BOOST_TEST_SUITE("basic tests for qcheck");
+    test_suite *test = BOOST_TEST_SUITE("basic tests for qcheck with arrays");
 
     test->add(BOOST_TEST_CASE(&test_qchk_auto));
     test->add(BOOST_TEST_CASE(&test_qchk_prop));

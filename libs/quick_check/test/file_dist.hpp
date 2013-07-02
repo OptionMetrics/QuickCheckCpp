@@ -13,6 +13,8 @@
 
 #include <memory>
 #include <fstream>
+#include <algorithm>
+#include <boost/quick_check/detail/array.hpp>
 
 template<typename Value>
 struct file_dist
@@ -38,6 +40,28 @@ struct file_dist
 
 private:
     std::shared_ptr<std::ifstream> pfin_;
+};
+
+template<typename Value, std::size_t N>
+struct file_dist<Value[N]>
+{
+    explicit file_dist(std::string const &file)
+      : dist_(file)
+    {}
+
+    template<typename Gen>
+    boost::quick_check::detail::array<Value[N]> operator()(Gen &g)
+    {
+        boost::quick_check::detail::array<Value[N]> res;
+        std::generate_n(res.elems.elems, N, [&](){return dist_(g);});
+        return res;
+    }
+
+    friend void set_size_adl(file_dist &, std::size_t)
+    {}
+
+private:
+    file_dist<Value> dist_;
 };
 
 #endif

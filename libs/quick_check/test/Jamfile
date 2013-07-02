@@ -10,9 +10,11 @@ project
         <library>/boost/test//boost_unit_test_framework
         <threading>multi
         <link>static
+        <toolset>gcc:<cxxflags>-Wno-unused-local-typedefs
     ;
 
 test-suite "quick_check"
     :
+        [ run array.cpp ]
         [ run basic.cpp ]
     ;
