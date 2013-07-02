@@ -70,7 +70,7 @@ namespace quick_check
         result_type operator()(Rng& rng)
         {
             result_type res;
-            std::generate(res.elems.elems, res.elems.elems + N, [&] { return gen_(rng); });
+            std::generate_n(res.elems.elems, N, [&] { return gen_(rng); });
             return res;
         }
 

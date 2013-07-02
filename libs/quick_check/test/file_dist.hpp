@@ -14,13 +14,15 @@
 #include <memory>
 #include <fstream>
 #include <algorithm>
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/quick_check/detail/array.hpp>
 
 template<typename Value>
 struct file_dist
 {
     explicit file_dist(std::string const &file)
-      : pfin_(std::make_shared<std::ifstream>(file))
+      : pfin_(boost::make_shared<std::ifstream>(file))
     {
         if(!*pfin_)
             throw std::runtime_error(std::string("Cannot find input file: ") + file);
@@ -39,7 +41,7 @@ struct file_dist
     {}
 
 private:
-    std::shared_ptr<std::ifstream> pfin_;
+    boost::shared_ptr<std::ifstream> pfin_;
 };
 
 template<typename Value, std::size_t N>

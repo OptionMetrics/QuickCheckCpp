@@ -137,9 +137,9 @@ namespace quick_check
         typedef typename property_traits_type::args_type args_type;
         typedef typename property_traits_type::grouped_by_type grouped_by_type;
 
-        boost::function<std::vector<std::string>(args_type &)> classifier_;
-        boost::function<grouped_by_type(args_type &)> grouper_;
-        boost::function<bool(args_type &)> condition_;
+        boost::function<std::vector<std::string>(args_type const &)> classifier_;
+        boost::function<grouped_by_type(args_type const &)> grouper_;
+        boost::function<bool(args_type const &)> condition_;
     public:
         template<typename Expr>
         property(Expr const &expr, typename boost::enable_if<proto::is_expr<Expr> >::type* = 0)
@@ -152,19 +152,19 @@ namespace quick_check
         typedef bool result_type; // for TR1
         using boost::function<sig_type>::operator();
 
-        typedef boost::function<std::vector<std::string>(args_type &)> classifier_type;
+        typedef boost::function<std::vector<std::string>(args_type const &)> classifier_type;
         classifier_type const &classifier() const
         {
             return this->classifier_;
         }
 
-        typedef boost::function<grouped_by_type(args_type &)> grouper_type;
+        typedef boost::function<grouped_by_type(args_type const &)> grouper_type;
         grouper_type const &grouper() const
         {
             return this->grouper_;
         }
 
-        typedef boost::function<bool(args_type &)> condition_type;
+        typedef boost::function<bool(args_type const &)> condition_type;
         condition_type const &condition() const
         {
             return this->condition_;
