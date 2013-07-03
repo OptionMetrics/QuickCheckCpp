@@ -149,8 +149,8 @@ namespace quick_check
             }
 
         private:
-            boost::optional<int> percent_;
             Generators gens_;
+            boost::optional<int> percent_;
         };
 
         template<typename Generators>
@@ -199,8 +199,8 @@ namespace quick_check
             }
 
         private:
-            boost::optional<int> percent_;
             Generators gens_;
+            boost::optional<int> percent_;
         };
 
         template<typename Gens>
@@ -278,12 +278,12 @@ namespace quick_check
             template<typename T, typename Gens>
             boost::optional<Value> operator()(
                 boost::optional<Value> const &state,
-                object_generator<T, Gens> &gen
+                object_generator<T, Gens> const &gen
             ) const
             {
                 so_far_ += gen.percent();
                 if(!state && value_ < so_far_)
-                    return gen(rng_);
+                    return const_cast<object_generator<T, Gens> &>(gen)(rng_);
                 return state;
             }
         private:
@@ -310,10 +310,11 @@ namespace quick_check
                 // Generate a random number between 0 and 99 inclusive
                 int percent = percent_dist_(rng);
                 int so_far = 0;
+                boost::optional<result_type> state = boost::none;
                 alt_generator_predicate<result_type, Rng> fun(rng, percent, so_far);
-                auto result = fusion::fold(gens_, boost::none, fun);
-                BOOST_ASSERT(!!result);
-                return result.get();
+                state = fusion::fold(gens_, state, fun);
+                BOOST_ASSERT(!!state);
+                return state.get();
             }
 
             friend void set_size_adl(alternate_generator &thiz, std::size_t size)
@@ -361,7 +362,7 @@ namespace quick_check
         T                                                                                           \
       , typename fusion::result_of::make_vector<BOOST_PP_ENUM_PARAMS(N, G)>::type                   \
     >                                                                                               \
-    class_(BOOST_PP_ENUM_BINARY_PARAMS(N, const G, &g))                                          \
+    class_(BOOST_PP_ENUM_BINARY_PARAMS(N, const G, &g))                                             \
     {                                                                                               \
         return detail::object_generator<                                                            \
             T                                                                                       \

@@ -17,4 +17,6 @@ test-suite "quick_check"
     :
         [ run array.cpp ]
         [ run basic.cpp ]
+        [ run char_gen.cpp ]
+        [ run class_gen.cpp ]
     ;
