@@ -12,6 +12,10 @@
 #include <boost/quick_check/quick_check.hpp>
 #include <boost/test/unit_test.hpp>
 
+#ifdef BOOST_CLANG
+# define QCHK_CLANG (__clang_major__ * 100 + __clang_minor__)
+#endif
+
 namespace qchk = boost::quick_check;
 
 boost::random::mt11213b rng;
@@ -62,12 +66,16 @@ void test_uniform()
     test_uniform_integral<unsigned long long>(0u, 100u);
 #endif
 
+    // workaround for type_trats bug: https://svn.boost.org/trac/boost/ticket/8780
+#if !(BOOST_WORKAROUND(BOOST_GCC, BOOST_TESTED_AT(40801)) || \
+      BOOST_WORKAROUND(QCHK_CLANG, BOOST_TESTED_AT(304)))
 #ifndef BOOST_NO_CXX11_CHAR16_T
     test_uniform_integral<char16_t>(0, 100);
 #endif
 
 #ifndef BOOST_NO_CXX11_CHAR32_T
     test_uniform_integral<char32_t>(0, 100);
+#endif
 #endif
 
     test_uniform_floating<float>(-100.f,100.f);
