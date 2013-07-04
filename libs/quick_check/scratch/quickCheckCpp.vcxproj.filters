@@ -42,6 +42,18 @@
     <ClCompile Include="..\test\char_gen.cpp">
       <Filter>Test Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\test\class_gen.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\constant_gen.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\normal_gen.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\uniform_gen.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\boost\quick_check\quick_check.hpp">
@@ -126,6 +138,9 @@
     </None>
     <None Include="..\test\Jamfile">
       <Filter>Test Files</Filter>
+    </None>
+    <None Include="Jamfile">
+      <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
