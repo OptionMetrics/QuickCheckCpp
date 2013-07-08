@@ -21,5 +21,7 @@ test-suite "quick_check"
         [ run class_gen.cpp ]
         [ run constant_gen.cpp ]
         [ run normal_gen.cpp ]
+        [ run string_gen.cpp ]
+        [ run transform_gen.cpp ]
         [ run uniform_gen.cpp ]
     ;

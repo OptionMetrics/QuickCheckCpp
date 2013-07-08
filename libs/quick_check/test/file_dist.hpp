@@ -21,6 +21,8 @@
 template<typename Value>
 struct file_dist
 {
+    typedef Value result_type;
+
     explicit file_dist(std::string const &file)
       : pfin_(boost::make_shared<std::ifstream>(file))
     {
@@ -47,6 +49,8 @@ private:
 template<typename Value, std::size_t N>
 struct file_dist<Value[N]>
 {
+    typedef boost::quick_check::detail::array<Value[N]> result_type;
+
     explicit file_dist(std::string const &file)
       : dist_(file)
     {}

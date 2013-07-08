@@ -78,7 +78,7 @@ namespace quick_check
         {};
 
         struct fusion_as_map
-          : proto::callable, detail::unary<fusion_as_map>
+          : proto::callable, detail::unary<>
         {
             template<typename Seq>
             typename fusion::result_of::as_map<Seq>::type
@@ -124,7 +124,7 @@ namespace quick_check
         {};
 
         struct fusion_join
-          : proto::callable, detail::binary<fusion_join>
+          : proto::callable, detail::binary<>
         {
             template<typename A, typename B>
             typename fusion::result_of::as_vector<

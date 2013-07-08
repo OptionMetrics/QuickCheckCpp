@@ -22,7 +22,7 @@ namespace quick_check
     namespace detail
     {
         /// Function object for the unary + operator.
-        struct unary_plus : unary<unary_plus>
+        struct unary_plus : unary<>
         {
             template<typename T>
             BOOST_CONSTEXPR auto operator()(T && t) const
@@ -32,7 +32,7 @@ namespace quick_check
         };
 
         /// Function object for the unary - operator.
-        struct negate : unary<negate>
+        struct negate : unary<>
         {
             template<typename T>
             BOOST_CONSTEXPR auto operator()(T && t) const
@@ -42,7 +42,7 @@ namespace quick_check
         };
 
         /// Function object for the unary * operator.
-        struct dereference : unary<dereference>
+        struct dereference : unary<>
         {
             template<typename T>
             BOOST_CONSTEXPR auto operator()(T && t) const
@@ -52,7 +52,7 @@ namespace quick_check
         };
 
         /// Function object for the unary ~ operator.
-        struct complement : unary<complement>
+        struct complement : unary<>
         {
             template<typename T>
             BOOST_CONSTEXPR auto operator()(T && t) const
@@ -62,7 +62,7 @@ namespace quick_check
         };
 
         /// Function object for the unary & operator.
-        struct address_of : unary<address_of>
+        struct address_of : unary<>
         {
             template<typename T>
             BOOST_CONSTEXPR auto operator()(T && t) const
@@ -72,7 +72,7 @@ namespace quick_check
         };
 
         /// Function object for the unary ! operator.
-        struct logical_not : unary<logical_not>
+        struct logical_not : unary<>
         {
             template<typename T>
             BOOST_CONSTEXPR auto operator()(T && t) const
@@ -82,7 +82,7 @@ namespace quick_check
         };
 
         /// Function object for the unary prefix ++ operator.
-        struct pre_inc : unary<pre_inc>
+        struct pre_inc : unary<>
         {
             template<typename T>
             BOOST_CONSTEXPR auto operator()(T && t) const
@@ -92,7 +92,7 @@ namespace quick_check
         };
 
         /// Function object for the unary prefix -- operator.
-        struct pre_dec : unary<pre_dec>
+        struct pre_dec : unary<>
         {
             template<typename T>
             BOOST_CONSTEXPR auto operator()(T && t) const
@@ -102,7 +102,7 @@ namespace quick_check
         };
 
         /// Function object for the unary postfix ++ operator.
-        struct post_inc : unary<post_inc>
+        struct post_inc : unary<>
         {
             template<typename T>
             BOOST_CONSTEXPR auto operator()(T && t) const
@@ -112,7 +112,7 @@ namespace quick_check
         };
 
         /// Function object for the unary postfix -- operator.
-        struct post_dec : unary<post_dec>
+        struct post_dec : unary<>
         {
             template<typename T>
             BOOST_CONSTEXPR auto operator()(T && t) const
@@ -122,7 +122,7 @@ namespace quick_check
         };
 
         /// Function object for the binary \<\< operator.
-        struct shift_left : binary<shift_left>
+        struct shift_left : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -132,7 +132,7 @@ namespace quick_check
         };
 
         /// Function object for the binary \>\> operator.
-        struct shift_right : binary<shift_right>
+        struct shift_right : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -142,7 +142,7 @@ namespace quick_check
         };
 
         /// Function object for the binary * operator.
-        struct multiplies : binary<multiplies>
+        struct multiplies : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -152,7 +152,7 @@ namespace quick_check
         };
 
         /// Function object for the binary / operator.
-        struct divides : binary<divides>
+        struct divides : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -162,7 +162,7 @@ namespace quick_check
         };
 
         /// Function object for the binary % operator.
-        struct modulus : binary<modulus>
+        struct modulus : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -172,7 +172,7 @@ namespace quick_check
         };
 
         /// Function object for the binary + operator.
-        struct plus : binary<plus>
+        struct plus : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -182,7 +182,7 @@ namespace quick_check
         };
 
         /// Function object for the binary - operator.
-        struct minus : binary<minus>
+        struct minus : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -192,7 +192,7 @@ namespace quick_check
         };
 
         /// Function object for the binary \< operator.
-        struct less : binary<less>
+        struct less : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -202,7 +202,7 @@ namespace quick_check
         };
 
         /// Function object for the binary \> operator.
-        struct greater : binary<greater>
+        struct greater : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -212,7 +212,7 @@ namespace quick_check
         };
 
         /// Function object for the binary \<= operator.
-        struct less_equal : binary<less_equal>
+        struct less_equal : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -222,7 +222,7 @@ namespace quick_check
         };
 
         /// Function object for the binary \>= operator.
-        struct greater_equal : binary<greater_equal>
+        struct greater_equal : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -232,7 +232,7 @@ namespace quick_check
         };
 
         /// Function object for the binary == operator.
-        struct equal_to : binary<equal_to>
+        struct equal_to : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -242,7 +242,7 @@ namespace quick_check
         };
 
         /// Function object for the binary != operator.
-        struct not_equal_to : binary<not_equal_to>
+        struct not_equal_to : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -252,7 +252,7 @@ namespace quick_check
         };
 
         /// Function object for the binary || operator.
-        struct logical_or : binary<logical_or>
+        struct logical_or : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -262,7 +262,7 @@ namespace quick_check
         };
 
         /// Function object for the binary && operator.
-        struct logical_and : binary<logical_and>
+        struct logical_and : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -272,7 +272,7 @@ namespace quick_check
         };
 
         /// Function object for the binary & operator.
-        struct bitwise_and : binary<bitwise_and>
+        struct bitwise_and : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -282,7 +282,7 @@ namespace quick_check
         };
 
         /// Function object for the binary | operator.
-        struct bitwise_or : binary<bitwise_or>
+        struct bitwise_or : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -292,7 +292,7 @@ namespace quick_check
         };
 
         /// Function object for the binary ^ operator.
-        struct bitwise_xor : binary<bitwise_xor>
+        struct bitwise_xor : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -302,7 +302,7 @@ namespace quick_check
         };
 
         /// Function object for the binary , operator.
-        struct comma : binary<comma>
+        struct comma : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -312,7 +312,7 @@ namespace quick_check
         };
 
         /// Function object for the binary ->* operator.
-        struct mem_ptr : binary<mem_ptr>
+        struct mem_ptr : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -322,7 +322,7 @@ namespace quick_check
         };
 
         /// Function object for the binary = operator.
-        struct assign : binary<assign>
+        struct assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -332,7 +332,7 @@ namespace quick_check
         };
 
         /// Function object for the binary \<\<= operator.
-        struct shift_left_assign : binary<shift_left_assign>
+        struct shift_left_assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -342,7 +342,7 @@ namespace quick_check
         };
 
         /// Function object for the binary \>\>= operator.
-        struct shift_right_assign : binary<shift_right_assign>
+        struct shift_right_assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -352,7 +352,7 @@ namespace quick_check
         };
 
         /// Function object for the binary *= operator.
-        struct multiplies_assign : binary<multiplies_assign>
+        struct multiplies_assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -362,7 +362,7 @@ namespace quick_check
         };
 
         /// Function object for the binary /= operator.
-        struct divides_assign : binary<divides_assign>
+        struct divides_assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -372,7 +372,7 @@ namespace quick_check
         };
 
         /// Function object for the binary %= operator.
-        struct modulus_assign : binary<modulus_assign>
+        struct modulus_assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -382,7 +382,7 @@ namespace quick_check
         };
 
         /// Function object for the binary += operator.
-        struct plus_assign : binary<plus_assign>
+        struct plus_assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -392,7 +392,7 @@ namespace quick_check
         };
 
         /// Function object for the binary -= operator.
-        struct minus_assign : binary<minus_assign>
+        struct minus_assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -402,7 +402,7 @@ namespace quick_check
         };
 
         /// Function object for the binary &= operator.
-        struct bitwise_and_assign : binary<bitwise_and_assign>
+        struct bitwise_and_assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -412,7 +412,7 @@ namespace quick_check
         };
 
         /// Function object for the binary |= operator.
-        struct bitwise_or_assign : binary<bitwise_or_assign>
+        struct bitwise_or_assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -422,7 +422,7 @@ namespace quick_check
         };
 
         /// Function object for the binary ^= operator.
-        struct bitwise_xor_assign : binary<bitwise_xor_assign>
+        struct bitwise_xor_assign : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -432,7 +432,7 @@ namespace quick_check
         };
 
         /// Function object for the binary subscript operator.
-        struct subscript : binary<subscript>
+        struct subscript : binary<>
         {
             template<typename T, typename U>
             BOOST_CONSTEXPR auto operator()(T && t, U && u) const
@@ -442,7 +442,7 @@ namespace quick_check
         };
 
         /// Function object for the ternary ?: conditional operator.
-        struct if_else : binary<if_else>
+        struct if_else : binary<>
         {
             template<typename T, typename U, typename V>
             BOOST_CONSTEXPR auto operator()(T && t, U && u, V && v) const
