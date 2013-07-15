@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file vector_gen.cpp
-// \brief A test of the vector generator
+// \file zip_gen.cpp
+// \brief A test of the zip generator
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -17,31 +17,7 @@ static const std::size_t CLOOPS = 128;
 
 namespace qchk = boost::quick_check;
 
-void test_vector()
-{
-    boost::random::mt11213b rng;
-
-    file_dist<int> igen("uniform_int_distribution.txt");
-    auto die = qchk::transform(
-        igen
-      , qchk::detail::make_unary([](int i){return std::abs(i)%6 + 1;})
-    );
-    auto rgdie = qchk::vector(die);
-    set_size_adl(rgdie, 12);
-
-    for(std::size_t i = 0; i < CLOOPS; ++i)
-    {
-        std::vector<int> v = rgdie(rng);
-        BOOST_CHECK_LT(v.size(), 12u);
-        for(int j : v)
-        {
-            BOOST_CHECK_LE(j, 6);
-            BOOST_CHECK_GE(j, 1);
-        }
-    }
-}
-
-void test_ordered_vector()
+void test_zip()
 {
     boost::random::mt11213b rng;
 
@@ -55,19 +31,14 @@ void test_ordered_vector()
         igen
       , qchk::detail::make_unary([](int i){return std::abs(i);})
     );
-    auto rgzip = qchk::ordered_vector(qchk::zip(ipos, dpos));
-    set_size_adl(rgzip, 12);
+    auto zip = qchk::zip(ipos, dpos);
+    set_size_adl(zip, 12); // no-op, make sure it compiles
 
     for(std::size_t i = 0; i < CLOOPS; ++i)
     {
-        std::vector<std::pair<int, double> > v = rgzip(rng);
-        BOOST_CHECK_LT(v.size(), 12u);
-        for(auto j : v)
-        {
-            BOOST_CHECK_GE(j.first, 0);
-            BOOST_CHECK_GE(j.second, 0.0);
-        }
-        BOOST_CHECK(std::is_sorted(v.begin(), v.end()));
+        std::pair<int, double> p = zip(rng);
+        BOOST_CHECK_GE(p.first, 0);
+        BOOST_CHECK_GE(p.second, 0.0);
     }
 }
 
@@ -77,10 +48,9 @@ using namespace boost::unit_test;
 //
 test_suite* init_unit_test_suite( int argc, char* argv[] )
 {
-    test_suite *test = BOOST_TEST_SUITE("tests for the vector generator");
+    test_suite *test = BOOST_TEST_SUITE("tests for the zip generator");
 
-    test->add(BOOST_TEST_CASE(&test_vector));
-    test->add(BOOST_TEST_CASE(&test_ordered_vector));
+    test->add(BOOST_TEST_CASE(&test_zip));
 
     return test;
 }
