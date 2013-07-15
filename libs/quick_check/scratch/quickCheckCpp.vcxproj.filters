@@ -25,6 +25,9 @@
     <Filter Include="Test Files">
       <UniqueIdentifier>{d36c0e94-b7e4-4fa9-a544-c60c7da27d86}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Test Files\generator">
+      <UniqueIdentifier>{b2924ece-470f-41bf-aa45-87bb1a3a686d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -33,38 +36,32 @@
     <ClCompile Include="..\example\simple.cpp">
       <Filter>Example Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\basic.cpp">
-      <Filter>Test Files</Filter>
+    <ClCompile Include="..\test\generator\char.cpp">
+      <Filter>Test Files\generator</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\array.cpp">
-      <Filter>Test Files</Filter>
+    <ClCompile Include="..\test\generator\class.cpp">
+      <Filter>Test Files\generator</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\char_gen.cpp">
-      <Filter>Test Files</Filter>
+    <ClCompile Include="..\test\generator\constant.cpp">
+      <Filter>Test Files\generator</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\class_gen.cpp">
-      <Filter>Test Files</Filter>
+    <ClCompile Include="..\test\generator\normal.cpp">
+      <Filter>Test Files\generator</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\constant_gen.cpp">
-      <Filter>Test Files</Filter>
+    <ClCompile Include="..\test\generator\string.cpp">
+      <Filter>Test Files\generator</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\normal_gen.cpp">
-      <Filter>Test Files</Filter>
+    <ClCompile Include="..\test\generator\transform.cpp">
+      <Filter>Test Files\generator</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\uniform_gen.cpp">
-      <Filter>Test Files</Filter>
+    <ClCompile Include="..\test\generator\uniform.cpp">
+      <Filter>Test Files\generator</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\string_gen.cpp">
-      <Filter>Test Files</Filter>
+    <ClCompile Include="..\test\generator\vector.cpp">
+      <Filter>Test Files\generator</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\transform_gen.cpp">
-      <Filter>Test Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\test\vector_gen.cpp">
-      <Filter>Test Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\test\zip_gen.cpp">
-      <Filter>Test Files</Filter>
+    <ClCompile Include="..\test\generator\zip.cpp">
+      <Filter>Test Files\generator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

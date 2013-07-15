@@ -12,7 +12,7 @@
 #include <sstream>
 #include <boost/quick_check/quick_check.hpp>
 #include <boost/test/unit_test.hpp>
-#include "./file_dist.hpp"
+#include "../file_dist.hpp"
 
 namespace qchk = boost::quick_check;
 

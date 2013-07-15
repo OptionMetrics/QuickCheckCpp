@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file zip_gen.cpp
-// \brief A test of the zip generator
+// \file transform_gen.cpp
+// \brief A test of the transform generator
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -11,34 +11,25 @@
 #include <cmath>
 #include <boost/quick_check/quick_check.hpp>
 #include <boost/test/unit_test.hpp>
-#include "./file_dist.hpp"
+#include "../file_dist.hpp"
 
 static const std::size_t CLOOPS = 128;
 
 namespace qchk = boost::quick_check;
 
-void test_zip()
+void test_transform()
 {
-    boost::random::mt11213b rng;
-
     file_dist<int> igen("uniform_int_distribution.txt");
-    file_dist<double> dgen("normal_double_distribution.txt");
-    auto dpos = qchk::transform(
-        dgen
-      , qchk::detail::make_unary([](double d){return std::abs(d);})
-    );
-    auto ipos = qchk::transform(
+    auto gen = qchk::transform(
         igen
-      , qchk::detail::make_unary([](int i){return std::abs(i);})
+      , qchk::detail::make_unary([](int i){return std::abs(i)%6 + 1;})
     );
-    auto zip = qchk::zip(ipos, dpos);
-    set_size_adl(zip, 12); // no-op, make sure it compiles
 
     for(std::size_t i = 0; i < CLOOPS; ++i)
     {
-        std::pair<int, double> p = zip(rng);
-        BOOST_CHECK_GE(p.first, 0);
-        BOOST_CHECK_GE(p.second, 0.0);
+        int j = gen(gen);
+        BOOST_CHECK_LE(j, 6);
+        BOOST_CHECK_GE(j, 1);
     }
 }
 
@@ -48,9 +39,9 @@ using namespace boost::unit_test;
 //
 test_suite* init_unit_test_suite( int argc, char* argv[] )
 {
-    test_suite *test = BOOST_TEST_SUITE("tests for the zip generator");
+    test_suite *test = BOOST_TEST_SUITE("tests for the transform generator");
 
-    test->add(BOOST_TEST_CASE(&test_zip));
+    test->add(BOOST_TEST_CASE(&test_transform));
 
     return test;
 }

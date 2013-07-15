@@ -11,7 +11,7 @@
 #include <cmath>
 #include <boost/quick_check/quick_check.hpp>
 #include <boost/test/unit_test.hpp>
-#include "./file_dist.hpp"
+#include "../file_dist.hpp"
 
 static const std::size_t CLOOPS = 128;
 
