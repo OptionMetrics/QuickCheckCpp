@@ -45,8 +45,8 @@ namespace quick_check
 
             friend void set_size_adl(zip_generator &thiz, std::size_t size)
             {
-                set_size_adl(thiz.gen0_);
-                set_size_adl(thiz.gen1_);
+                set_size_adl(thiz.gen0_, size);
+                set_size_adl(thiz.gen1_, size);
             }
 
         private:
@@ -59,7 +59,7 @@ namespace quick_check
     detail::zip_generator<Generator0, Generator1>
     zip(Generator0 const &gen0, Generator1 const &gen1)
     {
-        return detail::zip_generator<Generator0, Generator1>(gen1, gen0);
+        return detail::zip_generator<Generator0, Generator1>(gen0, gen1);
     }
 }
 

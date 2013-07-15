@@ -24,4 +24,5 @@ test-suite "quick_check"
         [ run string_gen.cpp ]
         [ run transform_gen.cpp ]
         [ run uniform_gen.cpp ]
+        [ run vector_gen.cpp ]
     ;

@@ -43,7 +43,7 @@ namespace quick_check
 
             friend void set_size_adl(transform_generator &thiz, std::size_t size)
             {
-                set_size_adl(thiz.gen_);
+                set_size_adl(thiz.gen_, size);
             }
 
         private:
