@@ -27,4 +27,5 @@ test-suite "quick_check"
         [ run array.cpp ]
         [ run basic.cpp ]
         [ run classify.cpp ]
+        [ run condition.cpp ]
     ;

@@ -72,6 +72,9 @@
     <ClCompile Include="..\test\basic.cpp">
       <Filter>Test Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\test\condition.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\boost\quick_check\quick_check.hpp">

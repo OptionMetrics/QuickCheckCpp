@@ -78,11 +78,11 @@ namespace quick_check
 
         // A QuickCheckExpr is one of:
         //      ordered(_1) >>=
-        //          group_by(_1 % 5) | 
+        //          group_by(_1 % 5) |
         //              classify(_1>_2, "greater") | classify(_1<_2, "less") | classify(_1==_2, "equal") |
         //                  _1 + _2 == _2 + _1
         // or
-        //      group_by(_1 % 5) | 
+        //      group_by(_1 % 5) |
         //          classify(_1>_2, "greater") | classify(_1<_2, "less") | classify(_1==_2, "equal") |
         //              _1 + _2 == _2 + _1
         // or

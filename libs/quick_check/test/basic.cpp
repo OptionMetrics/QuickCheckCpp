@@ -33,7 +33,7 @@ void test_qchk_auto()
 
     // Here's a property to test:
     auto
-        is_reflexive = 
+        is_reflexive =
             (_1 > 0) >>=
                 group_by(_1 % 3)
                    | classify(_2>0,"foo")
@@ -74,7 +74,7 @@ void test_qchk_prop()
 
     // Here's a property to test:
     property<int, double, grouped_by<int> >
-        is_reflexive = 
+        is_reflexive =
             (_1 > 0) >>=
                 group_by(_1 % 3)
                    | classify(_2>0,"foo")

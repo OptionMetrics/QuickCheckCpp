@@ -27,7 +27,7 @@ int main()
     // Here's a property to test:
     //property<int, double, grouped_by<int> >
     auto
-        is_reflexive = 
+        is_reflexive =
             (_2 > 0 ) >>=
                 group_by(_1 % 3)
                    | classify(_1>3,"foo")
