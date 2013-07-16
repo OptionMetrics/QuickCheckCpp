@@ -29,7 +29,7 @@ namespace quick_check
         struct ungrouped_args
         {
             template<typename Args>
-            ungrouped_args operator()(Args &) const
+            ungrouped_args operator()(Args const &) const
             {
                 return *this;
             }

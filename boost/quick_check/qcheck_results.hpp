@@ -16,6 +16,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <boost/assert.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/type_traits/remove_reference.hpp>
@@ -258,15 +259,12 @@ namespace quick_check
                    this->categories_.begin()->first.second.size() == 0)
                     return;
                 // Iterate over the categories and print them with percentages
-                boost::for_each(
-                    this->categories_
-                  , [&](std::pair<key_type, std::size_t> const &p)
-                    {
-                        sout << (boost::format("%1$.0f%% %2%.\n")
-                                    % ((p.second * 100.) / this->nbr_tests_)
-                                    % this->category_name(p.first));
-                    }
-                );
+                for(std::pair<key_type, std::size_t> const &p : this->categories_)
+                {
+                    sout << (boost::format("%1$.0f%% %2%.\n")
+                                % ((p.second * 100.) / this->nbr_tests_)
+                                % this->category_name(p.first));
+                }
                 sout << std::flush;
             }
             else
@@ -285,6 +283,7 @@ namespace quick_check
             std::vector<std::string> tmp = p.second;
             if(!std::is_same<grouped_by_type, detail::ungrouped_args>::value)
                 tmp.insert(tmp.begin(), boost::lexical_cast<std::string>(p.first));
+            BOOST_ASSERT(!tmp.empty());
             bool first = true;
             std::for_each(tmp.begin(), tmp.end(), detail::disp(sout, first));
             return sout.str();
@@ -298,9 +297,8 @@ namespace quick_check
           , grouped_by_type const &group
         )
         {
+            this->add_success(classes, group);
             failures_.push_back(args_type(args, classes, group));
-            ++categories_[key_type(group, classes)];
-            ++nbr_tests_;
             if(this->first_failed_test_ == 0)
                 this->first_failed_test_ = this->nbr_tests_;
         }
@@ -310,7 +308,10 @@ namespace quick_check
           , grouped_by_type const &group
         )
         {
-            ++this->categories_[key_type(group, classes)];
+            // Track the group/category as long as there is one.
+            if(!std::is_same<grouped_by_type, detail::ungrouped_args>::value ||
+               !classes.empty())
+                ++this->categories_[key_type(group, classes)];
             ++this->nbr_tests_;
         }
 

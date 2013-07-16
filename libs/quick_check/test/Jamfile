@@ -15,8 +15,6 @@ project
 
 test-suite "quick_check"
     :
-        [ run array.cpp ]
-        [ run basic.cpp ]
         [ run generator/char.cpp ]
         [ run generator/class.cpp ]
         [ run generator/constant.cpp ]
@@ -26,4 +24,7 @@ test-suite "quick_check"
         [ run generator/uniform.cpp ]
         [ run generator/vector.cpp ]
         [ run generator/zip.cpp ]
+        [ run array.cpp ]
+        [ run basic.cpp ]
+        [ run classify.cpp ]
     ;
