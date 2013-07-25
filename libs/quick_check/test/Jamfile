@@ -28,4 +28,5 @@ test-suite "quick_check"
         [ run basic.cpp ]
         [ run classify.cpp ]
         [ run condition.cpp ]
+        [ run config.cpp ]
     ;

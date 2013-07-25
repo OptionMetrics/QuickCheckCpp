@@ -95,7 +95,7 @@ using namespace boost::unit_test;
 //
 test_suite* init_unit_test_suite( int argc, char* argv[] )
 {
-    test_suite *test = BOOST_TEST_SUITE("basic tests for qcheck");
+    test_suite *test = BOOST_TEST_SUITE("test for input conditions");
 
     test->add(BOOST_TEST_CASE(&test_condition_throw_auto));
     test->add(BOOST_TEST_CASE(&test_condition_safe_auto));

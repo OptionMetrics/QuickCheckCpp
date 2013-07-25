@@ -12,6 +12,7 @@
 #define QCHK_CONFIG_HPP_INCLUDED
 
 #include <utility>
+#include <boost/preprocessor/punctuation/comma_if.hpp>
 #include <boost/mpl/size_t.hpp>
 #include <boost/mpl/accumulate.hpp>
 #include <boost/mpl/transform.hpp>
@@ -58,18 +59,6 @@ namespace quick_check
         struct max_test_count_ {};
         struct sized_ {};
 
-        template<typename Map, typename Rng>
-        config<Map, Rng> make_config(
-            Map const &map
-          , Rng const &rng
-          , std::size_t test_count
-          , std::size_t max_test_count
-          , std::size_t sized
-        )
-        {
-            return config<Map, Rng>(map, rng, test_count, max_test_count, sized);
-        }
-
         struct PhxPlaceholder
           : proto::and_<
                 proto::terminal<proto::_>
@@ -77,36 +66,56 @@ namespace quick_check
             >
         {};
 
-        struct fusion_as_map
-          : proto::callable, detail::unary<>
-        {
-            template<typename Seq>
-            typename fusion::result_of::as_map<Seq>::type
-            operator()(Seq const &seq) const
-            {
-                return fusion::as_map(seq);
-            }
-        };
-
         struct DoInsert
-          : proto::call<proto::functional::make_pair(
-                proto::call<fusion_as_map(
-                    proto::functional::push_back(
-                        proto::call<proto::functional::first(proto::_state)>
-                      , proto::make<fusion::pair<
-                            proto::_value(proto::_left)
-                          , proto::_byval(proto::functional::second(proto::_state))
-                        >(proto::functional::second(proto::_state))>
-                    )
-                )>
-              , proto::_byval(proto::_value(proto::_left))
-            )>
-        {};
+          : proto::transform<DoInsert>
+        {
+            template<typename Expr, typename State, typename Data>
+            struct impl
+              : proto::transform_impl<Expr, State, Data>
+            {
+                typedef
+                    typename std::remove_const<
+                        typename std::remove_reference<
+                            typename proto::result_of::value<
+                                typename proto::result_of::left<Expr>::type
+                            >::type
+                        >::type
+                    >::type
+                key_type;
+
+                typedef
+                    std::pair<
+                        typename fusion::result_of::as_map<
+                            typename fusion::result_of::push_back<
+                                typename State::first_type
+                              , fusion::pair<key_type, typename State::second_type>
+                            >::type
+                        >::type
+                      , key_type
+                    >
+                result_type;
+
+                result_type operator()(typename impl::expr_param e,
+                                       typename impl::state_param s,
+                                       typename impl::data_param) const
+                {
+                    return std::make_pair(
+                        fusion::as_map(
+                            fusion::push_back(
+                                s.first
+                              , fusion::make_pair<key_type>(s.second)
+                            )
+                        )
+                      , proto::value(proto::left(e))
+                    );
+                }
+            };
+        };
 
         struct CollectTerminal
           : proto::call<proto::functional::make_pair(
                 proto::make<fusion::map<>()>
-              , proto::_byval(proto::_value(proto::_right))
+              , proto::_value
             )>
         {};
 
@@ -114,7 +123,7 @@ namespace quick_check
           : proto::or_<
                 proto::when<
                     proto::assign<PhxPlaceholder, proto::terminal<proto::_> >
-                  , DoInsert(proto::_, CollectTerminal)
+                  , DoInsert(proto::_, CollectTerminal(proto::_right))
                 >
               , proto::when<
                     proto::assign<PhxPlaceholder, RngCollection>
@@ -257,28 +266,30 @@ namespace quick_check
 
         template<typename Args>
         typename fusion::result_of::as_map<
-            typename fusion::result_of::accumulate<
-                typename fusion::result_of::transform<
+            typename boost::remove_reference<
+                typename fusion::result_of::accumulate<
                     typename fusion::result_of::transform<
-                        typename fusion::result_of::filter_if<
-                            Args
-                          , mpl::quote1<is_rng_collection>
+                        typename fusion::result_of::transform<
+                            typename fusion::result_of::filter_if<
+                                Args
+                              , mpl::quote1<is_rng_collection>
+                            >::type
+                          , detail::RngCollection
                         >::type
-                      , detail::RngCollection
+                      , proto::functional::first
                     >::type
-                  , proto::functional::first
+                  , fusion::nil_
+                  , detail::fusion_join
                 >::type
-              , fusion::nil_
-              , detail::fusion_join
             >::type
         >::type
         make_config_map(Args args)
         {
-            auto dists = fusion::as_vector(fusion::filter_if<mpl::quote1<is_rng_collection> >(args));
-            auto tmp0 = fusion::as_vector(fusion::transform(dists, detail::RngCollection()));
-            auto tmp1 = fusion::as_vector(fusion::transform(tmp0, proto::functional::first()));
-            auto tmp3 = fusion::as_vector(fusion::accumulate(tmp1, fusion::nil_(), detail::fusion_join()));
-            return fusion::as_map(tmp3);
+            auto a = fusion::as_vector(fusion::filter_if<mpl::quote1<is_rng_collection> >(args));
+            auto b = fusion::as_vector(fusion::transform(a, detail::RngCollection()));
+            auto c = fusion::as_vector(fusion::transform(b, proto::functional::first()));
+            auto d = fusion::as_vector(fusion::accumulate(c, fusion::nil_(), detail::fusion_join()));
+            return fusion::as_map(d);
         }
     }
 
@@ -372,32 +383,63 @@ namespace quick_check
     proto::terminal<detail::max_test_count_>::type const _max_test_count = {};
     proto::terminal<detail::sized_>::type const _sized = {};
 
+    namespace detail
+    {
+        template<typename Grammar, typename Args>
+        auto fetch_arg(Args const &args)
+        QCHK_RETURN(
+            Grammar()(*fusion::find_if<proto::matches<mpl::_, Grammar> >(args))
+        )
+
+        template<typename Map, typename Rng>
+        config<Map, Rng> make_config_impl(
+            Map const &map
+          , Rng const &rng
+          , std::size_t test_count
+          , std::size_t max_test_count
+          , std::size_t sized
+        )
+        {
+            return config<Map, Rng>(map, rng, test_count, max_test_count, sized);
+        }
+
+        template<typename Args, typename ArgsWithDefaults>
+        auto make_config_(Args const &args, ArgsWithDefaults const &args_with_defaults)
+        QCHK_RETURN(
+            detail::make_config_impl(
+                detail::make_config_map(args)
+              , detail::fetch_arg<RngValue>(args_with_defaults)
+              , detail::fetch_arg<TestCountValue>(args_with_defaults)
+              , detail::fetch_arg<MaxTestCountValue>(args_with_defaults)
+              , detail::fetch_arg<SizedValue>(args_with_defaults)
+            )
+        )
+    }
+
+    inline auto make_config()
+    QCHK_RETURN(
+        detail::make_config_impl(
+            fusion::vector0<>()
+          , boost::random::mt11213b()
+          , 100u
+          , 1000u
+          , 50u
+        )
+    )
+
 #define BOOST_PROTO_LOCAL_MACRO(N, typename_A, A_const_ref, A_const_ref_a, a)           \
                                                                                         \
     template<typename_A(N)>                                                             \
     auto make_config(A_const_ref_a(N))                                                  \
     QCHK_RETURN(                                                                        \
-        detail::make_config(                                                            \
-            detail::make_config_map(fusion::make_vector(a(N)))                          \
-          , detail::RngValue()(                                                         \
-                *fusion::find_if<proto::matches<mpl::_, detail::RngValue> >(            \
-                    fusion::make_vector(a(N), _rng = boost::random::mt11213b())         \
-                )                                                                       \
-            )                                                                           \
-          , detail::TestCountValue()(                                                   \
-                *fusion::find_if<proto::matches<mpl::_, detail::TestCountValue> >(      \
-                    fusion::make_vector(a(N), _test_count = 100u)                       \
-                )                                                                       \
-            )                                                                           \
-          , detail::MaxTestCountValue()(                                                \
-                *fusion::find_if<proto::matches<mpl::_, detail::MaxTestCountValue> >(   \
-                    fusion::make_vector(a(N), _max_test_count = 1000u)                  \
-                )                                                                       \
-            )                                                                           \
-          , detail::SizedValue()(                                                       \
-                *fusion::find_if<proto::matches<mpl::_, detail::SizedValue> >(          \
-                    fusion::make_vector(a(N), _sized = 50u)                             \
-                )                                                                       \
+        detail::make_config_(                                                           \
+            fusion::make_vector(a(N))                                                   \
+          , fusion::make_vector(                                                        \
+                a(N)                                                                    \
+              , _rng = boost::random::mt11213b()                                        \
+              , _test_count = 100u                                                      \
+              , _max_test_count = 1000u                                                 \
+              , _sized = 50u                                                            \
             )                                                                           \
         )                                                                               \
     )                                                                                   \
