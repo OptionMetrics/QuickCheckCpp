@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file classify_gen.cpp
-// \brief A test of the classify generator
+// \file classify.cpp
+// \brief A test of the classify modifier
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -235,7 +235,7 @@ using namespace boost::unit_test;
 //
 test_suite* init_unit_test_suite( int argc, char* argv[] )
 {
-    test_suite *test = BOOST_TEST_SUITE("tests for the classify generator");
+    test_suite *test = BOOST_TEST_SUITE("tests for the classify modifier");
 
     test->add(BOOST_TEST_CASE(&test_classify_auto_1));
     test->add(BOOST_TEST_CASE(&test_classify_auto_2));
