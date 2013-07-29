@@ -149,6 +149,11 @@ namespace quick_check
             >
         {};
 
+        template<>
+        struct find_grouped_by_type<>
+        {
+            typedef ungrouped_args type;
+        };
     }
 
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>

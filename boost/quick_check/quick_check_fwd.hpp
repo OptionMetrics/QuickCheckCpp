@@ -13,9 +13,7 @@
 
 #include <boost/proto/proto.hpp>
 #include <boost/phoenix/phoenix.hpp>
-#include <boost/preprocessor/repetition/enum_trailing_binary_params.hpp>
-#include <boost/preprocessor/arithmetic/dec.hpp>
-#include <boost/preprocessor/facilities/intercept.hpp>
+#include <boost/preprocessor/repetition/enum_params_with_a_default.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_void.hpp>
 #include <boost/fusion/support/void.hpp>
@@ -67,13 +65,13 @@ namespace quick_check
     template<typename Map, typename Rng>
     struct config;
 
-    template<typename A BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(BOOST_PP_DEC(QCHK_MAX_ARITY), typename B, = void BOOST_PP_INTERCEPT)>
+    template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(QCHK_MAX_ARITY, typename A, void)>
     struct property;
 
-    template<typename A BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(BOOST_PP_DEC(QCHK_MAX_ARITY), typename B, = void BOOST_PP_INTERCEPT)>
+    template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(QCHK_MAX_ARITY, typename A, void)>
     struct qcheck_results;
 
-    template<typename A BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(BOOST_PP_DEC(QCHK_MAX_ARITY), typename B, = void BOOST_PP_INTERCEPT)>
+    template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(QCHK_MAX_ARITY, typename A, void)>
     struct qcheck_args;
 
     template<typename>

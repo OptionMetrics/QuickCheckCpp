@@ -8,6 +8,7 @@ import testing ;
 project
     : requirements
         <library>/boost/test//boost_unit_test_framework
+        <library>/boost/filesystem//boost_filesystem
         <threading>multi
         <link>static
         <toolset>gcc:<cxxflags>-Wno-unused-local-typedefs
@@ -30,4 +31,11 @@ test-suite "quick_check"
         [ run condition.cpp ]
         [ run config.cpp ]
         [ run group_by.cpp ]
+        [ run property.cpp ]
+    ;
+
+test-suite "qcheck"
+    :
+        [ run qcheck/test0.cpp ]
+        [ run qcheck/test1.cpp ]
     ;

@@ -28,6 +28,9 @@
     <Filter Include="Test Files\generator">
       <UniqueIdentifier>{b2924ece-470f-41bf-aa45-87bb1a3a686d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Test Files\qcheck">
+      <UniqueIdentifier>{8c87a17d-0404-4944-ba39-21d4c2299243}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -80,6 +83,15 @@
     </ClCompile>
     <ClCompile Include="..\test\group_by.cpp">
       <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\property.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\qcheck\test0.cpp">
+      <Filter>Test Files\qcheck</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\qcheck\test1.cpp">
+      <Filter>Test Files\qcheck</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +168,9 @@
       <Filter>quickCheckCpp Files\generator</Filter>
     </ClInclude>
     <ClInclude Include="..\test\file_dist.hpp">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test\utility.hpp">
       <Filter>Test Files</Filter>
     </ClInclude>
   </ItemGroup>

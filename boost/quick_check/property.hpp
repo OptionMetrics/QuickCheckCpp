@@ -88,6 +88,14 @@ namespace quick_check
             grouped_by_type;
         };
 
+        template<>
+        struct property_traits<>
+        {
+            typedef bool call_signature();
+            typedef fusion::vector0<> args_type;
+            typedef ungrouped_args grouped_by_type;
+        };
+
     #define BOOST_PP_LOCAL_MACRO(N)                                                                 \
         template<BOOST_PP_ENUM_PARAMS(N, typename A)>                                               \
         struct property_traits<BOOST_PP_ENUM_PARAMS(N, A)>                                          \
@@ -132,7 +140,9 @@ namespace quick_check
         >
     {
     private:
-        typedef detail::property_traits<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> property_traits_type;
+        typedef
+            detail::property_traits<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>
+        property_traits_type;
         typedef typename property_traits_type::call_signature sig_type;
         typedef typename property_traits_type::args_type args_type;
         typedef typename property_traits_type::grouped_by_type grouped_by_type;
@@ -140,7 +150,15 @@ namespace quick_check
         boost::function<std::vector<std::string>(args_type const &)> classifier_;
         boost::function<grouped_by_type(args_type const &)> grouper_;
         boost::function<bool(args_type const &)> condition_;
+
     public:
+        property()
+          : boost::function<sig_type>()
+          , classifier_()
+          , grouper_()
+          , condition_()
+        {}
+
         template<typename Expr>
         property(Expr const &expr, typename boost::enable_if<proto::is_expr<Expr> >::type* = 0)
           : boost::function<sig_type>(detail::GetProperty()(expr))
