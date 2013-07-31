@@ -38,4 +38,7 @@ test-suite "qcheck"
     :
         [ run qcheck/test0.cpp ]
         [ run qcheck/test1.cpp ]
+        [ run qcheck/test2.cpp ]
+        [ run qcheck/test3.cpp ]
+        [ run qcheck/test4.cpp ]
     ;

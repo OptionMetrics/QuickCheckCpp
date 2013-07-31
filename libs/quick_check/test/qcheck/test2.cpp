@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file qcheck/test1.cpp
+// \file qcheck/test2.cpp
 // \brief A test of the qcheck algorithm
 //
 // Copyright 2013 OptionMetrics, Inc.
@@ -18,38 +18,68 @@ namespace qchk = boost::quick_check;
 namespace proto = boost::proto;
 namespace phx = boost::phoenix;
 
-void test_qcheck_false_auto_1()
+struct size_impl
+{
+    typedef std::size_t result_type;
+    template<typename T>
+    std::size_t operator()(T const &t) const
+    {
+        return t.size();
+    }
+};
+
+phx::function<size_impl> size;
+
+void test_qcheck_sized_auto_0()
 {
     using namespace qchk;
-    file_dist<int> di(qcheck_test::abs_test_root("uniform_int_distribution.txt"));
+    boost::random::mt11213b rng;
 
-    auto const prop2 = _1 == 1866415935;
-    auto config = make_config(_1 = di);
+    auto ds = qchk::string();
+
+    auto const prop2 = size(_1) < 100u;
+    auto config = make_config(_1 = ds);
     auto res = qcheck(prop2, config);
     std::stringstream sout;
     res.print_summary(sout);
     BOOST_CHECK_EQUAL(
-        "Falsifiable, after 2 tests:\n"
-        "[-267902603]\n"
+        "OK, passed 100 tests.\n"
       , sout.str()
     );
+
+    config.resized(200u);
+    res = qcheck(prop2, config);
+    BOOST_CHECK(!res.success());
+
+    auto config2 = make_config(_1 = ds, _sized = 200u);
+    auto res2 = qcheck(prop2, config2);
+    BOOST_CHECK(!res2.success());
 }
 
-void test_qcheck_false_prop_1()
+void test_qcheck_sized_prop_0()
 {
     using namespace qchk;
-    file_dist<int> di(qcheck_test::abs_test_root("uniform_int_distribution.txt"));
+    boost::random::mt11213b rng;
 
-    property<int> const prop2 = _1 == 1866415935;
-    auto config = make_config(_1 = di);
+    auto ds = qchk::string();
+
+    property<std::string> const prop2 = size(_1) < 100u;
+    auto config = make_config(_1 = ds);
     auto res = qcheck(prop2, config);
     std::stringstream sout;
     res.print_summary(sout);
     BOOST_CHECK_EQUAL(
-        "Falsifiable, after 2 tests:\n"
-        "[-267902603]\n"
+        "OK, passed 100 tests.\n"
       , sout.str()
     );
+
+    config.resized(200u);
+    res = qcheck(prop2, config);
+    BOOST_CHECK(!res.success());
+
+    auto config2 = make_config(_1 = ds, _sized = 200u);
+    auto res2 = qcheck(prop2, config2);
+    BOOST_CHECK(!res2.success());
 }
 
 using namespace boost::unit_test;
@@ -60,8 +90,8 @@ test_suite* init_unit_test_suite( int argc, char* argv[] )
 {
     test_suite *test = BOOST_TEST_SUITE("tests for the qcheck algorithm");
 
-    test->add(BOOST_TEST_CASE(&test_qcheck_false_auto_1));
-    test->add(BOOST_TEST_CASE(&test_qcheck_false_prop_1));
+    test->add(BOOST_TEST_CASE(&test_qcheck_sized_auto_0));
+    test->add(BOOST_TEST_CASE(&test_qcheck_sized_prop_0));
 
     return test;
 }

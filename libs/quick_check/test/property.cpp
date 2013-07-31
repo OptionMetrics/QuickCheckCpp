@@ -93,9 +93,25 @@ void test_property_5()
     BOOST_CHECK(!prop2(-1, 1.0));
 
     fusion::vector2<int, double> args0(1, 1.0);
-    std::vector<std::string> classes = prop2.classifier()(args0);
-    BOOST_CHECK(classes.empty());
+    std::vector<std::string> classes0 = prop2.classifier()(args0);
+    BOOST_CHECK(classes0.empty());
     BOOST_CHECK(prop2.condition()(args0));
+    BOOST_CHECK_EQUAL(prop2.grouper()(args0), 1);
+
+    fusion::vector2<int, double> args1(-1, 1.0);
+    std::vector<std::string> classes1 = prop2.classifier()(args1);
+    BOOST_CHECK_EQUAL(classes1.size(), 1u);
+    BOOST_CHECK_EQUAL(classes1[0], "_1 negative");
+    BOOST_CHECK(!prop2.condition()(args1));
+    BOOST_CHECK_EQUAL(prop2.grouper()(args1), -1);
+
+    fusion::vector2<int, double> args2(-1, -1.0);
+    std::vector<std::string> classes2 = prop2.classifier()(args2);
+    BOOST_CHECK_EQUAL(classes2.size(), 2u);
+    BOOST_CHECK_EQUAL(classes2[0], "_1 negative"); // sorted order is guaranteed.
+    BOOST_CHECK_EQUAL(classes2[1], "_2 negative");
+    BOOST_CHECK(prop2.condition()(args2));
+    BOOST_CHECK_EQUAL(prop2.grouper()(args2), -1);
 }
 
 using namespace boost::unit_test;
