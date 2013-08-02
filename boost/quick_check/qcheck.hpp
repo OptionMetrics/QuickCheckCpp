@@ -104,9 +104,9 @@ namespace quick_check
             }
 
             template<typename QchkResults>
-            static void exhausted(QchkResults &results)
+            static void set_exhausted(QchkResults &results)
             {
-                results.exhausted();
+                results.set_exhausted();
             }
         };
 
@@ -185,7 +185,7 @@ namespace quick_check
 
         // Record whether we had to bail early.
         if(n != config.test_count())
-            detail::qcheck_access::exhausted(results);
+            detail::qcheck_access::set_exhausted(results);
 
         return results;
     }

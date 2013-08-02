@@ -32,6 +32,7 @@ test-suite "quick_check"
         [ run config.cpp ]
         [ run group_by.cpp ]
         [ run property.cpp ]
+        [ run qcheck_results.cpp ]
     ;
 
 test-suite "qcheck"

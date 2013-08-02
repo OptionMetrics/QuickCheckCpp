@@ -11,10 +11,11 @@
 #ifndef QCHK_QCHECK_RESULTS_HPP_INCLUDED
 #define QCHK_QCHECK_RESULTS_HPP_INCLUDED
 
-#include <map>
-#include <iosfwd>
+//#include <map>
 #include <vector>
+#include <iosfwd>
 #include <sstream>
+#include <ostream>
 #include <algorithm>
 #include <boost/assert.hpp>
 #include <boost/format.hpp>
@@ -34,6 +35,7 @@
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #include <boost/preprocessor/facilities/intercept.hpp>
 #include <boost/preprocessor/repetition/enum.hpp>
+#include <boost/container/flat_map.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -225,6 +227,10 @@ namespace quick_check
             >::type
         grouped_by_type;
     private:
+        struct smart_bool_type_
+        {
+            int m_;
+        };
         typedef
             std::pair<grouped_by_type, std::vector<std::string> >
         key_type;
@@ -243,12 +249,25 @@ namespace quick_check
             return this->failures_.empty();
         }
 
-        failures_type const &failures() const
+        bool exhausted() const
+        {
+            return this->exhausted_;
+        }
+
+        /// INTERNAL ONLY
+        typedef int smart_bool_type_::* unspecified_bool_type;
+
+        operator unspecified_bool_type() const
+        {
+            return this->success() ? &smart_bool_type_::m_ : 0;
+        }
+
+        std::vector<args_type> const &failures() const
         {
             return this->failures_;
         }
 
-        void print_summary(std::ostream &sout = std::cout) const
+        std::ostream &print_summary(std::ostream &sout = std::cout) const
         {
             if(this->success())
             {
@@ -258,19 +277,20 @@ namespace quick_check
                 else
                     sout << (boost::format("OK, passed %1% tests.\n")
                                 % this->nbr_tests_);
-                // If we have no groups and no classes, we're done.
-                if(std::is_same<grouped_by_type, detail::ungrouped_args>::value &&
-                   this->categories_.size() == 1 &&
-                   this->categories_.begin()->first.second.size() == 0)
-                    return;
-                // Iterate over the categories and print them with percentages
-                for(std::pair<key_type, std::size_t> const &p : this->categories_)
+                // If we have groups or classes, print them now.
+                if(!std::is_same<grouped_by_type, detail::ungrouped_args>::value ||
+                   this->categories_.size() != 1 ||
+                   this->categories_.begin()->first.second.size() != 0)
                 {
-                    sout << (boost::format("%1$.0f%% %2%.\n")
-                                % ((p.second * 100.) / this->nbr_tests_)
-                                % this->category_name(p.first));
+                    // Iterate over the categories and print them with percentages
+                    for(std::pair<key_type, std::size_t> const &p : this->categories_)
+                    {
+                        sout << (boost::format("%1$.0f%% %2%.\n")
+                                    % ((p.second * 100.) / this->nbr_tests_)
+                                    % this->category_name(p.first));
+                    }
+                    sout << std::flush;
                 }
-                sout << std::flush;
             }
             else
             {
@@ -279,6 +299,7 @@ namespace quick_check
                             % this->failures_[0]);
                 sout << std::flush;
             }
+            return sout;
         }
 
     private:
@@ -320,14 +341,14 @@ namespace quick_check
             ++this->nbr_tests_;
         }
 
-        void exhausted()
+        void set_exhausted()
         {
             this->exhausted_ = true;
         }
 
         friend struct detail::qcheck_access;
-        failures_type failures_;
-        std::map<key_type, std::size_t> categories_;
+        std::vector<args_type> failures_;
+        boost::container::flat_map<key_type, std::size_t> categories_;
         std::size_t nbr_tests_;
         std::size_t first_failed_test_;
         bool exhausted_;
