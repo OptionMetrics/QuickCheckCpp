@@ -22,10 +22,20 @@ QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
+    namespace detail
+    {
+        template<typename Value>
+        struct normal_base
+        {
+            typedef boost::random::normal_distribution<Value> type;
+        };
+    }
+
     template<typename Value = double>
     struct normal
-      : boost::random::normal_distribution<Value>
+      : private detail::normal_base<Value>::type
     {
+    private:
         static_assert(boost::is_floating_point<Value>::value,
                       "The normal generator only works on floating-point types");
 
@@ -33,6 +43,7 @@ namespace quick_check
             boost::random::normal_distribution<Value>
         base_type;
 
+    public:
         normal()
           : base_type()
         {}
@@ -44,6 +55,14 @@ namespace quick_check
         normal(Value a, Value b)
           : base_type(a, b)
         {}
+
+        typedef Value result_type;
+
+        template<typename Rng>
+        result_type operator()(Rng &rng)
+        {
+            return this->base_type::operator()(rng);
+        }
 
         friend void set_size_adl(normal &, std::size_t)
         {}

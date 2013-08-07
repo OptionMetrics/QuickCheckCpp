@@ -19,12 +19,16 @@ namespace qchk = boost::quick_check;
 namespace proto = boost::proto;
 namespace phx = boost::phoenix;
 
-#ifndef BOOST_NO_CXX11_HDR_TYPE_TRAITS
+#if !defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS) && \
+    !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
 #include <type_traits>
 static_assert(
-    std::has_move_constructor<qchk::qcheck_results<int, double, group_by<int> > >::value,
+    std::has_move_constructor<qchk::qcheck_results<int, double, qchk::grouped_by<int> > >::value,
     "should have move constructor");
 #endif
+
+template<typename T>
+void foo(T const &, T const &) {}
 
 void test_qcheck_results_0()
 {
@@ -65,12 +69,17 @@ void test_qcheck_results_0()
     BOOST_CHECK(res.success());
     BOOST_CHECK(res.exhausted());
     BOOST_CHECK(res.failures().empty());
-    static_assert(
-        std::is_same<
-            decltype(res)
-          , qcheck_results<int, double, grouped_by<int> >
-        >::value,
-        "qcheck returned unspected type");
+
+    //static_assert(
+    //    std::is_same<
+    //        decltype(res)
+    //      , qcheck_results<int, double, grouped_by<int> >
+    //    >::value,
+    //    "qcheck returned unspected type");
+
+    qcheck_results<int, double, grouped_by<int> > x;
+    ::foo(res, x);
+
     std::stringstream sout;
     res.print_summary(sout);
     BOOST_CHECK_EQUAL(

@@ -31,6 +31,9 @@
     <Filter Include="Test Files\qcheck">
       <UniqueIdentifier>{8c87a17d-0404-4944-ba39-21d4c2299243}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Doc Files">
+      <UniqueIdentifier>{0b77b07f-8dca-4496-a2e7-45838b2f500c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -195,6 +198,12 @@
     </None>
     <None Include="Jamfile">
       <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\doc\quick_check.qbk">
+      <Filter>Doc Files</Filter>
+    </None>
+    <None Include="..\doc\Jamfile">
+      <Filter>Doc Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

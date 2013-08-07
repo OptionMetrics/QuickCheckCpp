@@ -17,6 +17,7 @@
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #include <boost/preprocessor/repetition/enum_params_with_a_default.hpp>
 #include <boost/preprocessor/arithmetic/dec.hpp>
+#include <boost/preprocessor/punctuation/comma.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 #include <boost/function.hpp>
 #include <boost/fusion/container/vector.hpp>
@@ -67,20 +68,19 @@ namespace quick_check
         };
 
         template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
-        struct property_traits<BOOST_PP_ENUM_PARAMS(BOOST_PP_DEC(QCHK_MAX_ARITY), A), grouped_by<BOOST_PP_CAT(A, BOOST_PP_DEC(QCHK_MAX_ARITY))> >
+        struct property_traits<
+            BOOST_PP_ENUM_PARAMS(BOOST_PP_DEC(QCHK_MAX_ARITY), A)
+          , grouped_by<BOOST_PP_CAT(A, BOOST_PP_DEC(QCHK_MAX_ARITY))>
+        >
         {
             typedef bool call_signature(
-                BOOST_PP_ENUM_BINARY_PARAMS(
-                    BOOST_PP_DEC(QCHK_MAX_ARITY)
-                  , typename wrap_array<A, >::type BOOST_PP_INTERCEPT
-                )
+                BOOST_PP_ENUM_BINARY_PARAMS(BOOST_PP_DEC(QCHK_MAX_ARITY)
+                                          , typename wrap_array<A, >::type BOOST_PP_INTERCEPT)
             );
             typedef typename
                 fusion::result_of::make_vector<
-                    BOOST_PP_ENUM_BINARY_PARAMS(
-                        BOOST_PP_DEC(QCHK_MAX_ARITY)
-                      , typename wrap_array<A, >::type BOOST_PP_INTERCEPT
-                    )
+                    BOOST_PP_ENUM_BINARY_PARAMS(BOOST_PP_DEC(QCHK_MAX_ARITY)
+                                              , typename wrap_array<A, >::type BOOST_PP_INTERCEPT)
                 >::type
             args_type;
             typedef typename
@@ -96,16 +96,19 @@ namespace quick_check
             typedef ungrouped_args grouped_by_type;
         };
 
+        /// INTERNAL ONLY
     #define BOOST_PP_LOCAL_MACRO(N)                                                                 \
         template<BOOST_PP_ENUM_PARAMS(N, typename A)>                                               \
         struct property_traits<BOOST_PP_ENUM_PARAMS(N, A)>                                          \
         {                                                                                           \
             typedef bool call_signature(                                                            \
-                BOOST_PP_ENUM_BINARY_PARAMS(N, typename wrap_array<A, >::type BOOST_PP_INTERCEPT)   \
+                BOOST_PP_ENUM_BINARY_PARAMS(N,                                                      \
+                                            typename wrap_array<A, >::type BOOST_PP_INTERCEPT)      \
             );                                                                                      \
             typedef typename                                                                        \
                 fusion::result_of::make_vector<                                                     \
-                    BOOST_PP_ENUM_BINARY_PARAMS(N, typename wrap_array<A, >::type BOOST_PP_INTERCEPT) \
+                    BOOST_PP_ENUM_BINARY_PARAMS(N,                                                  \
+                                                typename wrap_array<A, >::type BOOST_PP_INTERCEPT)  \
                 >::type                                                                             \
             args_type;                                                                              \
             typedef                                                                                 \
@@ -113,14 +116,20 @@ namespace quick_check
             grouped_by_type;                                                                        \
         };                                                                                          \
         template<BOOST_PP_ENUM_PARAMS(N, typename A)>                                               \
-        struct property_traits<BOOST_PP_ENUM_PARAMS(BOOST_PP_DEC(N), A) BOOST_PP_COMMA_IF(BOOST_PP_DEC(N)) grouped_by<BOOST_PP_CAT(A, BOOST_PP_DEC(N))> > \
+        struct property_traits<                                                                     \
+            BOOST_PP_ENUM_PARAMS(BOOST_PP_DEC(N), A)                                                \
+            BOOST_PP_COMMA_IF(BOOST_PP_DEC(N))                                                      \
+            grouped_by<BOOST_PP_CAT(A, BOOST_PP_DEC(N))>                                            \
+        >                                                                                           \
         {                                                                                           \
             typedef bool call_signature(                                                            \
-                BOOST_PP_ENUM_BINARY_PARAMS(BOOST_PP_DEC(N), typename wrap_array<A, >::type BOOST_PP_INTERCEPT)   \
+                BOOST_PP_ENUM_BINARY_PARAMS(BOOST_PP_DEC(N),                                        \
+                                            typename wrap_array<A, >::type BOOST_PP_INTERCEPT)      \
             );                                                                                      \
             typedef typename                                                                        \
                 fusion::result_of::make_vector<                                                     \
-                    BOOST_PP_ENUM_BINARY_PARAMS(BOOST_PP_DEC(N), typename wrap_array<A, >::type BOOST_PP_INTERCEPT) \
+                    BOOST_PP_ENUM_BINARY_PARAMS(BOOST_PP_DEC(N),                                    \
+                                                typename wrap_array<A, >::type BOOST_PP_INTERCEPT)  \
                 >::type                                                                             \
             args_type;                                                                              \
             typedef typename                                                                        \
@@ -129,20 +138,35 @@ namespace quick_check
         };                                                                                          \
         /**/
 
+        /// INTERNAL ONLY
     #define BOOST_PP_LOCAL_LIMITS (1, BOOST_PP_DEC(QCHK_MAX_ARITY))
     #include BOOST_PP_LOCAL_ITERATE()
     }
 
+
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+    template<typename ...As>
+    struct property
+      : private boost::function<
+            typename detail::property_traits<As...>::call_signature
+        >
+    {
+    private:
+        typedef detail::property_traits<As...> property_traits_type;
+#else
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
     struct property
       : private boost::function<
-            typename detail::property_traits<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::call_signature
+            typename detail::property_traits<
+                BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)
+            >::call_signature
         >
     {
     private:
         typedef
             detail::property_traits<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>
         property_traits_type;
+#endif
         typedef typename property_traits_type::call_signature sig_type;
         typedef typename property_traits_type::args_type args_type;
         typedef typename property_traits_type::grouped_by_type grouped_by_type;
@@ -160,7 +184,11 @@ namespace quick_check
         {}
 
         template<typename Expr>
-        property(Expr const &expr, typename boost::enable_if<proto::is_expr<Expr> >::type* = 0)
+        property(
+            Expr const &expr
+            QCHK_DOXY_HIDDEN(BOOST_PP_COMMA()
+                             typename boost::enable_if<proto::is_expr<Expr> >::type* = 0)
+        )
           : boost::function<sig_type>(detail::GetProperty()(expr))
           , classifier_(detail::GetClassifiers()(expr, detail::unclassified_args()))
           , grouper_(detail::GetGrouper()(expr))
@@ -168,21 +196,36 @@ namespace quick_check
         {}
 
         typedef bool result_type; // for TR1
-        using boost::function<sig_type>::operator();
 
-        typedef boost::function<std::vector<std::string>(args_type const &)> classifier_type;
+        // hack to get doxygen to emit something useful here
+#ifdef QCHK_DOXYGEN_INVOKED
+        bool operator()(As const &... as) const { return true; }
+#else
+        using boost::function<sig_type>::operator();
+#endif
+
+        typedef
+            QCHK_DOXY_DETAIL(boost::function<std::vector<std::string>(args_type const &)>)
+        classifier_type;
+
         classifier_type const &classifier() const
         {
             return this->classifier_;
         }
 
-        typedef boost::function<grouped_by_type(args_type const &)> grouper_type;
+        typedef
+            QCHK_DOXY_DETAIL(boost::function<grouped_by_type(args_type const &)>)
+        grouper_type;
+
         grouper_type const &grouper() const
         {
             return this->grouper_;
         }
 
-        typedef boost::function<bool(args_type const &)> condition_type;
+        typedef
+            QCHK_DOXY_DETAIL(boost::function<bool(args_type const &)>)
+        condition_type;
+
         condition_type const &condition() const
         {
             return this->condition_;

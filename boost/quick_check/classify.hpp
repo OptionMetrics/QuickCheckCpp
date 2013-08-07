@@ -131,12 +131,21 @@ namespace quick_check
             return GetClassifiers()(prop, unclassified_args());
         }
 
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+        template<typename ...As>
+        typename property<As...>::classifier_type const &
+        get_classifier(property<As...> const &prop)
+        {
+            return prop.classifier();
+        }
+#else
         template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
         typename property<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::classifier_type const &
         get_classifier(property<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> const &prop)
         {
             return prop.classifier();
         }
+#endif
     }
 
     template<typename Expr>

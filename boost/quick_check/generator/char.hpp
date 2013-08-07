@@ -62,6 +62,7 @@ namespace quick_check
             std::vector<Char> chars_;
         };
 
+        /// INTERNAL ONLY
 #define QCHK_DEFINE_CCTYPE_PRED_TYPE(ISCTYPE)                       \
         struct ISCTYPE : std::unary_function<char, bool>            \
         {                                                           \

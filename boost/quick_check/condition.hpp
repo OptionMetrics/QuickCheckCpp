@@ -76,12 +76,21 @@ namespace quick_check
             return GetCondition()(prop);
         }
 
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+        template<typename...As>
+        typename property<As...>::condition_type const &
+        get_condition(property<As...> const &prop)
+        {
+            return prop.condition();
+        }
+#else
         template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
         typename property<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::condition_type const &
         get_condition(property<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> const &prop)
         {
             return prop.condition();
         }
+#endif
     }
 }
 

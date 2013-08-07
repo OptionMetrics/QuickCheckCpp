@@ -20,11 +20,16 @@
 
 #define QCHK_MAX_ARITY 10
 
-#define QCHK_BOOST_NAMESPACE_BEGIN namespace boost {
-#define QCHK_BOOST_NAMESPACE_END }
-#define QCHK_BOOST_NAMESPACE boost
+#define QCHK_BOOST_NAMESPACE_BEGIN namespace boost {    ///< INTERNAL ONLY
+#define QCHK_BOOST_NAMESPACE_END }                      ///< INTERNAL ONLY
+#define QCHK_BOOST_NAMESPACE boost                      ///< INTERNAL ONLY
 
+/// INTERNAL ONLY
 #define QCHK_RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
+/// INTERNAL ONLY
+#define QCHK_DOXY_DETAIL(...) __VA_ARGS__
+/// INTERNAL ONLY
+#define QCHK_DOXY_HIDDEN(...) __VA_ARGS__
 
 namespace boost
 {
@@ -65,6 +70,16 @@ namespace quick_check
     template<typename Map, typename Rng>
     struct config;
 
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+    template<typename ...As>
+    struct property;
+
+    template<typename ...As>
+    struct qcheck_results;
+
+    template<typename ...As>
+    struct qcheck_args;
+#else
     template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(QCHK_MAX_ARITY, typename A, void)>
     struct property;
 
@@ -73,6 +88,7 @@ namespace quick_check
 
     template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(QCHK_MAX_ARITY, typename A, void)>
     struct qcheck_args;
+#endif
 
     template<typename>
     struct grouped_by;

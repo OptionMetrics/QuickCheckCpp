@@ -121,12 +121,21 @@ namespace quick_check
             return GetGrouper()(prop);
         }
 
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+        template<typename...As>
+        typename property<As...>::grouper_type const &
+        get_grouper(property<As...> const &prop)
+        {
+            return prop.grouper();
+        }
+#else
         template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
         typename property<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)>::grouper_type const &
         get_grouper(property<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> const &prop)
         {
             return prop.grouper();
         }
+#endif
     }
 
     template<typename>

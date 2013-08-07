@@ -73,12 +73,21 @@ namespace quick_check
             return detail::GetProperty()(prop);
         }
 
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+        template<typename ...As>
+        property<As...> const &
+        get_property(property<As...> const &prop)
+        {
+            return prop;
+        }
+#else
         template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
         property<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> const &
         get_property(property<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> const &prop)
         {
             return prop;
         }
+#endif
 
         struct qcheck_access
         {
@@ -127,7 +136,8 @@ namespace quick_check
         };
     }
 
-    /// \brief Run all tests
+    /// Run all tests
+    ///
     template<typename Property, typename Config>
     typename detail::make_qcheck_results_type<
         typename Config::result_type
@@ -191,6 +201,7 @@ namespace quick_check
     }
 
     /// \overload
+    ///
     template<typename Property, typename Config>
     typename detail::make_qcheck_results_type<
         typename Config::result_type

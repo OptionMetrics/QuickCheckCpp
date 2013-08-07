@@ -203,6 +203,8 @@
     <ClInclude Include="..\test\utility.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\doc\Jamfile" />
+    <None Include="..\doc\quick_check.qbk" />
     <None Include="..\example\Jamfile" />
     <None Include="..\test\Jamfile" />
     <None Include="Jamfile" />

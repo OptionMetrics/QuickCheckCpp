@@ -416,6 +416,47 @@ namespace quick_check
         )
     }
 
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+
+    namespace detail
+    {
+        template<typename...As>
+        struct result_of_make_config
+        {
+            typedef decltype(
+                detail::make_config_(
+                    fusion::make_vector(std::declval<As const &>()...)
+                  , fusion::make_vector(
+                        std::declval<As const &>()...
+                      , _rng = boost::random::mt11213b()
+                      , _test_count = 100u
+                      , _max_test_count = 1000u
+                      , _sized = 50u
+                    )
+                )
+            ) type;
+        };
+    }
+
+    /// @brief Do the thing
+    /// @throw nothing
+    template<typename ...As>
+    typename detail::result_of_make_config<As...>::type
+    make_config(As const &... as)
+    {
+        return detail::make_config_(
+            fusion::make_vector(as...)
+          , fusion::make_vector(
+                as...
+              , _rng = boost::random::mt11213b()
+              , _test_count = 100u
+              , _max_test_count = 1000u
+              , _sized = 50u
+            )
+        );
+    }
+
+#else
     inline auto make_config()
     QCHK_RETURN(
         detail::make_config_impl(
@@ -436,7 +477,8 @@ namespace quick_check
             fusion::make_vector(a(N))                                                   \
           , fusion::make_vector(                                                        \
                 a(N)                                                                    \
-              , _rng = boost::random::mt11213b()                                        \
+                BOOST_PP_COMMA_IF(N)                                                    \
+                _rng = boost::random::mt11213b()                                        \
               , _test_count = 100u                                                      \
               , _max_test_count = 1000u                                                 \
               , _sized = 50u                                                            \
@@ -448,6 +490,7 @@ namespace quick_check
 #define BOOST_PROTO_LOCAL_a BOOST_PROTO_a
 #define BOOST_PROTO_LOCAL_LIMITS (1, BOOST_PP_DEC(QCHK_MAX_ARITY))
 #include BOOST_PROTO_LOCAL_ITERATE()
+#endif
 
 }
 

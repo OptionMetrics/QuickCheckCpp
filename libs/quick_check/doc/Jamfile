@@ -1,0 +1,47 @@
+# Copyright Eric Niebler 2005. Use, modification, and distribution are
+# subject to the Boost Software License, Version 1.0. (See accompanying
+# file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+import doxygen ;
+import quickbook ;
+
+doxygen autodoc
+    :
+        [ glob ../../../boost/quick_check/*.hpp ]
+        [ glob ../../../boost/quick_check/generator/*.hpp ]
+    :
+        <doxygen:param>EXTRACT_ALL=YES
+        <doxygen:param>"PREDEFINED=\"QCHK_DOXYGEN_INVOKED\" \\
+                                   \"QCHK_DOXY_DETAIL(x)=detail::detail_t\" \\
+                                   \"QCHK_DOXY_HIDDEN(x)=\" \\
+                                   \"BOOST_DEDUCED_TYPENAME=typename\" \\
+                                   \"BOOST_STATIC_CONSTANT(x,y)=static x const y\" \\
+                                   \"QCHK_NONDEDUCED_TYPE_(x)=x\""
+        <doxygen:param>HIDE_UNDOC_MEMBERS=NO
+        <doxygen:param>EXTRACT_PRIVATE=NO
+        <doxygen:param>ENABLE_PREPROCESSING=YES
+        <doxygen:param>MACRO_EXPANSION=YES
+        <doxygen:param>EXPAND_ONLY_PREDEF=YES
+        <doxygen:param>SEARCH_INCLUDES=YES
+        <doxygen:param>"INCLUDE_PATH=\"../../..\" \"$(BOOST)\""
+    ;
+
+xml quick_check
+    :
+        quick_check.qbk
+    ;
+
+boostbook standalone
+    :
+        quick_check
+    :
+        <xsl:param>boost.root=../../../../../boost/org/trunk
+        <xsl:param>boost.defaults=xyzzy
+        <xsl:param>toc.max.depth=3
+        <xsl:param>toc.section.depth=3
+        <xsl:param>chunk.section.depth=3
+        <xsl:param>"html.stylesheet=../../../../../boost/org/trunk/doc/src/boostbook.css"
+        <xsl:param>"boost.graphics.root=../../../../../boost/org/trunk/doc/src/images/"
+        <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/doc/html
+        <dependency>autodoc
+    ;

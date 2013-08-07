@@ -24,22 +24,26 @@ QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
-    template<typename Value = double>
-    struct uniform
-      : private mpl::if_<
-            boost::is_floating_point<Value>
-          , boost::random::uniform_real_distribution<Value>
-          , boost::random::uniform_int_distribution<Value>
-        >::type
+    namespace detail
     {
-        typedef typename
-            mpl::if_<
+        template<typename Value>
+        struct uniform_base
+          : mpl::if_<
                 boost::is_floating_point<Value>
               , boost::random::uniform_real_distribution<Value>
               , boost::random::uniform_int_distribution<Value>
-            >::type
-        base_type;
+            >
+        {};
+    }
 
+    template<typename Value = double>
+    struct uniform
+      : private detail::uniform_base<Value>::type
+    {
+    private:
+        typedef typename detail::uniform_base<Value>::type base_type;
+
+    public:
         uniform()
           : base_type()
         {}
@@ -52,8 +56,13 @@ namespace quick_check
           : base_type(a, b)
         {}
 
-        using typename base_type::result_type;
-        using base_type::operator();
+        typedef Value result_type;
+
+        template<typename Rng>
+        result_type operator()(Rng &rng)
+        {
+            return this->base_type::operator()(rng);
+        }
 
         friend void set_size_adl(uniform &, std::size_t)
         {}

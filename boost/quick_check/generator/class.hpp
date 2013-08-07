@@ -47,6 +47,7 @@ namespace quick_check
                 return Type();
             }
 
+        /// INTERNAL ONLY
 #define BOOST_PP_LOCAL_MACRO(N)                                                                     \
             template<BOOST_PP_ENUM_PARAMS(N, typename T)>                                           \
             Type operator()(BOOST_PP_ENUM_BINARY_PARAMS(N, const T, &t)) const                      \
@@ -54,6 +55,8 @@ namespace quick_check
                 return Type(BOOST_PP_ENUM_PARAMS(N, t));                                            \
             }                                                                                       \
             /**/
+
+        /// INTERNAL ONLY
 #define BOOST_PP_LOCAL_LIMITS (1, QCHK_MAX_ARITY)
 #include BOOST_PP_LOCAL_ITERATE()
         };
@@ -354,6 +357,30 @@ namespace quick_check
         };
     }
 
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+    template<typename ...Gs>
+    detail::constructor<
+        typename fusion::result_of::make_vector<Gs...>::type
+    >
+    ctor(Gs const &... gs)
+    {
+        return detail::constructor<
+            typename fusion::result_of::make_vector<Gs...>::type
+        >(fusion::make_vector(gs...));
+    }
+    template<typename T, typename...Gs>
+    detail::object_generator<
+        T
+      , typename fusion::result_of::make_vector<Gs...>::type
+    >
+    class_(Gs const &... gs)
+    {
+        return detail::object_generator<
+            T
+          , typename fusion::result_of::make_vector<Gs...>::type
+        >(fusion::make_vector(gs...));
+    }
+#else
     /// \brief Create a custom generator for a type given several other generators to use
     ///        for generating constructor arguments.
 #define BOOST_PP_LOCAL_MACRO(N)                                                                     \
@@ -382,6 +409,7 @@ namespace quick_check
     /**/
 #define BOOST_PP_LOCAL_LIMITS (1, QCHK_MAX_ARITY)
 #include BOOST_PP_LOCAL_ITERATE()
+#endif
 
     template<typename T, typename Gens>
     detail::alternate_generator<

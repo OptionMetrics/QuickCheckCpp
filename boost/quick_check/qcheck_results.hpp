@@ -30,6 +30,7 @@
 #include <boost/fusion/sequence/intrinsic/back.hpp>
 #include <boost/fusion/algorithm/transformation/join.hpp>
 #include <boost/fusion/view/single_view.hpp>
+#include <boost/fusion/functional/adapter/fused.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/quick_check/detail/array.hpp>
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
@@ -81,8 +82,36 @@ namespace quick_check
             >
         {};
 
-        #define TYPENAME(Z,N,D) typename
-        #define AT_C(Z,N,D) typename safe_at_c<D, N>::type
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+        template<typename Seq, template<typename...> class T>
+        struct fanout_params
+        {
+            struct inner
+            {
+                template<typename Sig>
+                struct result;
+
+                template<typename This, typename ...U>
+                struct result<This(U...)>
+                {
+                    typedef T<U...> type;
+                };
+
+                template<typename ...U>
+                T<U...> operator()(U const &...) const
+                {
+                    return T<U...>();
+                }
+            };
+            typedef
+                typename boost::result_of<
+                    boost::fusion::fused<inner>(Seq)
+                >::type
+            type;
+        };
+#else
+        #define TYPENAME(Z,N,D) typename ///< INTERNAL ONLY
+        #define AT_C(Z,N,D) typename safe_at_c<D, N>::type ///< INTERNAL ONLY
         template<typename Seq, template<BOOST_PP_ENUM(QCHK_MAX_ARITY, TYPENAME, ~)> class T>
         struct fanout_params
         {
@@ -90,6 +119,7 @@ namespace quick_check
         };
         #undef AT_C
         #undef TYPENAME
+#endif
 
         template<typename Args, typename GroupBy>
         struct make_qcheck_results_type
@@ -158,6 +188,29 @@ namespace quick_check
         };
     }
 
+    /// A Fusion Random Access Sequence that holds a set of arguments,
+    /// the classifications for that argument set (if any), and the group
+    /// of the arguments (if any).
+    ///
+    /// Blah blah qcheck_results::failures()
+    ///
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+    template<typename...As>
+    struct qcheck_args
+      : fusion::result_of::make_vector<
+            typename detail::fusion_elem_ignore_grouped<As>::type...
+        >::type
+    {
+        typedef
+            typename fusion::result_of::make_vector<
+                typename detail::fusion_elem_ignore_grouped<As>::type...
+            >::type
+        args_type;
+
+        typedef
+            typename detail::find_grouped_by_type<As...>::type
+        grouped_by_type;
+#else
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
     struct qcheck_args
       : fusion::result_of::make_vector<
@@ -179,11 +232,24 @@ namespace quick_check
                 BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)
             >::type
         grouped_by_type;
+#endif
 
-        explicit qcheck_args(
+        explicit qcheck_args(args_type const &args)
+          : args_type(args)
+          , classes_()
+          , group_()
+        {}
+
+        qcheck_args(args_type const &args, std::vector<std::string> const &classes)
+          : args_type(args)
+          , classes_(classes)
+          , group_()
+        {}
+
+        qcheck_args(
             args_type const &args
-          , std::vector<std::string> const &classes = std::vector<std::string>()
-          , grouped_by_type const &group = grouped_by_type()
+          , std::vector<std::string> const &classes
+          , grouped_by_type const &group
         )
           : args_type(args)
           , classes_(classes)
@@ -215,22 +281,35 @@ namespace quick_check
         grouped_by_type group_;
     };
 
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+    template<typename ...As>
+    struct qcheck_results
+    {
+    public:
+        typedef qcheck_args<As...> args_type;
+        typedef
+            typename detail::find_grouped_by_type<As...>::type
+        grouped_by_type;
+#else
     template<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, typename A)>
     struct qcheck_results
     {
     public:
         typedef qcheck_args<BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)> args_type;
-        typedef std::vector<args_type> failures_type;
         typedef
             typename detail::find_grouped_by_type<
                 BOOST_PP_ENUM_PARAMS(QCHK_MAX_ARITY, A)
             >::type
         grouped_by_type;
+#endif
+        typedef std::vector<args_type> failures_type;
     private:
-        struct smart_bool_type_
-        {
-            int m_;
-        };
+        QCHK_DOXY_HIDDEN(
+            struct detail_smart_bool_type_
+            {
+                int m_;
+            };
+        )
         typedef
             std::pair<grouped_by_type, std::vector<std::string> >
         key_type;
@@ -255,11 +334,11 @@ namespace quick_check
         }
 
         /// INTERNAL ONLY
-        typedef int smart_bool_type_::* unspecified_bool_type;
+        typedef int detail_smart_bool_type_::* unspecified_bool_type;
 
         operator unspecified_bool_type() const
         {
-            return this->success() ? &smart_bool_type_::m_ : 0;
+            return this->success() ? &detail_smart_bool_type_::m_ : 0;
         }
 
         std::vector<args_type> const &failures() const
@@ -303,6 +382,7 @@ namespace quick_check
         }
 
     private:
+        /// INTERNAL ONLY
         static std::string category_name(key_type const &p)
         {
             std::stringstream sout;
@@ -315,8 +395,10 @@ namespace quick_check
             return sout.str();
         }
 
+        /// INTERNAL ONLY
         typedef typename args_type::args_type inner_args_type;
 
+        /// INTERNAL ONLY
         void add_failure(
             inner_args_type const &args
           , std::vector<std::string> const &classes
@@ -329,6 +411,7 @@ namespace quick_check
                 this->first_failed_test_ = this->nbr_tests_;
         }
 
+        /// INTERNAL ONLY
         void add_success(
             std::vector<std::string> const &classes
           , grouped_by_type const &group
@@ -341,6 +424,7 @@ namespace quick_check
             ++this->nbr_tests_;
         }
 
+        /// INTERNAL ONLY
         void set_exhausted()
         {
             this->exhausted_ = true;
