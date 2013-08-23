@@ -29,6 +29,9 @@ doxygen autodoc
 xml quick_check
     :
         quick_check.qbk
+    :
+        # Since we import example code into the docs, that code had better compile.
+        <dependency>../example
     ;
 
 boostbook standalone
@@ -37,9 +40,9 @@ boostbook standalone
     :
         <xsl:param>boost.root=../../../../../boost/org/trunk
         <xsl:param>boost.defaults=xyzzy
-        <xsl:param>toc.max.depth=3
-        <xsl:param>toc.section.depth=3
-        <xsl:param>chunk.section.depth=3
+        <xsl:param>toc.max.depth=10
+        <xsl:param>toc.section.depth=10
+        <xsl:param>chunk.section.depth=10
         <xsl:param>"html.stylesheet=../../../../../boost/org/trunk/doc/src/boostbook.css"
         <xsl:param>"boost.graphics.root=../../../../../boost/org/trunk/doc/src/images/"
         <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/doc/html

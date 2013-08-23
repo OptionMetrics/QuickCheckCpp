@@ -15,8 +15,7 @@
     [dirname quick_check]
     [purpose
         Quickly test your algorithms by automatically generating
-        input and verifying properties of the output that must
-        be true.
+        input and verifying properties of the output.
     ]
     [license
         Distributed under the Boost Software License, Version 1.0.
@@ -27,22 +26,157 @@
 
 [/ QuickBook Document version 1.3 ]
 
-[/  Images   ]
+[/ Substitutions ]
 
+[def __qchk__                QuickCheckCpp]
 [def __note__                [$images/note.png]]
 [def __alert__               [$images/caution.png]]
 [def __detail__              [$images/note.png]]
 [def __tip__                 [$images/tip.png]]
+[def __qcheck__              [^[funcref quick_check::qcheck()]]]
 
-[/  Links   ]
+[/ Imports ]
 
-[section User's Guide]
+[import ../example/simple.cpp]
 
-This section describes how to use QuickCheckCpp to quickly sanity-check your
-algorithms. If you are looking for detailed information regarding specific
-components in QuickChckCpp, check the [link quick_check.reference Reference] section.
+[section:users_guide Users' Guide]
 
-[endsect]
+This section describes how to use __qchk__ to quickly sanity-check your algorithms. If you are looking for detailed information regarding specific components in __qchk__, check the [link quick_check.reference Reference] section.
+
+[section:preface Preface]
+
+__qchk__ is a library for [@http://en.wikipedia.org/wiki/Ad_hoc_testing ad hoc software testing]. With __qchk__, you define /properties/ of your algorithm -- predicates that must be true -- and __qchk__ does the rest, automatically generating random input data and validating that the properties hold. __qchk__ is good for quickly getting broad test coverage of your algorithms and for testing how your code behaves with unexpected input. Since __qchk__ cannot know your code's important boundary cases, it is /not/ a complete replacement for hand-crafted unit tests.
+
+[endsect] [/ Preface]
+
+[section:quick_start Quick Start]
+
+Below are some simple examples to get you started quickly using __qchk__.
+
+[heading A simple example]
+
+The following is the most very basic example of __qchk__. It shows a very simple property being tested, with __qchk__ picking all the defaults for us.
+
+TODO
+
+[heading A more complicated example]
+
+The following example shows most of the features of __qchk__. It uses a custom random number generator; a normal and a uniform distribution for input; user-specified configuration parameters; and a property with classifiers, grouping, and a condition.
+
+[SimpleExample]
+
+The above code displays:
+
+[pre
+Arguments exhausted after 7382 tests.
+17% 0, bar.
+17% 0, foo.
+16% 1, bar.
+17% 1, foo.
+16% 2, bar.
+16% 2, foo.
+]
+
+The __qcheck__ algorithm very much wants to execute 10,000 tests. As it turns out, only 7,382 tests satisfy the property's condition (`_2 > 0`) before the maximum number of generated tests (15,000) is reached. The result summary shows the breakdown of the generated input arguments. For instance, for 17% of the generated test cases, `_1 % 3` is 0 and `_1 <= 3` is true. We can use the summary information to reassure ourselves that we're getting the test coverage we were expecting.
+
+[endsect] [/ Quick Start]
+
+[section:properties Defining Properties]
+
+TODO
+
+[section:simple Simple Properties]
+
+TODO
+
+[endsect] [/ Simple Properties]
+
+[section:functions Calling User-Defined Functions]
+
+TODO
+
+[endsect] [/ Calling User-Defined Functions]
+
+[section:basic Classifying Input]
+
+TODO
+
+[endsect] [/ Classifying Input]
+
+[section:basic Grouping Input]
+
+TODO
+
+[endsect] [/ Grouping Input]
+
+[section:basic Conditional Evaluation]
+
+TODO
+
+[endsect] [/ Conditional Evaluation]
+
+[section:property The `property` Object]
+
+TODO
+
+[endsect] [/ The `property` object]
+
+[endsect] [/ Defining Properties]
+
+[section:qcheck Test Configuration]
+
+TODO
+
+[section:generators Generating Input]
+
+TODO
+
+[section:primitive_types Primitive Types]
+
+TODO Normal and uniform distributions of integral and floating point.
+
+[endsect] [/ Primitive Types]
+
+[section:sequences Ordered and Unordered Sequences]
+
+TODO
+
+[endsect] [/ Ordered and Unordered Sequences]
+
+[section:class_types User-Defined Types]
+
+TODO
+
+[endsect] [/ User-Defined Types]
+
+[endsect] [/ Generating Input]
+
+[section:config_params Configuration Paramters]
+
+TODO Describe _rng, _test_count, _max_test_count, and _sized.
+
+[endsect] [/ Configuration Paramters]
+
+[endsect] [/ Test Configuration]
+
+[section:qcheck Running The Tests]
+
+TODO
+
+[section:qcheck The `qcheck` Algorithm]
+
+TODO
+
+[endsect] [/The `qcheck` Algorithm]
+
+[section:qcheck Examining The Results]
+
+TODO
+
+[endsect] [/Examining The Results]
+
+[endsect] [/Running The Tests]
+
+[endsect] [/ Users' Guide]
 
 [xinclude autodoc.xml]
-

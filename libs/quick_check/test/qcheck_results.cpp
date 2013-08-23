@@ -70,15 +70,13 @@ void test_qcheck_results_0()
     BOOST_CHECK(res.exhausted());
     BOOST_CHECK(res.failures().empty());
 
-    //static_assert(
-    //    std::is_same<
-    //        decltype(res)
-    //      , qcheck_results<int, double, grouped_by<int> >
-    //    >::value,
-    //    "qcheck returned unspected type");
-
-    qcheck_results<int, double, grouped_by<int> > x;
-    ::foo(res, x);
+    static_assert(
+        std::is_same<
+            decltype(res)
+          , qcheck_results<int, double, grouped_by<int> >
+        >::value,
+        "qcheck returned unspected type"
+    );
 
     std::stringstream sout;
     res.print_summary(sout);

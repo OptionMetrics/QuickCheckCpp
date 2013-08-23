@@ -148,6 +148,58 @@ namespace quick_check
 #endif
     }
 
+    /// \brief Associate input parameters that satisfy a predicate with a
+    /// classification string for reporting later.
+    ///
+    /// \param e A Boolean lambda expression representing the predicate
+    /// \param name The string representing the category name
+    ///
+    /// \return An object of unspecified type and value that may be combined
+    /// with other classifiers into a QuickCheckExpression
+    ///
+    /// Input classifiers are used to verify that test coverage is as
+    /// expected. The percentage of input that safisfies the classification
+    /// criteria is reported at the end of test runs.
+    ///
+    /// Below is an example of a test that uses classification criteria
+    /// to examine frequency of certain types of input:
+    ///
+    /// \code
+    /// uniform<int> di(1,6);
+    /// normal<double> dd(0.0, 1.0);
+    ///
+    /// // a quickCheck configuration. Placeholders _1
+    /// // and _2 receive values generated from di and dd:
+    /// auto config = make_config(
+    ///     _1 = di,
+    ///     _2 = dd,
+    /// );
+    ///
+    /// // Here's a property to test:
+    /// auto
+    ///     is_reflexive =
+    ///         classify(_2>0.,"foo")
+    ///       | classify(_2<=0.,"bar")
+    ///       | ((_1 + _2) == (_2 + _1)) ;
+    ///
+    /// // Test the property. Res is a results object that
+    /// // holds the values that caused the test to fail
+    /// auto res = qcheck(is_reflexive, config);
+    /// res.print_summary();
+    /// \endcode
+    ///
+    /// The code displays the following:
+    ///
+    /// \code
+    /// OK, passed 100 tests.
+    /// 51% bar.
+    /// 49% foo.
+    /// \endcode
+    ///
+    /// As in the above example, you may specify multiple classifiers.
+    /// A given set of input parameters may satisfy more than one
+    /// classification criterion; in that case, the class names of all
+    /// the matching classification criteria are displayed.
     template<typename Expr>
     typename proto::result_of::make_expr<
         detail::classify_

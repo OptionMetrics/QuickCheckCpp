@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file classify.hpp
-// \brief Definition of the classify grammar element
+// \file condition.hpp
+// \brief Definition of the condition grammar element
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
