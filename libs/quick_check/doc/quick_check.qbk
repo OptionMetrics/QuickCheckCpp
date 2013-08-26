@@ -34,12 +34,17 @@
 [def __detail__              [$images/note.png]]
 [def __tip__                 [$images/tip.png]]
 [def __qcheck__              [^[funcref quick_check::qcheck()]]]
+[def __classify__            [^[funcref quick_check::classify()]]]
+[def __group_by__            [^[funcref quick_check::group_by()]]]
 
 [/ Imports ]
 
 [import ../example/simple.cpp]
 [import ../example/complex.cpp]
 [import ../example/bind.cpp]
+[import ../example/classifiers.cpp]
+[import ../example/group_by.cpp]
+[import ../example/condition.cpp]
 
 [section:users_guide Users' Guide]
 
@@ -132,21 +137,63 @@ To call some function `my_library::is_reflexive` from a property, first we defin
 
 [endsect] [/ Calling User-Defined Functions]
 
-[section:basic Classifying Input]
+[section:classify Classifying Input]
 
-TODO
+Since __qchk__ automatically generates input for you, you don't normally get a chance to examine the input. If you are the kind to lie awake at night wondering whether your code is getting tested with an appropriately broad set of inputs, then __qchk__ classifiers are for you. With classifiers, you can get feedback about the kind of input your code is being tested with. For instance, you may want to know that your algorithm is being tested with negative numbers in addition to positive ones. You could define your property with the __classify__ function, as follows:
+
+[ClassifierExample]
+
+If we test this property with some standard generators, we get the following output:
+
+[pre
+OK, passed 100 tests.
+58% non-positive.
+42% positive.
+]
+
+Whew! We're getting the coverage we expected.
+
+It's possible for a set of input parameters to satisfy more than one classifier. In that case, the summary reports how many are in one class, how many are in the other, and how many are in both.
+
+Input classification may be used in conjunction with input [link quick_check.users_guide.properties.group_by grouping] (described next).
 
 [endsect] [/ Classifying Input]
 
-[section:basic Grouping Input]
+[section:group_by Grouping Input]
 
-TODO
+In the [link quick_check.users_guide.properties.classify ["Classifying Input]] section, we saw one way of collecting statistics about the input to our properties. The __group_by__ primitive gives us another way. Say, for instance, we want to group input according to the modulus of the first argument with 3. We can do that easily as follows:
+
+[GroupByExample]
+
+If we test this property with some standard generators, we get the following output:
+
+[pre
+OK, passed 100 tests.
+39% 0.
+34% 1.
+27% 2.
+]
+
+The test summary shows that the input is fairly evenly divided into thirds by the group-by condition.
+
+A property may have only one `group_by` clause. `group_by` may be used in conjunction with [link quick_check.users_guide.properties.classify classifiers]. If so, the `group_by` clause must preceed the classifiers.
 
 [endsect] [/ Grouping Input]
 
-[section:basic Conditional Evaluation]
+[section:conditional Conditional Evaluation]
 
-TODO
+Sometimes we want to test an algorithm that requires something of its input. For instance, if we were testing a square root algorithm, we wouldn't want to test it with negative numbers. We can use a Boolean predicate together with __qchk__'s `>>=` operator to guard our property. By guarding the property, we prevent it from ever running on bogus input. Consider the following:
+
+[ConditionExample]
+
+It's wrong to call `std::sqrt` with a negative number, so we have guarded our test with `(_1 > 0) >>=`. Did we write this test correctly? Let's see:
+
+[pre
+Falsifiable, after 111 tests:
+[2.08687\]
+]
+
+Whoops! Our test is bogus. __qchk__ disabuses us of our naive notions about the behavior of floating point numbers. Squaring the result of `std::sqrt` doesn't quite get us back where we started, or even within `DBL_EPSILON` of where we started. The first input that caused our test to fail was `2.08687`. Thank you, __qchk__. Clearly, we need to be smarter about how to test floating point algorithms.
 
 [endsect] [/ Conditional Evaluation]
 

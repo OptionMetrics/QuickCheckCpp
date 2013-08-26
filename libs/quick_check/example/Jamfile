@@ -20,3 +20,18 @@ exe "bind"
     :
         bind.cpp
     ;
+
+exe classifiers
+    :
+        classifiers.cpp
+    ;
+
+exe group_by
+    :
+        group_by.cpp
+    ;
+
+exe condition
+    :
+        condition.cpp
+    ;
