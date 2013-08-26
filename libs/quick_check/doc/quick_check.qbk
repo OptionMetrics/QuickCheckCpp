@@ -38,6 +38,8 @@
 [/ Imports ]
 
 [import ../example/simple.cpp]
+[import ../example/complex.cpp]
+[import ../example/bind.cpp]
 
 [section:users_guide Users' Guide]
 
@@ -57,13 +59,19 @@ Below are some simple examples to get you started quickly using __qchk__.
 
 The following is the most very basic example of __qchk__. It shows a very simple property being tested, with __qchk__ picking all the defaults for us.
 
-TODO
+[SimpleExample]
+
+The above code displays:
+
+[pre
+OK, passed 100 tests.
+]
 
 [heading A more complicated example]
 
 The following example shows most of the features of __qchk__. It uses a custom random number generator; a normal and a uniform distribution for input; user-specified configuration parameters; and a property with classifiers, grouping, and a condition.
 
-[SimpleExample]
+[ComplexExample]
 
 The above code displays:
 
@@ -83,17 +91,44 @@ The __qcheck__ algorithm very much wants to execute 10,000 tests. As it turns ou
 
 [section:properties Defining Properties]
 
-TODO
+This section describes how to define the properties that will be checked by the __qcheck__ algorithm.
 
 [section:simple Simple Properties]
 
-TODO
+At its simplest, a __qchk__ property is just a Boolean [@http://www.boost.org/libs/phoenix Phoenix] lambda function. So, for instance, this is a valid __qchk__ property:
+
+    using namespace quick_check;
+    auto my_property = _1 + _2 == _2 + _1;
+
+The above property checks that adding the second argument to the first is the same as adding the first argument to the second. This will be true for numbers, but not strings, for instance. For convenience, the Phoenix argument placeholders (`_1`, `_2`, etc.) have been imported into the `quick_check` namespace.
 
 [endsect] [/ Simple Properties]
 
 [section:functions Calling User-Defined Functions]
 
-TODO
+Very few interesting properties can be definied entirely with Phoenix primitives. It's often necessary to put some of the property definition in an ordinary C++ function that then gets called from Phoenix. Imagine we have a function like the following:
+
+    namespace my_library
+    {
+        template<typename A, typename B>
+        bool is_reflexive(A a, B b)
+        {
+            return (a + b) == (b + a);
+        }
+    }
+
+We want to turn this (rather uninteresting) algorithm into a property we can test with __qcheck__. Ideally, we would just do this:
+
+    // ERROR: DON'T DO THIS. It does work.
+    auto is_reflex_prop = is_reflexive(_1, _2);
+    
+The problem is that the `is_reflexive` function template is not written to handle being passed argument placeholders. This code will fail to compile. Fortunately, the Boost.Phoenix library provides an easy solution: [@http://www.boost.org/libs/phoenix/doc/html/phoenix/starter_kit/lazy_functions.html `boost::phoenix::function`].
+
+Here is an example:
+
+[BindExample]
+
+To call some function `my_library::is_reflexive` from a property, first we define a [@http://www.boost.org/doc/libs/release/libs/fusion/doc/html/fusion/functional/concepts/poly.html function object] `is_reflexive_impl`, which does nothing more than call `my_library::is_reflexive`. Then, we use `quick_check::function` (which is an alias for `boost::phoenix::function`) to turn the function object into a lazy function. Lazy functions are functions that know how to handle argument placeholders.
 
 [endsect] [/ Calling User-Defined Functions]
 
@@ -123,7 +158,7 @@ TODO
 
 [endsect] [/ Defining Properties]
 
-[section:qcheck Test Configuration]
+[section:config Test Configuration]
 
 TODO
 

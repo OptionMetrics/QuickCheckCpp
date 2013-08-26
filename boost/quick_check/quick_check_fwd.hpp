@@ -47,6 +47,7 @@ namespace quick_check
     namespace random = boost::random;
 
     using namespace phoenix::placeholders;
+    using phoenix::function;
 
     namespace detail
     {

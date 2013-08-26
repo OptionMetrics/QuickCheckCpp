@@ -108,6 +108,12 @@
     <ClCompile Include="..\test\qcheck_results.cpp">
       <Filter>Test Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\example\complex.cpp">
+      <Filter>Example Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\example\bind.cpp">
+      <Filter>Example Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\boost\quick_check\quick_check.hpp">
