@@ -296,6 +296,14 @@ namespace quick_check
         }
     }
 
+    /// \brief A structure that holds all the test configuration information
+    /// for use with the \c quick_check::qcheck() algorithm.
+    ///
+    /// \tparam Map \em unspecified
+    /// \tparam Rng \em unspecified
+    ///
+    /// You will typically not create objects of type \c config<> directly; rather,
+    /// you will use the \c quick_check::make_config() helper to do it for you.
     template<typename Map, typename Rng>
     struct config
     {
@@ -313,6 +321,9 @@ namespace quick_check
         indices_type;
 
     public:
+        /// The type returned by quick_check::config::operator().
+        /// \c result_type is Fusion sequence containing arguments
+        /// that will be used to evaluate a property.
         typedef
             typename fusion::result_of::as_vector<
                 typename fusion::result_of::transform<
@@ -322,6 +333,13 @@ namespace quick_check
             >::type
         result_type;
 
+        /// Construct a \c config object
+        ///
+        /// \param map \em unspecified
+        /// \param rng \em unspecified
+        /// \param test_count The maximum number of tests to run.
+        /// \param max_test_count The maximum number of inputs to generate.
+        /// \param sized Used to control the size of any generated sequences.
         config(
             Map const &map
           , Rng const &rng
@@ -338,21 +356,25 @@ namespace quick_check
             this->resized(sized);
         }
 
+        /// Returns the value of \c test_count passed to the constructor
         std::size_t test_count() const
         {
             return this->test_count_;
         }
 
+        /// Returns the max of \c test_count and \c max_test_count passed to the constructor
         std::size_t max_test_count() const
         {
             return this->max_test_count_;
         }
 
+        /// Returns the value of \c sized passed to the constructor
         std::size_t sized() const
         {
             return this->sized_;
         }
 
+        /// Sets the sized property of any internally stored generators
         void resized(std::size_t sized)
         {
             this->sized_ = sized;
@@ -363,6 +385,8 @@ namespace quick_check
             );
         }
 
+        /// Generates a new, random set of input parameters for use
+        /// when evaluating a property.
         result_type operator()()
         {
             return fusion::as_vector(
@@ -381,9 +405,73 @@ namespace quick_check
         std::size_t sized_;
     };
 
+    /// A placeholder for use with \c quick_check::make_config() for specifying
+    /// a custom random number generator to use.
+    ///
+    /// If \c _rng is not specified, it defaults to a default-constructed object
+    /// of type \c boost::random::mt11213b.
+    ///
+    /// \b Example:
+    ///
+    /// \code
+    /// // Generate alphabetic characters, using rng as
+    /// // a source of randomness.
+    /// boost::random::mt19937 rng;
+    /// auto conf = make_config(_1 = alpha(), _rng = rng);
+    /// \endcode
     proto::terminal<detail::rng_>::type const _rng = {};
+
+    /// A placeholder for use with \c quick_check::make_config() for specifying
+    /// the maximum number of tests to run.
+    ///
+    /// If \c _test_count is not specified, it defaults to 100u.
+    ///
+    /// \b Example:
+    ///
+    /// \code
+    /// // Make a config that will cause quick_book::qcheck() to attempt
+    /// // to run 1,000 test cases.
+    /// auto conf = make_config(_1 = alpha(), _test_count = 1000u);
+    /// \endcode
     proto::terminal<detail::test_count_>::type const _test_count = {};
+
+    /// A placeholder for use with \c quick_check::make_config() for specifying
+    /// the maximum number of inputs to generate.
+    ///
+    /// If \c _max_test_count is not specified, it defaults to \c _test_count or
+    /// 1000u, whichever is larger.
+    ///
+    /// \remark The number of inputs generated may differ from the number of tests
+    /// actually run because of the use of condition property guards. If a
+    /// set of inputs does not satisfy a property's
+    /// @RefSect{users_guide.properties.conditional, condition predicate}, then
+    /// those inputs are discarded. The \c _max_test_count configuration parameter
+    /// exits to bound the number of inputs generated, in case the condition
+    /// predicate discards too many inputs.
+    ///
+    /// \b Example:
+    ///
+    /// \code
+    /// // Make a config that generates no more than 1,000 alphabetic characters.
+    /// auto conf = make_config(_1 = alpha(), _max_test_count = 1000u);
+    /// \endcode
     proto::terminal<detail::max_test_count_>::type const _max_test_count = {};
+
+    /// A placeholder for use with \c quick_check::make_config() for specifying
+    /// the maximum size of generated sequences.
+    ///
+    /// The \c _sized parameter places an upper bound on the size of generated
+    /// sequences. The actual size of generated sequences is random and uniformly
+    /// distributed between 0 and \c _sized.
+    ///
+    /// If \c _sized is not specified, it defaults to 50.
+    ///
+    /// \b Example:
+    ///
+    /// \code
+    /// // Make a config that generates strings with a maximum size of 10.
+    /// auto conf = make_config(_1 = string(), _sized = 10u);
+    /// \endcode
     proto::terminal<detail::sized_>::type const _sized = {};
 
     namespace detail
@@ -441,8 +529,41 @@ namespace quick_check
         };
     }
 
-    /// @brief Do the thing
-    /// @throw nothing
+    /// Create an instance of \c quick_check::config<> with the specified
+    /// argument placeholder/generator bindings, and any additional specified
+    /// configuration parameters.
+    ///
+    /// \param as Must contain argument placeholder/generator bindings of the form
+    /// <tt>_1 = gen</tt> for every argument of the property to be tested. May also
+    /// contain placeholder/value bindings like <tt>_sized = 42u</tt> for any
+    /// addtional configuration parameters to be specified.
+    ///
+    /// \return An unspecified instance of \c quick_check::config<>.
+    ///
+    /// \em Example:
+    ///
+    /// \code
+    /// // A source for random numbers
+    /// boost::random::mt11213b rng;
+    ///
+    /// // some generators
+    /// uniform<int> die(1,6);
+    /// normal<double> one(0.0, 1.0);
+    ///
+    /// // a QuickCheckCpp configuration. Placeholders _1
+    /// // and _2 receive values generated from die and one:
+    /// auto config =
+    ///     make_config(_1 = die,
+    ///                 _2 = one,
+    ///                 _rng = rng,               // Specify a custom random number generator
+    ///                 _test_count = 10000,      // The maximum number of tests to execute
+    ///                 _max_test_count = 15000); // The maximum number of inputs to generate
+    /// \endcode
+    ///
+    /// \sa \c quick_check::_rng
+    /// \sa \c quick_check::_test_count
+    /// \sa \c quick_check::_max_test_count
+    /// \sa \c quick_check::_sized
     template<typename ...As>
     typename detail::result_of_make_config<As...>::type
     make_config(As const &... as)

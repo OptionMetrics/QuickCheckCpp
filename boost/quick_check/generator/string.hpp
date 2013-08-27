@@ -23,6 +23,11 @@ QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
+    /// Create a generator for \c std::basic_string<> objects.
+    ///
+    /// @param gen The generator used to generate the characters of the string.
+    ///
+    /// If no generator is specified, it is assumed to be \c quick_check::uniform<char>.
     template<typename Generator>
     detail::sequence_generator<std::basic_string<typename Generator::result_type>, Generator, true>
     string(Generator const &gen)
@@ -37,6 +42,8 @@ namespace quick_check
         return result_type(gen);
     }
 
+    /// \overload
+    ///
     inline detail::sequence_generator<std::string, uniform<char>, true>
     string()
     {
@@ -44,6 +51,9 @@ namespace quick_check
         return result_type(uniform<char>());
     }
 
+    /// Create a generator for \c std::wstring objects.
+    ///
+    /// \c quick_check::uniform<wchar_t> is used to generate the characters of the string.
     inline detail::sequence_generator<std::wstring, uniform<wchar_t>, true>
     wstring()
     {

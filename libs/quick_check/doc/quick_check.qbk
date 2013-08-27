@@ -28,14 +28,32 @@
 
 [/ Substitutions ]
 
-[def __qchk__                QuickCheckCpp]
-[def __note__                [$images/note.png]]
-[def __alert__               [$images/caution.png]]
-[def __detail__              [$images/note.png]]
-[def __tip__                 [$images/tip.png]]
-[def __qcheck__              [^[funcref quick_check::qcheck()]]]
-[def __classify__            [^[funcref quick_check::classify()]]]
-[def __group_by__            [^[funcref quick_check::group_by()]]]
+[def __qchk__               QuickCheckCpp]
+[def __note__               [$images/note.png]]
+[def __alert__              [$images/caution.png]]
+[def __detail__             [$images/note.png]]
+[def __tip__                [$images/tip.png]]
+[def __qcheck__             [^[funcref quick_check::qcheck()]]]
+[def __classify__           [^[funcref quick_check::classify()]]]
+[def __group_by__           [^[funcref quick_check::group_by()]]]
+[def __make_config__        [^[funcref quick_check::make_config()]]]
+[def __alnum__              [^[funcref quick_check::alnum()]]]
+[def __alpha__              [^[funcref quick_check::alpha()]]]
+[def __cntrl__              [^[funcref quick_check::cntrl()]]]
+[def __digit__              [^[funcref quick_check::digit()]]]
+[def __graph__              [^[funcref quick_check::graph()]]]
+[def __lower__              [^[funcref quick_check::lower()]]]
+[def __print__              [^[funcref quick_check::print()]]]
+[def __punct__              [^[funcref quick_check::punct()]]]
+[def __space__              [^[funcref quick_check::space()]]]
+[def __upper__              [^[funcref quick_check::upper()]]]
+[def __xdigit__             [^[funcref quick_check::xdigit()]]]
+[def __string__             [^[funcref quick_check::string()]]]
+[def __wstring__             [^[funcref quick_check::wstring()]]]
+[def __grouped_by__         [^[classref quick_check::grouped_by<>]]]
+[def __property__           [^[classref quick_check::property<>]]]
+[def __uniform__            [^[classref quick_check::uniform<>]]]
+[def __normal__             [^[classref quick_check::normal<>]]]
 
 [/ Imports ]
 
@@ -124,16 +142,16 @@ Very few interesting properties can be definied entirely with Phoenix primitives
 
 We want to turn this (rather uninteresting) algorithm into a property we can test with __qcheck__. Ideally, we would just do this:
 
-    // ERROR: DON'T DO THIS. It does work.
-    auto is_reflex_prop = is_reflexive(_1, _2);
-    
-The problem is that the `is_reflexive` function template is not written to handle being passed argument placeholders. This code will fail to compile. Fortunately, the Boost.Phoenix library provides an easy solution: [@http://www.boost.org/libs/phoenix/doc/html/phoenix/starter_kit/lazy_functions.html `boost::phoenix::function`].
+    // ERROR: DON'T DO THIS. It does not work.
+    auto is_reflex_prop = my_library::is_reflexive(_1, _2);
+
+The problem is that the `is_reflexive` function template cannot handle being passed argument placeholders. This code will fail to compile. Fortunately, the Boost.Phoenix library provides an easy solution: [@http://www.boost.org/libs/phoenix/doc/html/phoenix/starter_kit/lazy_functions.html `boost::phoenix::function`].
 
 Here is an example:
 
 [BindExample]
 
-To call some function `my_library::is_reflexive` from a property, first we define a [@http://www.boost.org/doc/libs/release/libs/fusion/doc/html/fusion/functional/concepts/poly.html function object] `is_reflexive_impl`, which does nothing more than call `my_library::is_reflexive`. Then, we use `quick_check::function` (which is an alias for `boost::phoenix::function`) to turn the function object into a lazy function. Lazy functions are functions that know how to handle argument placeholders.
+To call some function `my_library::is_reflexive` from a property, first we define a [@http://www.boost.org/doc/libs/release/libs/fusion/doc/html/fusion/functional/concepts/poly.html function object] `is_reflexive_impl`, which does nothing more than call `my_library::is_reflexive`. Then, we use `quick_check::function` (which is an alias for `boost::phoenix::function`) to turn the function object into a lazy function named `lazy::is_reflexive`. Lazy functions are functions that know how to handle argument placeholders. Once that's done, we can use `lazy::is_reflexive` in our properties in place of `my_library::is_reflexive`.
 
 [endsect] [/ Calling User-Defined Functions]
 
@@ -197,9 +215,36 @@ Whoops! Our test is bogus. __qchk__ disabuses us of our naive notions about the 
 
 [endsect] [/ Conditional Evaluation]
 
-[section:property The `property` Object]
+[section:property The [^property] Object]
 
-TODO
+In all the examples we've seen before, we've stored the property in an `auto` local object. There are cases when it's not possible or desirable to use `auto`; for instance, what if you wanted to store a property in a data member? In those cases, it's convenient to have a type that can hold a property. That type is __property__.
+
+`property<>` is a template. The template parameters are the types of the property's arguments. For instance:
+
+    normal<double> one(0.0, 1.0);
+    uniform<int> die(1, 6);
+
+    // The first argument is an int, the second is a double
+    auto config = make_config(_1 = die, _2 = one);
+
+    // OK, the first argument is an int, the second is a double
+    property<int, double> prop = ((_1+_2)==(_2+_1));
+
+If you use __group_by__ to group your input parameters, then you need to add an extra template parameter to `property<>`: an instance of __grouped_by__. For insance:
+
+    normal<double> one(0.0, 1.0);
+    uniform<int> die(1, 6);
+
+    // The first argument is an int, the second is a double
+    auto config = make_config(_1 = die, _2 = one);
+
+    // OK, the first argument is an int, the second is a double,
+    // and the input will be grouped by integer.
+    property<int, double, grouped_by<int> > prop =
+        group_by(_1 % 3)
+          | ((_1+_2)==(_2+_1));
+
+Since `_1` will receive integers, `_1 % 3` will also be an `int`, so that is the type of the input grouping. We signify that by parameterizing `property<>` with `grouped_by<int>`. If you use `grouped_by<>`, it must always be the last template parameter to `property<>`.
 
 [endsect] [/ The `property` object]
 
@@ -207,15 +252,74 @@ TODO
 
 [section:config Test Configuration]
 
-TODO
+This section describes how to configure your tests. It covers the input generators and the __make_config__ function, which associates generators with argument placeholders and collects other assorted configuration parameters into an object that you can pass to the __qcheck__ algorithm.
 
 [section:generators Generating Input]
 
-TODO
+Probably the most important job of __qchk__ is to automatically generate input for your tests. That's the job ob __qchk__'s /generators/. __qchk__ provides standard generators for the primitive types as well as ways to generate sequences and objects of class type. It is also very simple to define your own generators.
+
+[tip __qchk__'s generators are designed to work together with [@http://www.boost.org/libs/random Boost.Random] as a source of random numbers. For those familiar with that library, or with the random number facilities in C++11 based on it, you can think of __qchk__'s generators as similar in purpose to that library's [@http://www.boost.org/doc/libs/1_54_0/doc/html/boost_random/reference.html#boost_random.reference.distributions distributions].]
 
 [section:primitive_types Primitive Types]
 
-TODO Normal and uniform distributions of integral and floating point.
+If your arguments are primitive types like integers, floating point numbers, or characters, you can probably just use one of __qchk__'s built-in generators. They are described below.
+
+[heading Floating-Point Generators]
+
+When generating random floating-point data, you have the choice of either a uniform or a normal distribution. For a normal distribution, use __normal__, as follows:
+
+    // generate a normal distribution of doubles.
+    normal<double> one(0.0, 1.0);
+
+The constructor arguments to `normal<>` are the mean and the standard deviation. The standard deviation must be greater than zero.
+
+To generate a uniform distribution of floating-point numbers, use __uniform__ as follows:
+
+    // generate a uniform distribution of doubles.
+    uniform<double> one(-1.0, 1.0);
+
+The constructor arguments are the minimum and maximum values the resulting data may have.
+
+[note The constructor parameters to `uniform<>` and `normal<>` are semantically different!]
+
+[heading Integral Generators]
+
+There is no generator for a normal distribution of integral data. Instead, use __uniform__, just as for floating point data. This, for instance, create a data sequence representing the rolls of a 6-sided die:
+
+    // Generate a uniform sequence of integers representing rolls
+    // of a 6-sided die
+    uniform<int> die(1, 6);
+
+The constructor parameters represent the minimum and maximum values the data may have.
+
+[heading Character Generators]
+
+Since character types are integral types, you may use __uniform__ to generate a uniform distribution of characters. That's often unsatisfactory, since it is likely to generate things like control characters and punctuation, which you may not want. Instead, __qchk__ provides character generators corresponding to the standard POSIX character type classes. The table below describes them.
+
+[table Built-In Character Generators
+[[Generator][Meaning]]
+[[`auto gen = __alnum__;`][A uniform distribution of characters for which `std::isalnum()` is true.]]
+[[`auto gen = __alpha__;`][A uniform distribution of characters for which `std::isalpha()` is true.]]
+[[`auto gen = __cntrl__;`][A uniform distribution of characters for which `std::iscntrl()` is true.]]
+[[`auto gen = __digit__;`][A uniform distribution of characters for which `std::isdigit()` is true.]]
+[[`auto gen = __graph__;`][A uniform distribution of characters for which `std::isgraph()` is true.]]
+[[`auto gen = __lower__;`][A uniform distribution of characters for which `std::islower()` is true.]]
+[[`auto gen = __print__;`][A uniform distribution of characters for which `std::isprint()` is true.]]
+[[`auto gen = __punct__;`][A uniform distribution of characters for which `std::ispunct()` is true.]]
+[[`auto gen = __space__;`][A uniform distribution of characters for which `std::isspace()` is true.]]
+[[`auto gen = __upper__;`][A uniform distribution of characters for which `std::isupper()` is true.]]
+[[`auto gen = __xdigit__;`][A uniform distribution of characters for which `std::isxdigit()` is true.]]
+]
+
+The character generators are most often used in conjunction with the __string__ generator, described below.
+
+[heading Built-In Arrays]
+
+The __normal__ and __uniform__ templates let you generate built-in arrays of their element types. Just parameterize them with an array type, as follows:
+
+    // A generator for an 2-element array of ints
+    // representing the roll of 2 six-sided die.
+    uniform<int[2]> die(1, 6);
 
 [endsect] [/ Primitive Types]
 
@@ -231,6 +335,12 @@ TODO
 
 [endsect] [/ User-Defined Types]
 
+[section:user_defined_generators Defining Your Own Generator]
+
+TODO
+
+[endsect] [/ Defining Your Own Generator]
+
 [endsect] [/ Generating Input]
 
 [section:config_params Configuration Paramters]
@@ -245,11 +355,11 @@ TODO Describe _rng, _test_count, _max_test_count, and _sized.
 
 TODO
 
-[section:qcheck The `qcheck` Algorithm]
+[section:qcheck The [^qcheck] Algorithm]
 
 TODO
 
-[endsect] [/The `qcheck` Algorithm]
+[endsect] [/The [^qcheck] Algorithm]
 
 [section:qcheck Examining The Results]
 
