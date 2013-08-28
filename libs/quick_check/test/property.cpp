@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file property.cpp
-// \brief A test of the property class
+/// \file property.cpp
+/// \brief A test of the property class
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file utility.cpp
-// \brief Utilities for the quick_check test suite
+/// \file utility.cpp
+/// \brief Utilities for the quick_check test suite
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -23,7 +23,7 @@ namespace qcheck_test
 /// Returns the absolute path to the file relative to the root
 /// of the quick_check tests.
 ///
-/// @throw runtime_error if the resulting path doesn't exist
+/// \throw runtime_error if the resulting path doesn't exist
 inline std::string abs_test_root(std::string file)
 {
     namespace fs = boost::filesystem;

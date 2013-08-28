@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file qcheck.hpp
-// \brief Definition of qcheck algorithm
+/// \file qcheck.hpp
+/// \brief Definition of qcheck algorithm
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

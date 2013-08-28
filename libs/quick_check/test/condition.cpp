@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file condition.cpp
-// \brief A test of qcheck functionality with conditions
+/// \file condition.cpp
+/// \brief A test of qcheck functionality with conditions
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file functional.hpp
-// \brief function object helpers
+/// \file functional.hpp
+/// \brief function object helpers
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

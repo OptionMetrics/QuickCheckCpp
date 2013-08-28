@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file quick_check_fwd.hpp
-// \brief Forward-declarations for quickCheckCPP
+/// \file quick_check_fwd.hpp
+/// \brief Forward-declarations for quickCheckCPP
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file string.hpp
-// \brief Definition of string, for generating strings.
+/// \file string.hpp
+/// \brief Definition of \c string() and \c wstring(), for generating strings.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -25,11 +25,16 @@ namespace quick_check
 {
     /// Create a generator for \c std::basic_string<> objects.
     ///
-    /// @param gen The generator used to generate the characters of the string.
+    /// \param gen The generator used to generate the characters of the string. Defaults
+    ///            to \c quick_check::uniform<char>().
     ///
     /// If no generator is specified, it is assumed to be \c quick_check::uniform<char>.
     template<typename Generator>
-    detail::sequence_generator<std::basic_string<typename Generator::result_type>, Generator, true>
+    detail::sequence_generator<
+        std::basic_string<typename Generator::result_type>
+      , Generator
+      , true
+    >
     string(Generator const &gen)
     {
         typedef

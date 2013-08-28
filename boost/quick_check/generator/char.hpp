@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file char.hpp
-// \brief Definition of char, for generating characters.
+/// \file char.hpp
+/// \brief Definition of char, for generating characters.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -89,56 +89,67 @@ namespace quick_check
         QCHK_DEFINE_CCTYPE_PRED_TYPE(isxdigit)
     }
 
+    /// \brief Returns a generator for chars for which \c std::isalnum(c) is true.
     inline detail::char_class_generator<char, detail::isalnum> alnum()
     {
         return detail::char_class_generator<char, detail::isalnum>();
     }
 
+    /// \brief Returns a generator for chars for which \c std::isalpha(c) is true.
     inline detail::char_class_generator<char, detail::isalpha> alpha()
     {
         return detail::char_class_generator<char, detail::isalpha>();
     }
 
+    /// \brief Returns a generator for chars for which \c std::iscntrl(c) is true.
     inline detail::char_class_generator<char, detail::iscntrl> cntrl()
     {
         return detail::char_class_generator<char, detail::iscntrl>();
     }
 
+    /// \brief Returns a generator for chars for which \c std::isdigit(c) is true.
     inline detail::char_class_generator<char, detail::isdigit> digit()
     {
         return detail::char_class_generator<char, detail::isdigit>();
     }
 
+    /// \brief Returns a generator for chars for which \c std::isgraph(c) is true.
     inline detail::char_class_generator<char, detail::isgraph> graph()
     {
         return detail::char_class_generator<char, detail::isgraph>();
     }
 
+    /// \brief Returns a generator for chars for which \c std::islower(c) is true.
     inline detail::char_class_generator<char, detail::islower> lower()
     {
         return detail::char_class_generator<char, detail::islower>();
     }
 
+    /// \brief Returns a generator for chars for which \c std::isprint(c) is true.
     inline detail::char_class_generator<char, detail::isprint> print()
     {
         return detail::char_class_generator<char, detail::isprint>();
     }
 
+    /// \brief Returns a generator for chars for which \c std::ispunct(c) is true.
     inline detail::char_class_generator<char, detail::ispunct> punct()
     {
         return detail::char_class_generator<char, detail::ispunct>();
     }
 
+    /// \brief Returns a generator for chars for which \c std::isspace(c) is true.
     inline detail::char_class_generator<char, detail::isspace> space()
     {
         return detail::char_class_generator<char, detail::isspace>();
     }
 
+    /// \brief Returns a generator for chars for which \c std::isupper(c) is true.
     inline detail::char_class_generator<char, detail::isupper> upper()
     {
         return detail::char_class_generator<char, detail::isupper>();
     }
 
+    /// \brief Returns a generator for chars for which \c std::isxdigit(c) is true.
     inline detail::char_class_generator<char, detail::isxdigit> xdigit()
     {
         return detail::char_class_generator<char, detail::isxdigit>();

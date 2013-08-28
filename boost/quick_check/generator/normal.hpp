@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file normal.hpp
-// \brief Definition of normal, a generator that produces a normal distribution
+/// \file normal.hpp
+/// \brief Definition of \c normal<>, a generator that produces a normal distribution of floating
+///        point values.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -34,6 +35,21 @@ namespace quick_check
         };
     }
 
+    /// \brief For generating a normal distribution of floating point numbers
+    ///
+    /// \tparam Value The type of the values to generate. Must be a floating
+    /// point type.
+    ///
+    /// Use \c normal<> to generate a normal distribution of floating point
+    /// numbers.
+    ///
+    /// \em Example:
+    ///
+    /// \code
+    /// boost::random::mt11213b rng;
+    /// normal<double> one(0.0, 1.0);
+    /// double d = one(rng); // generate a random double.
+    /// \endcode
     template<typename Value = double>
     struct normal
       : private detail::normal_base<Value>::type
@@ -47,20 +63,31 @@ namespace quick_check
         base_type;
 
     public:
+        /// Construct a \c normal<> object
+        ///
+        /// \param mean The mean of the normal distribution. Defaults to 0.0.
+        /// \param std_dev The standard deviation of the normal distribution. Defaults to 1.0.
+        /// \pre \c std_dev \> 0.0
+        normal(Value mean, Value std_dev)
+          : base_type(mean, std_dev)
+        {}
+
+        /// \overload
+        explicit normal(Value mean)
+          : base_type(mean)
+        {}
+
+        /// \overload
         normal()
           : base_type()
         {}
 
-        explicit normal(Value a)
-          : base_type(a)
-        {}
-
-        normal(Value a, Value b)
-          : base_type(a, b)
-        {}
-
         typedef Value result_type;
 
+        /// Generate a random value of type \c Value using \c rng as a source
+        /// of randomness. The distribution of the values returned is normal,
+        /// with a mean and standard deviation as specified when constructing
+        /// \c *this.
         template<typename Rng>
         result_type operator()(Rng &rng)
         {
@@ -74,16 +101,16 @@ namespace quick_check
     template<typename Value, std::size_t N>
     struct normal<Value[N]>
     {
+        normal(Value mean, Value std_dev)
+          : gen_(mean, std_dev)
+        {}
+
+        explicit normal(Value mean)
+          : gen_(mean)
+        {}
+
         normal()
           : gen_()
-        {}
-
-        explicit normal(Value a)
-          : gen_(a)
-        {}
-
-        normal(Value a, Value b)
-          : gen_(a, b)
         {}
 
         typedef detail::array<Value[N]> result_type;

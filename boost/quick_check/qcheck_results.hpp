@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file qcheck_results.hpp
-// \brief Definition of qcheck_results object
+/// \file qcheck_results.hpp
+/// \brief Definition of qcheck_results object
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

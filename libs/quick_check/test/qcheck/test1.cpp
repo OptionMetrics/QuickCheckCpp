@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file qcheck/test1.cpp
-// \brief A test of the qcheck algorithm
+/// \file qcheck/test1.cpp
+/// \brief A test of the qcheck algorithm
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

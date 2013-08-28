@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file config.hpp
-// \brief Definition of test configuration objects
+/// \file config.hpp
+/// \brief Definition of test configuration objects
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -444,7 +444,7 @@ namespace quick_check
     /// \remark The number of inputs generated may differ from the number of tests
     /// actually run because of the use of condition property guards. If a
     /// set of inputs does not satisfy a property's
-    /// @RefSect{users_guide.properties.conditional, condition predicate}, then
+    /// \RefSect{users_guide.properties.conditional, condition predicate}, then
     /// those inputs are discarded. The \c _max_test_count configuration parameter
     /// exits to bound the number of inputs generated, in case the condition
     /// predicate discards too many inputs.
@@ -558,6 +558,18 @@ namespace quick_check
     ///                 _rng = rng,               // Specify a custom random number generator
     ///                 _test_count = 10000,      // The maximum number of tests to execute
     ///                 _max_test_count = 15000); // The maximum number of inputs to generate
+    /// \endcode
+    ///
+    /// Do not use the same generator with two different argument placeholders, like
+    /// <tt>make_config(_1 = die, _2 = die)</tt>. Both generators will be copied and
+    /// they will have the same internal state while generating random numbers,
+    /// resulting in poor randomness. Instead, you can reuse the same generator like
+    /// this:
+    ///
+    /// \code
+    /// // OK, reuse the same generator for 2 placeholders.
+    /// uniform<int> die(1,6);
+    /// auto conf = make_config(_1 = _2 = die);
     /// \endcode
     ///
     /// \sa \c quick_check::_rng

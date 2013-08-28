@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file vector.hpp
-// \brief Definition of vector, for generating vectors.
+/// \file vector.hpp
+/// \brief Definition of vector, for generating vectors.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

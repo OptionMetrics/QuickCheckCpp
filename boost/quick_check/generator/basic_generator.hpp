@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file class.hpp
-// \brief Definition class_, for generating objects of user-defined types.
+/// \file basic_generator.hpp
+/// \brief Header that defines some shared utilities for defining generators.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

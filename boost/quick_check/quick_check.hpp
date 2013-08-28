@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file quick_check.hpp
-// \brief Include all of the quickCheckCpp library
+/// \file quick_check.hpp
+/// \brief Include all of the quickCheckCpp library
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

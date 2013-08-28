@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file classify.cpp
-// \brief A test of the classify modifier
+/// \file classify.cpp
+/// \brief A test of the classify modifier
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

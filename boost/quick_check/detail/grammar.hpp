@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file grammar.hpp
-// \brief Definition of the quick_check EDSL's grammar
+/// \file grammar.hpp
+/// \brief Definition of the quick_check EDSL's grammar
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

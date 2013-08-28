@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file class_gen.cpp
-// \brief A test of the class generator
+/// \file class_gen.cpp
+/// \brief A test of the class generator
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

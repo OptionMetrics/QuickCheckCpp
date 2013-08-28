@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file transform.hpp
-// \brief Definition of transform, for mutating the output of a generator
+/// \file transform.hpp
+/// \brief Definition of \c transform(), for mutating the output of a generator
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -55,6 +55,19 @@ namespace quick_check
         };
     }
 
+    /// \brief Defines a composite generator that changes the output of an
+    ///        underlying transform by running each value through the specified
+    ///        UnaryFunction.
+    ///
+    /// \param gen The generator used to produce the elements of the sequence.
+    /// \param fun The UnaryFunction used to map the input sequence to the output
+    ///            sequence.
+    ///
+    /// If \c gen produces the sequence <tt>[a,b,c...]</tt>, then the generator
+    /// returned by \c transform(gen,fun) produces the sequence
+    /// <tt>[fun(a),fun(b),fun(c)...]</tt>.
+    ///
+    /// \pre \c fun must be an object such that 
     template<typename Generator, typename UnaryFunction>
     detail::transform_generator<Generator, UnaryFunction>
     transform(Generator const &gen, UnaryFunction fun)

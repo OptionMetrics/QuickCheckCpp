@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file array.cpp
-// \brief A basic tests with arrays
+/// \file array.cpp
+/// \brief A basic tests with arrays
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

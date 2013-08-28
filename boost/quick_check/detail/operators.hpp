@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file operators.hpp
-// \brief Operator function objects
+/// \file operators.hpp
+/// \brief Operator function objects
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

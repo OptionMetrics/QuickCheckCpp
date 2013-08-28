@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file file_dist.hpp
-// \brief A "distribution" that pulls random numbers from an input file.
+/// \file file_dist.hpp
+/// \brief A "distribution" that pulls random numbers from an input file.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

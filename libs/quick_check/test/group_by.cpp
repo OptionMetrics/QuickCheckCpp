@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file group_by.cpp
-// \brief A test of the group_by modifier
+/// \file group_by.cpp
+/// \brief A test of the group_by modifier
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

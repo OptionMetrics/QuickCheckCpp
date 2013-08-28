@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file zip.hpp
-// \brief Definition of zip, for building a std::pair with two generators
+/// \file zip.hpp
+/// \brief Definition of zip, for building a std::pair with two generators
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file qcheck_results.cpp
-// \brief A test of the qcheck_results struct
+/// \file qcheck_results.cpp
+/// \brief A test of the qcheck_results struct
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

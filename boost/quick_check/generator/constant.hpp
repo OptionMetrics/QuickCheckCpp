@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file constant.hpp
-// \brief Definition constant, a generator that always produces the same value
+/// \file constant.hpp
+/// \brief Definition of \c constant<>, a generator that always produces the same value
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -46,6 +46,20 @@ namespace quick_check
         };
     }
 
+    /// \brief Declare a degenerate generator that always produces the same
+    /// value
+    ///
+    /// Sometimes it's handy to have a generator that always produces the same
+    /// value; for instance, when combining primitive generators into a composite
+    /// generator, like \c quick_check::class_().
+    ///
+    /// The code below shows how to use \c constant
+    /// \code
+    /// auto gen = constant(42);
+    ///
+    /// boost::random::mt11213b rng;
+    /// assert(gen(rng) == 42);
+    /// \endcode
     template<typename T>
     detail::constant_generator<T> constant(T const &t)
     {

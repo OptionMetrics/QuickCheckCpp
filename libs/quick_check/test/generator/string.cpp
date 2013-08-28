@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file string_gen.cpp
-// \brief A test of the string generator
+/// \file string_gen.cpp
+/// \brief A test of the string generator
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file basic.cpp
-// \brief A truly basic test of qcheck functionality
+/// \file basic.cpp
+/// \brief A truly basic test of qcheck functionality
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

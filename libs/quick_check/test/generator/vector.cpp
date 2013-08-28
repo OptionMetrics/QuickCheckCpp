@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file vector_gen.cpp
-// \brief A test of the vector generator
+/// \file vector_gen.cpp
+/// \brief A test of the vector generator
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

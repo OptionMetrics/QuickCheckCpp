@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file uniform_gen.cpp
-// \brief A test for the constant generator
+/// \file uniform_gen.cpp
+/// \brief A test for the constant generator
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// \file generator.hpp
-// \brief Definition of some generic generators
+/// \file generator.hpp
+/// \brief Definition of some generic generators
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

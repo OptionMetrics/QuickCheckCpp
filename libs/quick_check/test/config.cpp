@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// \file config.cpp
-// \brief A test of make_config
+/// \file config.cpp
+/// \brief A test of make_config
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
