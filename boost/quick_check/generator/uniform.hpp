@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file uniform.hpp
-/// \brief Definition of \c uniform<>, a generator that produces a uniform distribution of
-///        floating point or integral values.
+/// \brief Definition of \c quick_check::uniform\<\>, a generator that produces a uniform
+///        distribution of floating point or integral values.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -44,12 +44,11 @@ namespace quick_check
     /// \brief A generator for a sequence of uniformly distributed integral or
     ///        floating point numbers.
     ///
-    /// \tparam Value The type of the generated values.
+    /// \tparam Value The type of the generated values. It must be an integral
+    ///               or floating point type.
     ///
-    /// \pre \c Value is an integral or floating point type.
-    ///
-    /// Use \c uniform<> to generate a uniform distribution of integral or
-    /// floating point numbers.
+    /// Use \c uniform\<\> to generate a uniform distribution of integral or
+    /// floating point numbers between some minimum and maximum.
     ///
     /// \em Example:
     ///
@@ -72,11 +71,11 @@ namespace quick_check
         typedef typename detail::uniform_base<Value>::type base_type;
 
     public:
-        /// \brief Construct a \c uniform<> object
+        /// \brief Construct a \c uniform\<\> object
         /// \param min The minimum value (inclusive) of the resulting sequence.
         ///            \c min defaults to 0.
         /// \param max The maximum value (inclusive) of the resulting sequence.
-        ///            \c max defaults to \c std::numeric_limits<Value>::max() if
+        ///            \c max defaults to \c std::numeric_limits\<Value\>::max() if
         ///            \c Value is an integral type; otherwise, it defaults to 1.0.
         /// \pre \c min \< \c max
         /// \remark Note that the minimum and maximum values of the sequence

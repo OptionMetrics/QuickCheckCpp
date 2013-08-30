@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file condition.hpp
-/// \brief Definition of the condition grammar element
+/// \brief Definition of the <tt>\>\>=</tt> operator for declaring properties' input condition.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

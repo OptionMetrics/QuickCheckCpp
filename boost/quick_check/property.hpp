@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// \file qcheck.hpp
-/// \brief Definition of qcheck algorithm
+/// \file property.hpp
+/// \brief Definition of the \c quick_check::property\<\> template, for storing property
+///        objects.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -148,6 +149,22 @@ namespace quick_check
 
 
 #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+    /// \brief A holder for quickCheckCpp properties.
+    ///
+    /// \tparam As A variadic parameter list. The types in the list should
+    ///            correspond to the argument types of the property; i.e. type
+    ///            <tt>result_type</tt>s of the generators bound to the property's
+    ///            placeholders. Additionally, if the property has a grouping
+    ///            criterion (as specified with <tt>quick_check::group_by()</tt>),
+    ///            then the final type in \c As should be \c grouped_by\<X\>,
+    ///            where \c X is the type by which the intput will be grouped.
+    ///
+    /// You may use \c property\<\> to declare an object to hold a property. In
+    /// most cases, use of \c property\<\> is unnecessary; rather, you can declare
+    /// properties with \c auto. \c property\<\> is necessary when the language
+    /// forces you to declare objects with a specific type; e.g. as a data member.
+    ///
+    /// 
     template<typename ...As>
     struct property
       : private boost::function<

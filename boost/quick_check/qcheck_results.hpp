@@ -1,6 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file qcheck_results.hpp
-/// \brief Definition of qcheck_results object
+/// \brief Definition of \c quick_check::qcheck_results\<\> object, returned by the
+///        \c quick_check::qcheck() algorithm, and also the \c quick_check::qcheck_args\<\>
+///        template.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

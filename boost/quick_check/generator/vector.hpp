@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file vector.hpp
-/// \brief Definition of vector, for generating vectors.
+/// \brief Definition of \c quick_check::vector(), for generating vectors.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -22,6 +22,21 @@ QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
+    /// \brief Create a generator for \c std::vector\<\> objects.
+    ///
+    /// \param gen The generator used to generate the elements fot the vector.
+    ///
+    /// The element type of the resulting vectors is the return type of
+    /// \c gen's overloaded function call operator.
+    ///
+    /// The size of the resulting vectors is controlled by the \c quick_check::_sized
+    /// named parameter to the \c quick_check::make_config() function, or by calling
+    /// \c quick_check::config::sized() on the \c config\<\> object that
+    /// \c quick_check::make_config() returns.
+    ///
+    /// \sa \c quick_check::ordered_vector
+    /// \sa \c quick_check::_sized
+    /// \sa \c quick_check::config::sized
     template<typename Gen>
     detail::sequence_generator<std::vector<typename Gen::result_type>, Gen, true>
     vector(Gen const &gen)
@@ -30,6 +45,26 @@ namespace quick_check
         return detail::sequence_generator<sequence_type, Gen, true>(gen);
     }
 
+    /// \brief Create a generator for sorted \c std::vector\<\> objects.
+    ///
+    /// \param gen The generator used to generate the elements fot the vector.
+    ///
+    /// \pre \c Gen::result_type is a type which has a partial order over the
+    ///      \< operator.
+    ///
+    /// The element type of the resulting vectors is the return type of
+    /// \c gen's overloaded function call operator.
+    ///
+    /// The resulting vectors are guaranteed to be sorted.
+    ///
+    /// The size of the resulting vectors is controlled by the \c quick_check::_sized
+    /// named parameter to the \c quick_check::make_config() function, or by calling
+    /// \c quick_check::config::sized() on the \c config\<\> object that
+    /// \c quick_check::make_config() returns.
+    ///
+    /// \sa \c quick_check::vector
+    /// \sa \c quick_check::_sized
+    /// \sa \c quick_check::config::sized
     template<typename Gen>
     detail::sequence_generator<std::vector<typename Gen::result_type>, Gen, true, true>
     ordered_vector(Gen const &gen)

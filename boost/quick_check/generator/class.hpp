@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file class.hpp
-/// \brief Definition of \c class_<>, for generating objects of user-defined types.
+/// \brief Definition of \c quick_check::class_\<\>, for generating objects of user-defined types.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

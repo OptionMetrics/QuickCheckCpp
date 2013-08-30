@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file normal.hpp
-/// \brief Definition of \c normal<>, a generator that produces a normal distribution of floating
-///        point values.
+/// \brief Definition of \c quick_check::normal\<\>, a generator that produces a normal
+///        distribution of floating point values.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -40,7 +40,7 @@ namespace quick_check
     /// \tparam Value The type of the values to generate. Must be a floating
     /// point type.
     ///
-    /// Use \c normal<> to generate a normal distribution of floating point
+    /// Use \c normal\<\> to generate a normal distribution of floating point
     /// numbers.
     ///
     /// \em Example:
@@ -63,7 +63,7 @@ namespace quick_check
         base_type;
 
     public:
-        /// Construct a \c normal<> object
+        /// Construct a \c normal\<\> object
         ///
         /// \param mean The mean of the normal distribution. Defaults to 0.0.
         /// \param std_dev The standard deviation of the normal distribution. Defaults to 1.0.

@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file constant.hpp
-/// \brief Definition of \c constant<>, a generator that always produces the same value
+/// \brief Definition of \c quick_check::constant\<\>, a generator that always produces the same 
+///        value.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

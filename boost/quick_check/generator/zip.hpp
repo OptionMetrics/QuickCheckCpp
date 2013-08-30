@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file zip.hpp
-/// \brief Definition of zip, for building a std::pair with two generators
+/// \brief Definition of \c quick_check::zip(), for building a \c std::pair\<\> with two generators
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -58,6 +58,17 @@ namespace quick_check
         };
     }
 
+    /// \brief Creates a generator for \c std::pair\<\> objects from two
+    ///        generators.
+    ///
+    /// \pre \c gen0 and \c gen1 are valid Generator objects.
+    ///
+    /// \c zip() returns a Generator for \c std::pair\<\> objects. The
+    /// \c std::pair\<\> objects have type
+    /// <tt>std::pair\<Generator0::result_type, Generator1::result_type\></tt>.
+    ///
+    /// Given a random number generator \c rng, the \c std::pair\<\> objects
+    /// are created as if with <tt>std::make_pair(gen0(rng), gen1(rng))</tt>.
     template<typename Generator0, typename Generator1>
     detail::zip_generator<Generator0, Generator1>
     zip(Generator0 const &gen0, Generator1 const &gen1)

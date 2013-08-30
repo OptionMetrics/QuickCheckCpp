@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file char.hpp
-/// \brief Definition of char, for generating characters.
+/// \brief Definition of different generators for <tt>char</tt>s.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

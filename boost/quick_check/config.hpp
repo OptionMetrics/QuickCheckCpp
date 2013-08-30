@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file config.hpp
-/// \brief Definition of test configuration objects
+/// \brief Definition of \c quick_check::config\<\> and \c quick_check::make_config() for defining
+///        test configurations.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -302,7 +303,7 @@ namespace quick_check
     /// \tparam Map \em unspecified
     /// \tparam Rng \em unspecified
     ///
-    /// You will typically not create objects of type \c config<> directly; rather,
+    /// You will typically not create objects of type \c config\<\> directly; rather,
     /// you will use the \c quick_check::make_config() helper to do it for you.
     template<typename Map, typename Rng>
     struct config
@@ -529,7 +530,7 @@ namespace quick_check
         };
     }
 
-    /// Create an instance of \c quick_check::config<> with the specified
+    /// Create an instance of \c quick_check::config\<\> with the specified
     /// argument placeholder/generator bindings, and any additional specified
     /// configuration parameters.
     ///
@@ -538,7 +539,7 @@ namespace quick_check
     /// contain placeholder/value bindings like <tt>_sized = 42u</tt> for any
     /// addtional configuration parameters to be specified.
     ///
-    /// \return An unspecified instance of \c quick_check::config<>.
+    /// \return An unspecified instance of \c quick_check::config\<\>.
     ///
     /// \em Example:
     ///

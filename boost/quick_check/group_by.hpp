@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// \file classify.hpp
-/// \brief Definition of the classify grammar element
+/// \file group_by.hpp
+/// \brief Definition of the \c quick_check::group_by() function and the
+///        \c quick_check::grouped_by\<\> template.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -141,10 +142,87 @@ namespace quick_check
 #endif
     }
 
-    template<typename>
+    /// \brief Used as the final template parameter to \c quick_check::property\<\>
+    ///        to denote that the property's input arguments will be grouped by
+    ///        objects of type \c T for reporting purposes.
+    ///
+    /// When defining a property that uses the \c quick_check::group_by() function
+    /// to specify a grouping criterion, and assigning the property to a
+    /// \c quick_check::property\<\> object, the \c property\<\> template must
+    /// be parameterized on the type by to which the input will be grouped.
+    /// The \c grouped_by\<\> template is the means by which \c property\<\> is
+    /// parameterized.
+    ///
+    /// \em Example:
+    ///
+    /// \code
+    /// uniform<int> die(1,6);
+    /// auto config = make_config(_1 = die);
+    ///
+    /// property<int, grouped_by<int> > prop =
+    ///     group_by(_1 % 3) | _1 >= 1 && _1 <= 6;
+    /// \endcode
+    ///
+    /// Since the property \c prop above has as its grouping criterion <tt>_1 % 3</tt>,
+    /// and since \c _1 will be receiving objects of type \c int, the expression
+    /// <tt>_1 % 3</tt> will yield <tt>int</tt>s. As a result, when declaring the type
+    /// of \c prop, the final template parameter must be \c grouped_by\<int\>.
+    ///
+    /// \remark When declaring property objects with \c auto instead of with
+    ///         \c property\<\>, \c grouped_by\<\> is unnecessary.
+    ///
+    /// The \c grouped_by\<\> template is also the final template parameter of any
+    /// \c quick_check::qcheck_results\<\> objects returned by \c quick_check::qcheck()
+    /// when used with a property defined with \c group_by().
+    template<typename T>
     struct grouped_by
-    {};
+    {
+        typedef T type;
+    };
 
+    /// \brief Used when defining properties to denote how the property's input
+    ///        arguments should be grouped for reporting purposes.
+    ///
+    /// Use \c group_by() when defining a property to specify a grouping criterion.
+    /// The summary results of the \c quick_check::qcheck() algorithm will contain
+    /// the percentage of input parameters that are in each group, as defined by
+    /// the criterion. The result of the grouping criterion will also be saved
+    /// along with any input arguments that cause the property test to fail. 
+    ///
+    /// There can be only one \c group_by() clause in a property definition. It
+    /// must follow the conditional clause (if any), and preceed the classification
+    /// clauses (if any).
+    ///
+    /// \em Example:
+    ///
+    /// \code
+    /// uniform<int> die(1,6);
+    /// auto config = make_config(_1 = die);
+    ///
+    /// auto prop =
+    ///     group_by(_1 % 3) | _1 >= 1 && _1 <= 6;
+    /// \endcode
+    ///
+    /// The use of \c group_by() in the above property definition signifies to the
+    /// quick_check::qcheck() algorithm that it should collect statistics about how
+    /// often the result of the expression <tt>_1 % 3</tt> is seen in the input.
+    ///
+    /// \em Example 2:
+    ///
+    /// \code
+    /// uniform<int> die(1,6);
+    /// auto config = make_config(_1 = die);
+    ///
+    /// auto prop =
+    ///     (_1 != 1) >>=
+    ///         group_by(_1 % 3) |
+    ///         classify(_1 < 4, "small") |
+    ///         classify(_1 >= 4, "less small") |
+    ///             _1 >= 2 && _1 <= 6;
+    /// \endcode
+    ///
+    /// The above property definition shows where the \c group_by() clause is allowed
+    /// to appear relative to a conditional clause and the \c classify() clauses.
     template<typename Expr>
     typename proto::result_of::make_expr<
         detail::group_by_

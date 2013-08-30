@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file array.hpp
-/// \brief Definition of some generic generators
+/// \brief Definition of a wrapper for native arrays that can be used in arithmetic operations
+///        and apply the operation element-wise.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

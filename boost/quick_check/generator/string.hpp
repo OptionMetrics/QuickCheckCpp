@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file string.hpp
-/// \brief Definition of \c string() and \c wstring(), for generating strings.
+/// \brief Definition of \c quick_check::string() and \c quick_check::wstring(), for generating
+///        strings.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
@@ -23,12 +24,17 @@ QCHK_BOOST_NAMESPACE_BEGIN
 
 namespace quick_check
 {
-    /// Create a generator for \c std::basic_string<> objects.
+    /// Create a generator for \c std::basic_string\<\> objects.
     ///
     /// \param gen The generator used to generate the characters of the string. Defaults
-    ///            to \c quick_check::uniform<char>().
+    ///            to \c quick_check::uniform\<char\>().
     ///
-    /// If no generator is specified, it is assumed to be \c quick_check::uniform<char>.
+    /// The character type of the resulting strings is the return type of
+    /// \c gen's overloaded function call operator.
+    ///
+    /// If no generator is specified, it is assumed to be \c quick_check::uniform\<char\>.
+    ///
+    /// \sa \c quick_check::wstring
     template<typename Generator>
     detail::sequence_generator<
         std::basic_string<typename Generator::result_type>
@@ -58,7 +64,7 @@ namespace quick_check
 
     /// Create a generator for \c std::wstring objects.
     ///
-    /// \c quick_check::uniform<wchar_t> is used to generate the characters of the string.
+    /// \c quick_check::uniform\<wchar_t\> is used to generate the characters of the string.
     inline detail::sequence_generator<std::wstring, uniform<wchar_t>, true>
     wstring()
     {

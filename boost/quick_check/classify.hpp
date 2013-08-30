@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file classify.hpp
-/// \brief Definition of the classify grammar element
+/// \brief Definition of the \c quick_check::classify() function for declaring properties'
+///        classification criteria.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler

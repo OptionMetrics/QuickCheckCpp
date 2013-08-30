@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// \file transform.hpp
-/// \brief Definition of \c transform(), for mutating the output of a generator
+/// \brief Definition of \c quick_check::transform(), for mutating the output of a generator.
 //
 // Copyright 2013 OptionMetrics, Inc.
 // Copyright 2013 Eric Niebler
