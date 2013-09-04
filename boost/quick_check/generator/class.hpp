@@ -375,24 +375,25 @@ namespace quick_check
     /// The \c ctor helper is used in conjunction with \c quick_check::class_()
     /// as shown below:
     ///
-    /// \code
-    /// struct S
-    /// {
-    ///     S(int);
-    ///     S(int, double);
-    /// };
-    ///
-    /// /* ... */
-    ///
-    /// uniform<int> i(1,6);
-    /// normal<double> d(0.,1.);
-    ///
-    /// // genS is a generator for S objects that calls S::S(int, double)
-    /// // 50% of the time, and S::S(int) 50% of the time.
-    /// auto genS = class_<S>( ctor(i, d) %50
-    ///                      | ctor(i)    %50
-    ///                      );
-    /// \endcode
+    /*! \code
+        struct S
+        {
+            S(int);
+            S(int, double);
+        };
+
+        // ...
+
+        uniform<int> i(1,6);
+        normal<double> d(0.,1.);
+
+        // genS is a generator for S objects that calls S::S(int, double)
+        // 50% of the time, and S::S(int) 50% of the time.
+        auto genS = class_<S>( ctor(i, d) %50
+                             | ctor(i)    %50
+                             );
+        \endcode
+    */
     ///
     /// \sa \c quick_check::class_()
     template<typename ...Gs>
@@ -419,24 +420,26 @@ namespace quick_check
     ///
     /// Given a class \c S declared as follows:
     ///
-    /// \code
-    /// struct S
-    /// {
-    ///     S(int);
-    ///     S(int, double);
-    /// };
-    /// \endcode
-    ///
+    /*! \code
+        struct S
+        {
+            S(int);
+            S(int, double);
+        };
+        \endcode
+    */
+    ///   
     /// You can define a generator \c genS that produces \c S objects
     /// by constructing them with random integers as follows:
     ///
-    /// \code
-    /// uniform<int> die(1,6);
-    /// auto genS = class_(die);
-    ///
-    /// boost::random::mt11213b rng;
-    /// S s = genS(rng); // OK, generate an S object with a random int
-    /// \endcode
+    /*! \code
+        uniform<int> die(1,6);
+        auto genS = class_(die);
+
+        boost::random::mt11213b rng;
+        S s = genS(rng); // OK, generate an S object with a random int
+        \endcode
+    */
     ///
     /// \c class_() is a composite generator. You initialize it with one or
     /// more other generators, which are used to supply the constructor argument(s).
@@ -448,15 +451,16 @@ namespace quick_check
     /// constructor signatures, and how often to call each, we use the \c ctor
     /// helper. The code below calls each of \c S's constructors 50% of the time:
     ///
-    /// \code
-    /// uniform<int> die(1,6);
-    /// normal<double> one(0.0,1.0);
-    /// auto genS = class_(ctor(die)      %50
-    ///                   |ctor(die, one) %50);
-    ///
-    /// boost::random::mt11213b rng;
-    /// S s = genS(rng); // OK, generate an S object with random args
-    /// \endcode
+    /*! \code
+        uniform<int> die(1,6);
+        normal<double> one(0.0,1.0);
+        auto genS = class_(ctor(die)      %50
+                          |ctor(die, one) %50);
+
+        boost::random::mt11213b rng;
+        S s = genS(rng); // OK, generate an S object with random args
+        \endcode
+    */
     ///
     /// The code above will construct an \c S object using one of its two constructors
     /// with random arguments.

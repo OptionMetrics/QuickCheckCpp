@@ -55,12 +55,14 @@ namespace quick_check
     /// generator, like \c quick_check::class_().
     ///
     /// The code below shows how to use \c constant
-    /// \code
-    /// auto gen = constant(42);
     ///
-    /// boost::random::mt11213b rng;
-    /// assert(gen(rng) == 42);
-    /// \endcode
+    /*! \code
+        auto gen = constant(42);
+
+        boost::random::mt11213b rng;
+        assert(gen(rng) == 42);
+        \endcode
+    */
     template<typename T>
     detail::constant_generator<T> constant(T const &t)
     {

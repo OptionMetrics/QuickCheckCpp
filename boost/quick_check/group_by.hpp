@@ -155,13 +155,14 @@ namespace quick_check
     ///
     /// \em Example:
     ///
-    /// \code
-    /// uniform<int> die(1,6);
-    /// auto config = make_config(_1 = die);
-    ///
-    /// property<int, grouped_by<int> > prop =
-    ///     group_by(_1 % 3) | _1 >= 1 && _1 <= 6;
-    /// \endcode
+    /*! \code
+        uniform<int> die(1,6);
+        auto config = make_config(_1 = die);
+
+        property<int, grouped_by<int> > prop =
+            group_by(_1 % 3) | _1 >= 1 && _1 <= 6;
+        \endcode
+    */
     ///
     /// Since the property \c prop above has as its grouping criterion <tt>_1 % 3</tt>,
     /// and since \c _1 will be receiving objects of type \c int, the expression
@@ -195,13 +196,14 @@ namespace quick_check
     ///
     /// \em Example:
     ///
-    /// \code
-    /// uniform<int> die(1,6);
-    /// auto config = make_config(_1 = die);
-    ///
-    /// auto prop =
-    ///     group_by(_1 % 3) | _1 >= 1 && _1 <= 6;
-    /// \endcode
+    /*! \code
+        uniform<int> die(1,6);
+        auto config = make_config(_1 = die);
+
+        auto prop =
+            group_by(_1 % 3) | _1 >= 1 && _1 <= 6;
+        \endcode
+    */
     ///
     /// The use of \c group_by() in the above property definition signifies to the
     /// quick_check::qcheck() algorithm that it should collect statistics about how
@@ -209,17 +211,18 @@ namespace quick_check
     ///
     /// \em Example 2:
     ///
-    /// \code
-    /// uniform<int> die(1,6);
-    /// auto config = make_config(_1 = die);
-    ///
-    /// auto prop =
-    ///     (_1 != 1) >>=
-    ///         group_by(_1 % 3) |
-    ///         classify(_1 < 4, "small") |
-    ///         classify(_1 >= 4, "less small") |
-    ///             _1 >= 2 && _1 <= 6;
-    /// \endcode
+    /*! \code
+        uniform<int> die(1,6);
+        auto config = make_config(_1 = die);
+
+        auto prop =
+            (_1 != 1) >>=
+                group_by(_1 % 3) |
+                classify(_1 < 4, "small") |
+                classify(_1 >= 4, "less small") |
+                    _1 >= 2 && _1 <= 6;
+        \endcode
+    */
     ///
     /// The above property definition shows where the \c group_by() clause is allowed
     /// to appear relative to a conditional clause and the \c classify() clauses.

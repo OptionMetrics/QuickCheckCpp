@@ -45,11 +45,12 @@ namespace quick_check
     ///
     /// \em Example:
     ///
-    /// \code
-    /// boost::random::mt11213b rng;
-    /// normal<double> one(0.0, 1.0);
-    /// double d = one(rng); // generate a random double.
-    /// \endcode
+    /*! \code
+        boost::random::mt11213b rng;
+        normal<double> one(0.0, 1.0);
+        double d = one(rng); // generate a random double.
+        \endcode
+    */
     template<typename Value = double>
     struct normal
       : private detail::normal_base<Value>::type

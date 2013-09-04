@@ -52,12 +52,13 @@ namespace quick_check
     ///
     /// \em Example:
     ///
-    /// \code
-    /// boost::random::mt11213b rng;
-    /// uniform<int> die(1, 6);
-    /// // generate a random int between 1 and 6 inclusive
-    /// int i = die(rng);
-    /// \endcode
+    /*! \code
+        boost::random::mt11213b rng;
+        uniform<int> die(1, 6);
+        // generate a random int between 1 and 6 inclusive
+        int i = die(rng);
+        \endcode
+    */
     template<typename Value = double>
     struct uniform
       : private detail::uniform_base<Value>::type

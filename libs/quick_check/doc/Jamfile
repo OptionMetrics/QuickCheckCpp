@@ -24,6 +24,7 @@ doxygen autodoc
         <doxygen:param>EXPAND_ONLY_PREDEF=YES
         <doxygen:param>SEARCH_INCLUDES=YES
         <doxygen:param>"INCLUDE_PATH=\"../../..\" \"$(BOOST)\""
+        # So that Doxygen comments can link to sections in the quickbook users' guide
         <doxygen:param>"ALIASES=\"RefSect{2}=\\xmlonly<link linkend='quick_check.\\1'>\\2</link>\\endxmlonly\""
     ;
 
@@ -39,13 +40,17 @@ boostbook standalone
     :
         quick_check
     :
-        <xsl:param>boost.root=../../../../../boost/org/trunk
-        <xsl:param>boost.defaults=xyzzy
-        <xsl:param>toc.max.depth=10
-        <xsl:param>toc.section.depth=10
-        <xsl:param>chunk.section.depth=10
-        <xsl:param>"html.stylesheet=../../../../../boost/org/trunk/doc/src/boostbook.css"
-        <xsl:param>"boost.graphics.root=../../../../../boost/org/trunk/doc/src/images/"
+        <xsl:param>toc.max.depth=8
+        <xsl:param>toc.section.depth=3
+        <xsl:param>chunk.section.depth=2
+        <xsl:param>chunk.first.sections=1
+        <xsl:param>admon.graphics=1
+        <xsl:param>"html.stylesheet=http://svn.boost.org/svn/boost/trunk/doc/src/boostbook.css"
+        <xsl:param>"img.graphics.path=http://svn.boost.org/svn/boost/trunk/doc/html/"
+        <xsl:param>"admon.graphics.path=http://svn.boost.org/svn/boost/trunk/doc/src/images/"
+        <xsl:param>"navig.graphics.path=http://svn.boost.org/svn/boost/trunk/doc/src/images/"
+        <xsl:param>"callout.graphics.path=http://svn.boost.org/svn/boost/trunk/doc/src/images/callouts/"
+        <format>pdf:<xsl:param>"callout.graphics.extension=.svg"
         <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/doc/html
         <dependency>autodoc
     ;

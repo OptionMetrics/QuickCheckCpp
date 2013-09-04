@@ -414,12 +414,13 @@ namespace quick_check
     ///
     /// \b Example:
     ///
-    /// \code
-    /// // Generate alphabetic characters, using rng as
-    /// // a source of randomness.
-    /// boost::random::mt19937 rng;
-    /// auto conf = make_config(_1 = alpha(), _rng = rng);
-    /// \endcode
+    /*! \code
+        // Generate alphabetic characters, using rng as
+        // a source of randomness.
+        boost::random::mt19937 rng;
+        auto conf = make_config(_1 = alpha(), _rng = rng);
+        \endcode
+    */
     proto::terminal<detail::rng_>::type const _rng = {};
 
     /// A placeholder for use with \c quick_check::make_config() for specifying
@@ -429,11 +430,12 @@ namespace quick_check
     ///
     /// \b Example:
     ///
-    /// \code
-    /// // Make a config that will cause quick_book::qcheck() to attempt
-    /// // to run 1,000 test cases.
-    /// auto conf = make_config(_1 = alpha(), _test_count = 1000u);
-    /// \endcode
+    /*! \code
+        // Make a config that will cause quick_book::qcheck() to attempt
+        // to run 1,000 test cases.
+        auto conf = make_config(_1 = alpha(), _test_count = 1000u);
+        \endcode
+    */
     proto::terminal<detail::test_count_>::type const _test_count = {};
 
     /// A placeholder for use with \c quick_check::make_config() for specifying
@@ -452,10 +454,11 @@ namespace quick_check
     ///
     /// \b Example:
     ///
-    /// \code
-    /// // Make a config that generates no more than 1,000 alphabetic characters.
-    /// auto conf = make_config(_1 = alpha(), _max_test_count = 1000u);
-    /// \endcode
+    /*! \code
+        // Make a config that generates no more than 1,000 alphabetic characters.
+        auto conf = make_config(_1 = alpha(), _max_test_count = 1000u);
+        \endcode
+    */
     proto::terminal<detail::max_test_count_>::type const _max_test_count = {};
 
     /// A placeholder for use with \c quick_check::make_config() for specifying
@@ -469,10 +472,11 @@ namespace quick_check
     ///
     /// \b Example:
     ///
-    /// \code
-    /// // Make a config that generates strings with a maximum size of 10.
-    /// auto conf = make_config(_1 = string(), _sized = 10u);
-    /// \endcode
+    /*! \code
+        // Make a config that generates strings with a maximum size of 10.
+        auto conf = make_config(_1 = string(), _sized = 10u);
+        \endcode
+    */
     proto::terminal<detail::sized_>::type const _sized = {};
 
     namespace detail
@@ -543,35 +547,36 @@ namespace quick_check
     ///
     /// \em Example:
     ///
-    /// \code
-    /// // A source for random numbers
-    /// boost::random::mt11213b rng;
-    ///
-    /// // some generators
-    /// uniform<int> die(1,6);
-    /// normal<double> one(0.0, 1.0);
-    ///
-    /// // a QuickCheckCpp configuration. Placeholders _1
-    /// // and _2 receive values generated from die and one:
-    /// auto config =
-    ///     make_config(_1 = die,
-    ///                 _2 = one,
-    ///                 _rng = rng,               // Specify a custom random number generator
-    ///                 _test_count = 10000,      // The maximum number of tests to execute
-    ///                 _max_test_count = 15000); // The maximum number of inputs to generate
-    /// \endcode
-    ///
+    /*! \code
+        // A source for random numbers
+        boost::random::mt11213b rng;
+
+        // some generators
+        uniform<int> die(1,6);
+        normal<double> one(0.0, 1.0);
+
+        // a QuickCheckCpp configuration. Placeholders _1
+        // and _2 receive values generated from die and one:
+        auto config =
+            make_config(_1 = die,
+                        _2 = one,
+                        _rng = rng,               // Specify a custom random number generator
+                        _test_count = 10000,      // The maximum number of tests to execute
+                        _max_test_count = 15000); // The maximum number of inputs to generate
+    \endcode
+    */
     /// Do not use the same generator with two different argument placeholders, like
     /// <tt>make_config(_1 = die, _2 = die)</tt>. Both generators will be copied and
     /// they will have the same internal state while generating random numbers,
     /// resulting in poor randomness. Instead, you can reuse the same generator like
     /// this:
     ///
-    /// \code
-    /// // OK, reuse the same generator for 2 placeholders.
-    /// uniform<int> die(1,6);
-    /// auto conf = make_config(_1 = _2 = die);
-    /// \endcode
+    /*! \code
+        // OK, reuse the same generator for 2 placeholders.
+        uniform<int> die(1,6);
+        auto conf = make_config(_1 = _2 = die);
+        \endcode
+    */
     ///
     /// \sa \c quick_check::_rng
     /// \sa \c quick_check::_test_count
