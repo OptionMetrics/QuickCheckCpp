@@ -220,6 +220,11 @@
     <None Include="..\doc\Jamfile">
       <Filter>Doc Files</Filter>
     </None>
+    <None Include="..\..\..\.gitignore" />
+    <None Include="..\..\..\boost-build.jam" />
+    <None Include="..\..\..\Jamfile" />
+    <None Include="..\..\..\Jamroot" />
+    <None Include="..\..\..\README.md" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\test\normal_double_distribution.txt">
@@ -228,5 +233,6 @@
     <Text Include="..\test\uniform_int_distribution.txt">
       <Filter>Test Files</Filter>
     </Text>
+    <Text Include="..\..\..\LICENSE_1_0.txt" />
   </ItemGroup>
 </Project>

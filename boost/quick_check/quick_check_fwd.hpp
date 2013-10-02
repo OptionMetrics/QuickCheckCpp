@@ -69,6 +69,12 @@ namespace quick_check
         struct fusion_elem
           : mpl::if_<is_void<T>, fusion::void_, T>
         {};
+
+        template<typename Property, typename Config>
+        struct get_group_by_type;
+
+        template<typename Args, typename GroupBy>
+        struct make_qcheck_results_type;
     }
 
     template<typename Map, typename Rng>
@@ -96,6 +102,20 @@ namespace quick_check
 
     template<typename>
     struct grouped_by;
+
+    template<typename Property, typename Config>
+    typename detail::make_qcheck_results_type<
+        typename Config::result_type
+      , typename detail::get_group_by_type<Property, Config>::type
+    >::type
+    qcheck(Property const &prop, Config &config);
+
+    template<typename Property, typename Config>
+    typename detail::make_qcheck_results_type<
+        typename Config::result_type
+      , typename detail::get_group_by_type<Property, Config>::type
+    >::type
+    qcheck(Property const &prop, Config &config, std::size_t sized);
 }
 
 QCHK_BOOST_NAMESPACE_END

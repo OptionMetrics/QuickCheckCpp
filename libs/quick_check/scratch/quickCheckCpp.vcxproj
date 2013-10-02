@@ -223,6 +223,11 @@
     <ClInclude Include="..\test\utility.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\.gitignore" />
+    <None Include="..\..\..\boost-build.jam" />
+    <None Include="..\..\..\Jamfile" />
+    <None Include="..\..\..\Jamroot" />
+    <None Include="..\..\..\README.md" />
     <None Include="..\doc\Jamfile" />
     <None Include="..\doc\quick_check.qbk" />
     <None Include="..\example\Jamfile" />
@@ -230,6 +235,7 @@
     <None Include="Jamfile" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\..\..\LICENSE_1_0.txt" />
     <Text Include="..\test\normal_double_distribution.txt" />
     <Text Include="..\test\uniform_int_distribution.txt" />
   </ItemGroup>
