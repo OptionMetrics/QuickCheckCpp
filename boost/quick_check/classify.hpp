@@ -176,7 +176,7 @@ namespace quick_check
         // and _2 receive values generated from di and dd:
         auto config = make_config(
             _1 = di,
-            _2 = dd,
+            _2 = dd
         );
 
         // Here's a property to test:
