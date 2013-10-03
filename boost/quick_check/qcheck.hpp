@@ -16,6 +16,7 @@
 
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
+#include <boost/move/utility.hpp>
 #include <boost/quick_check/quick_check_fwd.hpp>
 #include <boost/quick_check/qcheck_results.hpp>
 #include <boost/quick_check/classify.hpp>
@@ -256,7 +257,7 @@ namespace quick_check
     qcheck(Property const &prop, Config &config, std::size_t sized)
     {
         config.resized(sized);
-        quick_check::qcheck(prop, config);
+        return boost::move(quick_check::qcheck(prop, config));
     }
 
     /// \overload
@@ -320,7 +321,7 @@ namespace quick_check
         if(n != config.test_count())
             detail::qcheck_access::set_exhausted(results);
 
-        return results;
+        return boost::move(results);
     }
 }
 

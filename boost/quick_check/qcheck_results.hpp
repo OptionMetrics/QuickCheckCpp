@@ -27,6 +27,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/range/algorithm/for_each.hpp>
+#include <boost/move/utility.hpp>
 #include <boost/mpl/print.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/identity.hpp>
@@ -193,12 +194,22 @@ namespace quick_check
         };
     }
 
-    /// A Fusion Random Access Sequence that holds a set of arguments,
+    /// \brief A Fusion Random Access Sequence that holds a set of arguments,
     /// the classifications for that argument set (if any), and the group
     /// of the arguments (if any).
     ///
-    /// Blah blah qcheck_results::failures()
+    /// \c qcheck_args<> is used by \c qcheck_results to store sets of arguments
+    /// together with the metadata about them. The associated metadata includes
+    /// the argument classifications and group.
     ///
+    /// After a failed \c qcheck() test, the argument sets that caused failure
+    /// are available via \c qcheck_results::failures(), which returns a Range
+    /// of \c qcheck_args<> objects.
+    ///
+    /// Since \c qcheck_args<> is a Fusion Random Access Sequence, the elements
+    /// can be accessed with \c boost::fusion::at_c().
+    ///
+    /// \sa \c qcheck_results::failures
 #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
     template<typename...As>
     struct qcheck_args
@@ -206,12 +217,19 @@ namespace quick_check
             typename detail::fusion_elem_ignore_grouped<As>::type...
         >::type
     {
+        /// A tuple-like type where the tuple elements correspond the
+        /// the template arguments with which this \c property<> type
+        /// was instantiated, minus \c grouped_by<>, if present.
         typedef
             typename fusion::result_of::make_vector<
                 typename detail::fusion_elem_ignore_grouped<As>::type...
             >::type
         args_type;
 
+        /// If an instance of \c grouped_by<> is the last template parameter
+        /// in <tt>As...</tt>, then \c grouped_by_type is the type with which
+        /// \c grouped_by<> was instantiated. Otherwise, \c grouped_by_type
+        /// is some unspecified type.
         typedef
             typename detail::find_grouped_by_type<As...>::type
         grouped_by_type;
@@ -239,18 +257,11 @@ namespace quick_check
         grouped_by_type;
 #endif
 
-        explicit qcheck_args(args_type const &args)
-          : args_type(args)
-          , classes_()
-          , group_()
-        {}
-
-        qcheck_args(args_type const &args, std::vector<std::string> const &classes)
-          : args_type(args)
-          , classes_(classes)
-          , group_()
-        {}
-
+        /// Constructor
+        ///
+        /// \param args A tuple-like object containing a set of arguments.
+        /// \param classes The classifications applicable to this set of arguments, if any.
+        /// \param group The group to which this set of arguments belongs, if any.
         qcheck_args(
             args_type const &args
           , std::vector<std::string> const &classes
@@ -259,6 +270,22 @@ namespace quick_check
           : args_type(args)
           , classes_(classes)
           , group_(group)
+        {}
+
+        /// \overload
+        ///
+        qcheck_args(args_type const &args, std::vector<std::string> const &classes)
+          : args_type(args)
+          , classes_(classes)
+          , group_()
+        {}
+
+        /// \overload
+        ///
+        explicit qcheck_args(args_type const &args)
+          : args_type(args)
+          , classes_()
+          , group_()
         {}
 
         friend std::ostream &operator<<(std::ostream &sout, qcheck_args const &args)
@@ -287,6 +314,20 @@ namespace quick_check
     };
 
 #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(QCHK_DOXYGEN_INVOKED)
+    /// \brief Holds the results of \c qcheck() algorithm.
+    ///
+    /// \tparam As A parameter pack that represents the types of the arguments
+    ///            of the property that was tested, and (optionally), the result
+    ///            type of the property's \c group_by() clause.
+    ///
+    /// The \c qcheck() algorithm records its results in an object of type
+    /// \c qcheck_results<>, which it returns. \c qcheck_results<> remembers the
+    /// argument sets which caused the test to fail. 
+    ///
+    /// \c qcheck_results<> also remembers metadata about the full test run, such
+    /// as which input categories and groups were seen and with what frequency. This
+    /// information can be displayed with the \c qcheck_results::print_summary()
+    /// function.
     template<typename ...As>
     struct qcheck_results
     {
@@ -319,7 +360,14 @@ namespace quick_check
             std::pair<grouped_by_type, std::vector<std::string> >
         key_type;
 
+        BOOST_COPYABLE_AND_MOVABLE(qcheck_results)
+
     public:
+        /// Default constructor
+        ///
+        /// \post <tt>!this->exhausted()</tt>
+        /// \post <tt>this->success()</tt>
+        /// \post <tt>this->failures().empty()</tt>
         qcheck_results()
           : failures_()
           , categories_()
@@ -328,11 +376,95 @@ namespace quick_check
           , exhausted_(false)
         {}
 
+        /// Copy constructor
+        ///
+        /// \param that The object to copy
+        ///
+        /// \post <tt>this->exhausted() == that.exhausted()</tt>
+        /// \post <tt>this->success() == that.success()</tt>
+        /// \post <tt>this->failures() == that.failures()</tt>
+        qcheck_results(qcheck_results const &that)
+          : failures_(that.failures_)
+          , categories_(that.categories_)
+          , nbr_tests_(that.nbr_tests_)
+          , first_failed_test_(that.first_failed_test_)
+          , exhausted_(that.exhausted_)
+        {}
+
+        /// Copy assignment operator
+        ///
+        /// \param that The object to copy
+        ///
+        /// \post <tt>this->exhausted() == that.exhausted()</tt>
+        /// \post <tt>this->success() == that.success()</tt>
+        /// \post <tt>this->failures() == that.failures()</tt>
+        qcheck_results &operator=(BOOST_COPY_ASSIGN_REF(qcheck_results) that)
+        {
+            this->failures_ = that.failures_;
+            this->categories_ = that.categories_;
+            this->nbr_tests_ = that.nbr_tests_;
+            this->first_failed_test_ = that.first_failed_test_;
+            this->exhausted_ = that.exhausted_;
+            return *this;
+        }
+
+        /// Move constructor
+        ///
+        /// \throw nothrow
+        ///
+        /// \param that The object to move from
+        ///
+        /// \c *this receives \c that's state, and \c that is left in an
+        /// unspecified state.
+        qcheck_results(BOOST_RV_REF(qcheck_results) that) BOOST_NOEXCEPT
+          : failures_(boost::move(that.failures_))
+          , categories_(boost::move(that.categories_))
+          , nbr_tests_(that.nbr_tests_)
+          , first_failed_test_(that.first_failed_test_)
+          , exhausted_(that.exhausted_)
+        {}
+
+        /// Move assignment operator
+        ///
+        /// \throw nothrow
+        ///
+        /// \param that The object to move from
+        ///
+        /// \c *this receives \c that's state, and \c that is left in an
+        /// unspecified state.
+        qcheck_results &operator=(BOOST_RV_REF(qcheck_results) that) BOOST_NOEXCEPT
+        {
+            this->failures_ = boost::move(that.failures_);
+            this->categories_ = boost::move(that.categories_);
+            this->nbr_tests_ = that.nbr_tests_;
+            this->first_failed_test_ = that.first_failed_test_;
+            this->exhausted_ = that.exhausted_;
+            return *this;
+        }
+
+        /// If \c *this was returned from \c qcheck(), then \c success() reports
+        /// the success or failure of the \c qcheck() test run. Otherwise, returns
+        /// true.
+        ///
+        /// \return <tt>this->failures().empty()</tt>
+        ///
+        /// \throw nothrow
         bool success() const
         {
             return this->failures_.empty();
         }
 
+        /// If \c *this was returned from \c qcheck(), then \c exhausted() reports
+        /// true if \c max_test_count was reached before \c test_count and false
+        /// otherwise.
+        ///
+        /// \return true or false depending on whether the test ran out of input
+        ///         before completing.
+        ///
+        /// \throw nothrow
+        ///
+        /// \sa \c config::test_count
+        /// \sa \c config::max_test_count
         bool exhausted() const
         {
             return this->exhausted_;
@@ -341,16 +473,31 @@ namespace quick_check
         /// INTERNAL ONLY
         typedef int detail_smart_bool_type_::* unspecified_bool_type;
 
+        /// Conversion to a Boolean value
+        ///
+        /// \return A value convertible to true if <tt>this->success()</tt> is
+        /// true; false otherwise.
+        ///
+        /// \throw nothrow
         operator unspecified_bool_type() const
         {
             return this->success() ? &detail_smart_bool_type_::m_ : 0;
         }
 
+        /// Returns a Range of arguments and their associated metadata that caused
+        /// an invocation of the \c qcheck() algorithm to fail.
+        ///
         std::vector<args_type> const &failures() const
         {
             return this->failures_;
         }
 
+        /// Write a summary of the results of the \c qcheck() algorithm to the
+        /// specified \c std::ostream.
+        ///
+        /// \param sout The \c std::ostream to which the summary should be written.
+        ///
+        /// \return \c sout
         std::ostream &print_summary(std::ostream &sout = std::cout) const
         {
             if(this->success())
