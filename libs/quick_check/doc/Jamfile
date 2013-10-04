@@ -16,6 +16,9 @@ doxygen autodoc
                                    \"QCHK_DOXY_HIDDEN(x)=\" \\
                                    \"BOOST_DEDUCED_TYPENAME=typename\" \\
                                    \"BOOST_STATIC_CONSTANT(x,y)=static x const y\" \\
+                                   \"BOOST_RV_REF(x)=x &&\" \\
+                                   \"BOOST_COPY_ASSIGN_REF(x)=x const &\" \\
+                                   \"BOOST_NOEXCEPT(x)=noexcept\" \\
                                    \"QCHK_NONDEDUCED_TYPE_(x)=x\""
         <doxygen:param>HIDE_UNDOC_MEMBERS=NO
         <doxygen:param>EXTRACT_PRIVATE=NO
@@ -50,6 +53,11 @@ boostbook standalone
         <xsl:param>"admon.graphics.path=http://svn.boost.org/svn/boost/trunk/doc/src/images/"
         <xsl:param>"navig.graphics.path=http://svn.boost.org/svn/boost/trunk/doc/src/images/"
         <xsl:param>"callout.graphics.path=http://svn.boost.org/svn/boost/trunk/doc/src/images/callouts/"
+#        <xsl:param>"html.stylesheet=file:///C:/boost/org/trunk/doc/src/boostbook.css"
+#        <xsl:param>"img.graphics.path=file:///C:/boost/org/trunk/doc/html/"
+#        <xsl:param>"admon.graphics.path=file:///C:/boost/org/trunk/doc/src/images/"
+#        <xsl:param>"navig.graphics.path=file:///C:/boost/org/trunk/doc/src/images/"
+#        <xsl:param>"callout.graphics.path=file:///C:/boost/org/trunk/doc/src/images/callouts/"
         <format>pdf:<xsl:param>"callout.graphics.extension=.svg"
         <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/doc/html
         <dependency>autodoc

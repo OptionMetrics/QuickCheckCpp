@@ -22,6 +22,7 @@
 #include <boost/quick_check/generator/uniform.hpp>
 #include <boost/quick_check/generator/vector.hpp>
 #include <boost/quick_check/generator/string.hpp>
+#include <boost/quick_check/generator/sequence.hpp>
 #include <boost/quick_check/generator/transform.hpp>
 #include <boost/quick_check/generator/zip.hpp>
 

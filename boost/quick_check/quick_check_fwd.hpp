@@ -21,7 +21,22 @@
 #include <boost/type_traits/is_void.hpp>
 #include <boost/fusion/support/void.hpp>
 
+/// \brief If the compiler doesn't support variadic templates, the
+/// class templates defined in QuickCheckCpp support up to
+/// \c QCHK_MAX_ARITY parameters.
+///
+/// The maximum number of template arguments that the class templates
+/// \c quick_check::property<>, \c quick_check::qcheck_results<>, and
+/// \c quick_check::qcheck_args<> accept. The default value is 10.
+///
+/// If the compiler supports variadic templates, this macro is ignored.
+///
+/// To increase the maximum template arity of QuickCheckCpp's class
+/// templates, compile with \c QCHK_MAX_ARITY defined to something
+/// greater than 10.
+#ifndef QCHK_MAX_ARITY
 #define QCHK_MAX_ARITY 10
+#endif
 
 #define QCHK_BOOST_NAMESPACE_BEGIN namespace boost {    ///< INTERNAL ONLY
 #define QCHK_BOOST_NAMESPACE_END }                      ///< INTERNAL ONLY

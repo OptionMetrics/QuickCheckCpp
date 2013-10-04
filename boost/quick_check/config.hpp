@@ -521,9 +521,9 @@ namespace quick_check
         {
             typedef decltype(
                 detail::make_config_(
-                    fusion::make_vector(std::declval<As const &>()...)
+                    fusion::make_vector(boost::declval<As const &>()...)
                   , fusion::make_vector(
-                        std::declval<As const &>()...
+                        boost::declval<As const &>()...
                       , _rng = boost::random::mt11213b()
                       , _test_count = 100u
                       , _max_test_count = 1000u

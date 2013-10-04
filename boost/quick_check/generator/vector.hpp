@@ -16,7 +16,7 @@
 
 #include <vector>
 #include <boost/quick_check/quick_check_fwd.hpp>
-#include <boost/quick_check/generator/basic_generator.hpp>
+#include <boost/quick_check/generator/sequence.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
 
@@ -38,11 +38,11 @@ namespace quick_check
     /// \sa \c quick_check::_sized
     /// \sa \c quick_check::config::sized
     template<typename Gen>
-    detail::sequence_generator<std::vector<typename Gen::result_type>, Gen, true>
+    detail::sequence_generator<std::vector<typename Gen::result_type>, Gen>
     vector(Gen const &gen)
     {
         typedef std::vector<typename Gen::result_type> sequence_type;
-        return detail::sequence_generator<sequence_type, Gen, true>(gen);
+        return detail::sequence_generator<sequence_type, Gen>(gen);
     }
 
     /// \brief Create a generator for sorted \c std::vector\<\> objects.
@@ -66,11 +66,11 @@ namespace quick_check
     /// \sa \c quick_check::_sized
     /// \sa \c quick_check::config::sized
     template<typename Gen>
-    detail::sequence_generator<std::vector<typename Gen::result_type>, Gen, true, true>
+    detail::ordered_sequence_generator<std::vector<typename Gen::result_type>, Gen>
     ordered_vector(Gen const &gen)
     {
         typedef std::vector<typename Gen::result_type> sequence_type;
-        return detail::sequence_generator<sequence_type, Gen, true, true>(gen);
+        return detail::ordered_sequence_generator<sequence_type, Gen>(gen);
     }
 }
 

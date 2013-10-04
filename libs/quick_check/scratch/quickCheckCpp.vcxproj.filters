@@ -123,6 +123,9 @@
     <ClCompile Include="..\example\condition.cpp">
       <Filter>Example Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\test\generator\sequence.cpp">
+      <Filter>Test Files\generator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\boost\quick_check\quick_check.hpp">
@@ -202,6 +205,9 @@
     </ClInclude>
     <ClInclude Include="..\test\utility.hpp">
       <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\boost\quick_check\generator\sequence.hpp">
+      <Filter>quickCheckCpp Files\generator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

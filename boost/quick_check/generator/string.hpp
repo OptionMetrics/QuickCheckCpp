@@ -17,7 +17,7 @@
 
 #include <string>
 #include <boost/quick_check/quick_check_fwd.hpp>
-#include <boost/quick_check/generator/basic_generator.hpp>
+#include <boost/quick_check/generator/sequence.hpp>
 #include <boost/quick_check/generator/uniform.hpp>
 
 QCHK_BOOST_NAMESPACE_BEGIN
@@ -39,7 +39,6 @@ namespace quick_check
     detail::sequence_generator<
         std::basic_string<typename Generator::result_type>
       , Generator
-      , true
     >
     string(Generator const &gen)
     {
@@ -47,7 +46,6 @@ namespace quick_check
             detail::sequence_generator<
                 std::basic_string<typename Generator::result_type>
               , Generator
-              , true
             >
         result_type;
         return result_type(gen);
@@ -55,20 +53,20 @@ namespace quick_check
 
     /// \overload
     ///
-    inline detail::sequence_generator<std::string, uniform<char>, true>
+    inline detail::sequence_generator<std::string, uniform<char> >
     string()
     {
-        typedef detail::sequence_generator<std::string, uniform<char>, true> result_type;
+        typedef detail::sequence_generator<std::string, uniform<char> > result_type;
         return result_type(uniform<char>());
     }
 
     /// Create a generator for \c std::wstring objects.
     ///
     /// \c quick_check::uniform\<wchar_t\> is used to generate the characters of the string.
-    inline detail::sequence_generator<std::wstring, uniform<wchar_t>, true>
+    inline detail::sequence_generator<std::wstring, uniform<wchar_t> >
     wstring()
     {
-        typedef detail::sequence_generator<std::wstring, uniform<wchar_t>, true> result_type;
+        typedef detail::sequence_generator<std::wstring, uniform<wchar_t> > result_type;
         return result_type(uniform<wchar_t>());
     }
 }

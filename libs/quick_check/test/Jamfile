@@ -20,6 +20,7 @@ test-suite "quick_check"
         [ run generator/class.cpp ]
         [ run generator/constant.cpp ]
         [ run generator/normal.cpp ]
+        [ run generator/sequence.cpp ]
         [ run generator/string.cpp ]
         [ run generator/transform.cpp ]
         [ run generator/uniform.cpp ]

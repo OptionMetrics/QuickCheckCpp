@@ -49,7 +49,11 @@
 [def __upper__              [^[funcref quick_check::upper()]]]
 [def __xdigit__             [^[funcref quick_check::xdigit()]]]
 [def __string__             [^[funcref quick_check::string()]]]
-[def __wstring__             [^[funcref quick_check::wstring()]]]
+[def __wstring__            [^[funcref quick_check::wstring()]]]
+[def __vector__             [^[funcref quick_check::vector()]]]
+[def __ordered_vector__     [^[funcref quick_check::ordered_vector()]]]
+[def __sequence__           [^[funcref quick_check::sequence()]]]
+[def __ordered_sequence__   [^[funcref quick_check::ordered_sequence()]]]
 [def __grouped_by__         [^[classref quick_check::grouped_by<>]]]
 [def __property__           [^[classref quick_check::property<>]]]
 [def __uniform__            [^[classref quick_check::uniform<>]]]
@@ -70,7 +74,9 @@ This section describes how to use __qchk__ to quickly sanity-check your algorith
 
 [section:preface Preface]
 
-__qchk__ is a library for [@http://en.wikipedia.org/wiki/Ad_hoc_testing ad hoc software testing]. With __qchk__, you define /properties/ of your algorithm -- predicates that must be true -- and __qchk__ does the rest, automatically generating random input data and validating that the properties hold. __qchk__ is good for quickly getting broad test coverage of your algorithms and for testing how your code behaves with unexpected input. Since __qchk__ cannot know your code's important boundary cases, it is /not/ a complete replacement for hand-crafted unit tests.
+__qchk__ is a library for [@http://en.wikipedia.org/wiki/Ad_hoc_testing ad hoc software testing]. With __qchk__, you define /properties/ of your algorithm -- predicates that must be true -- and __qchk__ does the rest, automatically generating random input data and validating that the properties hold. __qchk__ is good for quickly getting broad test coverage of your algorithms and for testing how your code behaves with unexpected input.
+
+[warning Since __qchk__ cannot know your code's important boundary cases, it is /not/ a complete replacement for hand-crafted unit tests.]
 
 [endsect] [/ Preface]
 
@@ -321,11 +327,60 @@ The __normal__ and __uniform__ templates let you generate built-in arrays of the
     // representing the roll of 2 six-sided die.
     uniform<int[2]> die(1, 6);
 
+Within properties, arrays can be used in arithmetic expressions. If the property contains the expression `_1 + _2`, and `_1` and `_2` are bound to arrays, then the addition is element-wise. The arrays must have the same number of elements. Equality and inequality are also element-wise.
+
+When using relational operators on arrays, the result is a lexicographic comparison. For instance, the expression `_1 < _2` with arrays is equivalent to an invocation of `std::lexicographic_compare`.
+
 [endsect] [/ Primitive Types]
 
 [section:sequences Ordered and Unordered Sequences]
 
-TODO
+It's very handy to be able to generate sequences and evaluate properties with them. Perhaps you're testing a string algorithm. You need to be able to generate a bunch of random `std::string`s. No problem. Here's how.
+
+[heading Generating `std::vector`]
+
+If you want to generate `std::vector`s, you can use the __vector__ function to create a generator for vectors.
+
+    // Generates a uniform distribution of ints from 1 to 6.
+    uniform<int> die(1,6);
+    // Generates vectors of integers using die.
+    auto vec_gen = quick_check::vector(die);
+
+Now, when `vec_gen` is invoked with a random number generator, it returns a `std::vector` with randomly generated integers between 1 and 6 inclusive.
+
+If you would like your vectors to be sorted, you can use __ordered_vector__ instead.
+
+[heading Generating `std::string`]
+
+Likewise, you can use __string__ to generate `std::string`s:
+
+    // Generate random alpha-numeric characters:
+    auto char_gen = quick_check::alnum();
+    // Generate std::strings using char_gen:
+    auto string_gen = quick_check::string(char_gen);
+
+When invoked with a character generator like above, `quick_check::string()` generates instances of `std::basic_string<Ch>`, where `Ch` is the result type of the character generator. `quick_check::string()` can also be invoked without a character generator, in which case, it uses a default-constructed [^[classref quick_check::uniform<char>]] as the character generator. Similarly, there is a function __wstring__ that generates `std::wstring` objects. It uses `uniform<wchar_t>` to generate wide characters.
+
+[heading Other Sequence Types]
+
+If you want to generate a sequences type other than `std::vector` or `std::string`, you can use the more general-purpose __sequence__ and __ordered_sequence__. These require you to specify the sequence type as a template parameter.
+
+    // Generate std::list<int> objects
+    uniform<int> die(0,6);
+    auto list_gen = sequence< list<int> >(die);
+
+To use either __sequence__ or __ordered_sequence__, the sequence type must have a `push_back()` member function. To use __ordered_sequence__, the sequence type must have random-access iterators.
+
+[heading Sequence Length]
+
+The obvious question is: what is the length of the generated sequences? The issue is discussed in more detail in the reference for [^[globalref quick_check::_sized]], but the short answer is that by default, sequences are between 0 and 50 elements, inclusive. If you would like to change the upper limit, you can use [^[globalref quick_check::_sized]] together with __make_config__.
+
+For instance, the following line creates a configuration where all the generated strings are between 0 and 10 characters long:
+
+    // Make a config that generates strings with a maximum size of 10.
+    auto conf = make_config(_1 = string(), _sized = 10u);
+
+The distribution of sequence lengths is uniform.
 
 [endsect] [/ Ordered and Unordered Sequences]
 

@@ -140,6 +140,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\test\generator\sequence.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\test\generator\string.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -208,6 +212,7 @@
     <ClInclude Include="..\..\..\boost\quick_check\generator\class.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator\constant.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator\normal.hpp" />
+    <ClInclude Include="..\..\..\boost\quick_check\generator\sequence.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator\string.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator\transform.hpp" />
     <ClInclude Include="..\..\..\boost\quick_check\generator\uniform.hpp" />
