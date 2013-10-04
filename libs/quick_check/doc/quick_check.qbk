@@ -54,6 +54,8 @@
 [def __ordered_vector__     [^[funcref quick_check::ordered_vector()]]]
 [def __sequence__           [^[funcref quick_check::sequence()]]]
 [def __ordered_sequence__   [^[funcref quick_check::ordered_sequence()]]]
+[def __class__              [^[funcref quick_check::class_()]]]
+[def __ctor__               [^[funcref quick_check::ctor()]]]
 [def __grouped_by__         [^[classref quick_check::grouped_by<>]]]
 [def __property__           [^[classref quick_check::property<>]]]
 [def __uniform__            [^[classref quick_check::uniform<>]]]
@@ -386,7 +388,46 @@ The distribution of sequence lengths is uniform.
 
 [section:class_types User-Defined Types]
 
-TODO
+You can generate objects of class types using the __class__ generator. Say, for instance, that you want to have a generator for the following class `S`:
+
+    struct S
+    {
+        S(int, double);
+    };
+
+`S` objects need to be constructed with an `int` and a `double`. The first step is to create `int` and `double` generators:
+
+    uniform<int> die(1, 6);
+    normal<double> one(0., 1.);
+
+Now, you can create a generator for `S` objects from the `int` and `double` generators using __class__ as follows:
+
+    // Make a generator that creates S objects:
+    auto gen_S = quick_check::class_<S>(die, one);
+
+When constructing `S` objects, the first generator (`die`) will be used to generate the first constructor constructor argument, and the second (`one`) will be used for the second. Easy.
+
+[heading Classes With Multiple Constructors]
+
+Not all classes are so simple. Imagine that you add another constructor to the `S` class, and you want that constructor to be called a certain percentage of the time. For that, you can use the __ctor__ helper together with __class__. The code below shows how:
+
+    struct S
+    {
+        S(int);
+        S(int, double);
+    };
+
+    uniform<int> die(1, 6);
+    normal<double> one(0., 1.);
+
+    // Make a generator that creates S objects. It calls
+    // S(int) 30% of the time, and S(int,double) 70% of
+    // the time.
+    auto gen_S = quick_check::class_<S>( ctor(die)      %30
+                                       | ctor(die, one) %70
+                                       );
+
+In this way, you can build up generators for arbitrarity complicated types. If you have another class `T` whose constrctor takes `S` objects, then you can use `gen_S` as an argument to an invocation of the function `class_<T>`.
 
 [endsect] [/ User-Defined Types]
 

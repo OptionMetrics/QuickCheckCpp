@@ -372,7 +372,7 @@ namespace quick_check
     /// constructors(s) to call, and how frequently to call each. That is the
     /// purpose of \c ctor.
     ///
-    /// The \c ctor helper is used in conjunction with \c quick_check::class_()
+    /// The \c ctor() helper is used in conjunction with \c quick_check::class_()
     /// as shown below:
     ///
     /*! \code
