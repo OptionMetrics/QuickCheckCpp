@@ -108,12 +108,12 @@ namespace quick_check
                 return boost::move(res);
             }
 
-            friend void set_size_adl(sequence_generator &thiz, std::size_t size)
+            friend void set_size(sequence_generator &thiz, std::size_t size)
             {
                 BOOST_ASSERT(size >= 1);
                 size_dist_type::param_type parm(0, size - 1);
                 thiz.size_dist_.param(parm);
-                set_size_adl(thiz.gen_, size); // non-qualified, for ADL
+                detail::set_size_adl(thiz.gen_, size);
             }
 
         private:

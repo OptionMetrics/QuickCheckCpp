@@ -83,7 +83,7 @@ void test_string_with_char()
 void test_string()
 {
     auto sgen = qchk::string();
-    set_size_adl(sgen, 2u);
+    qchk::detail::set_size_adl(sgen, 2u);
 
     for(std::size_t i = 0; i < CLOOPS; ++i)
     {
@@ -91,7 +91,7 @@ void test_string()
         BOOST_CHECK_LE(str.length(), 2u);
     }
 
-    set_size_adl(sgen, 64u);
+    qchk::detail::set_size_adl(sgen, 64u);
 
     for(std::size_t i = 0; i < CLOOPS; ++i)
     {
@@ -103,7 +103,7 @@ void test_string()
 void test_wstring()
 {
     auto sgen = qchk::wstring();
-    set_size_adl(sgen, 2u);
+    qchk::detail::set_size_adl(sgen, 2u);
 
     for(std::size_t i = 0; i < CLOOPS; ++i)
     {
@@ -111,7 +111,7 @@ void test_wstring()
         BOOST_CHECK_LE(str.length(), 2u);
     }
 
-    set_size_adl(sgen, 64u);
+    qchk::detail::set_size_adl(sgen, 64u);
 
     for(std::size_t i = 0; i < CLOOPS; ++i)
     {

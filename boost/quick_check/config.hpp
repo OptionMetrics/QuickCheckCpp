@@ -382,7 +382,7 @@ namespace quick_check
             typedef proto::functional::second F;
             fusion::for_each(
                 fusion::transform_view<Map, F>(this->map_, F())
-              , detail::set_size(this->sized_)
+              , detail::set_size_fun(this->sized_)
             );
         }
 

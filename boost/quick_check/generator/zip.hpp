@@ -46,10 +46,10 @@ namespace quick_check
                 return result_type(gen0_(rng), gen1_(rng));
             }
 
-            friend void set_size_adl(zip_generator &thiz, std::size_t size)
+            friend void set_size(zip_generator &thiz, std::size_t size)
             {
-                set_size_adl(thiz.gen0_, size);
-                set_size_adl(thiz.gen1_, size);
+                detail::set_size_adl(thiz.gen0_, size);
+                detail::set_size_adl(thiz.gen1_, size);
             }
 
         private:

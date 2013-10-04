@@ -157,11 +157,11 @@ struct int_t
 
     int operator()(rng_t &) const
     {
+        int x = 0;
+        using qchk::set_size;
+        set_size(x, 42u); // just test that we can find the default set_size
         return 42;
     }
-
-    friend void set_size_adl(int_t &, std::size_t)
-    {}
 };
 
 void test_config_6()

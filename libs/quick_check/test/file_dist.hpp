@@ -42,9 +42,6 @@ struct file_dist
         return val;
     }
 
-    friend void set_size_adl(file_dist &, std::size_t)
-    {}
-
 private:
     boost::shared_ptr<std::ifstream> pfin_;
 };
@@ -65,9 +62,6 @@ struct file_dist<Value[N]>
         std::generate_n(res.elems.elems, N, [&](){return dist_(g);});
         return res;
     }
-
-    friend void set_size_adl(file_dist &, std::size_t)
-    {}
 
 private:
     file_dist<Value> dist_;

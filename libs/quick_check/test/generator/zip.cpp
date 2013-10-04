@@ -35,7 +35,7 @@ void test_zip()
       , qchk::detail::make_unary([](int i){return std::abs(i);})
     );
     auto zip = qchk::zip(ipos, dpos);
-    set_size_adl(zip, 12); // no-op, make sure it compiles
+    qchk::detail::set_size_adl(zip, 12);
 
     for(std::size_t i = 0; i < CLOOPS; ++i)
     {

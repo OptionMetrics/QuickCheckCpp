@@ -39,9 +39,6 @@ namespace quick_check
                 return value_;
             }
 
-            friend void set_size_adl(constant_generator &, std::size_t)
-            {}
-
         private:
             Value value_;
         };

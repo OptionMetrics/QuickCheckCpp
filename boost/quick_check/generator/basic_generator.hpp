@@ -24,29 +24,43 @@ namespace quick_check
 {
     namespace detail
     {
-        template<int N>
-        void set_size_adl(phoenix::argument<N>, std::size_t)
+        struct any_generator
+        {
+            template<typename Gen>
+            any_generator(Gen const &)
+            {}
+        };
+
+        void set_size(any_generator, std::size_t)
         {}
 
-        struct set_size
+        template<typename Gen>
+        void set_size_adl(Gen &gen, std::size_t size)
+        {
+            using detail::set_size;
+            set_size(gen, size);
+        }
+
+        struct set_size_fun
         {
             typedef void result_type;
 
-            set_size(std::size_t size)
+            set_size_fun(std::size_t size)
               : size_(size)
             {}
 
             template<typename T>
             void operator()(T &t) const
             {
-                // Unqualified for ADL
-                set_size_adl(t, this->size_);
+                detail::set_size_adl(t, this->size_);
             }
 
         private:
             std::size_t size_;
         };
     }
+
+    using detail::set_size;
 }
 
 QCHK_BOOST_NAMESPACE_END

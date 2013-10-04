@@ -149,9 +149,9 @@ namespace quick_check
                 return object_generator(gens_, percent);
             }
 
-            friend void set_size_adl(object_generator &thiz, std::size_t size)
+            friend void set_size(object_generator &thiz, std::size_t size)
             {
-                fusion::for_each(thiz.gens_, detail::set_size(size));
+                fusion::for_each(thiz.gens_, detail::set_size_fun(size));
             }
 
         private:
@@ -323,9 +323,9 @@ namespace quick_check
                 return state.get();
             }
 
-            friend void set_size_adl(alternate_generator &thiz, std::size_t size)
+            friend void set_size(alternate_generator &thiz, std::size_t size)
             {
-                fusion::for_each(thiz.gens_, detail::set_size(size));
+                fusion::for_each(thiz.gens_, detail::set_size_fun(size));
             }
 
         private:

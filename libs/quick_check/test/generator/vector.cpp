@@ -30,7 +30,7 @@ void test_vector()
       , qchk::detail::make_unary([](int i){return std::abs(i)%6 + 1;})
     );
     auto rgdie = qchk::vector(die);
-    set_size_adl(rgdie, 12);
+    qchk::detail::set_size_adl(rgdie, 12);
 
     for(std::size_t i = 0; i < CLOOPS; ++i)
     {
@@ -59,7 +59,7 @@ void test_ordered_vector()
       , qchk::detail::make_unary([](int i){return std::abs(i);})
     );
     auto rgzip = qchk::ordered_vector(qchk::zip(ipos, dpos));
-    set_size_adl(rgzip, 12);
+    qchk::detail::set_size_adl(rgzip, 12);
 
     for(std::size_t i = 0; i < CLOOPS; ++i)
     {

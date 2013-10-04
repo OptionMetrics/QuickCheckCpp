@@ -44,9 +44,9 @@ namespace quick_check
                 return fun_(gen_(rng));
             }
 
-            friend void set_size_adl(transform_generator &thiz, std::size_t size)
+            friend void set_size(transform_generator &thiz, std::size_t size)
             {
-                set_size_adl(thiz.gen_, size);
+                detail::set_size_adl(thiz.gen_, size);
             }
 
         private:

@@ -433,7 +433,133 @@ In this way, you can build up generators for arbitrarity complicated types. If y
 
 [section:user_defined_generators Defining Your Own Generator]
 
-TODO
+A generator is a very simple type, and it's trivial to define your own. Generators are simply TR1-style function objects that take a random number generator and return objects. Here, for instance, is a generator that generates random days of the week:
+
+    // A user-defined generator that spits out random
+    // days of the week
+    struct day_of_the_week
+    {
+        typedef std::string result_type;
+
+        day_of_the_week()
+          : idx_(0, 6)
+        {}
+
+        template<typename Gen>
+        std::string operator()(Gen & gen)
+        {
+            switch(idx_(gen))
+            {
+            case 0:  return "Sunday";
+            case 1:  return "Monday";
+            case 2:  return "Tuesday";
+            case 3:  return "Wednesday";
+            case 4:  return "Thursday";
+            case 5:  return "Friday";
+            default: return "Saturday";
+            }
+        }
+
+        uniform<std::size_t> idx_;
+    };
+
+Now, you can bind `day_of_the_week` objects to argument placeholders, as with any other generator:
+
+    // Bind _1 to a day_of_the_week generator
+    auto config = make_config(_1 = day_of_the_week());
+
+    // Create a test that we're generating days of the week
+    auto is_valid_day = _1 == "Sunday" || _1 == "Monday" || /*...*/;
+
+[heading Defining a Sequence Generator]
+
+If you're defining a generator that produces a sequence, you need to do one more thing. You need to respect a user's request to control the size of generated sequences. You do that by defining a `set_size()` free function.
+
+Imagine you want to generate a sequence of binary digits. The length of the resulting sequence should be configurable. Here's how you might accomplish that:
+
+    // A generator that construct sequences of binary digits.
+    struct binary_sequence
+    {
+        typedef std::string result_type;
+
+        binary_sequence()
+          : sizes_(0, 49) // up to 50 elements by default, perhaps.
+          , bits_(0, 1)
+        {}
+
+        template<typename Rng>
+        std::string operator()(Rng & rng)
+        {
+            std::string str;
+            // Generate a size for this generated sequence.
+            std::size_t size = sizes_(rng);
+            str.reserve(size);
+            std::generate_n(
+                std::back_inserter(str)
+              , size
+              , [&] { return '0' + bits_(rng); }
+            );
+            return str;
+        }
+
+        // Reset the maximum size of the generated binary sequences
+        friend void set_size(binary_sequence & that, std::size_t size)
+        {
+            that.sizes_ = uniform<std::size_t>(0, size);
+        }
+
+        uniform<std::size_t> sizes_;
+        uniform<int> bits_;
+    };
+
+Notice the definition of the `set_size()` friend function. `set_size` is a customization point. Define the funciton for all generators that need to respect resize requests. The `binary_sequence` generator uses a `sizes_` generator internally to generate a random number between 0 and the maximum size. The `set_size()` function resets this maximum. The overloaded function call operator then uses this `sizes_` generator to pick a size at random in the requested range and generates a string of that length.
+
+As an aside, note that the above could be more easily accomplished with a generator for binary digits in tandem with the built-in __sequence__ generator:
+
+    struct binary_digit
+    {
+        typedef char result_type;
+        binary_digit() : bits_(0,1) {}
+        template<typename Rng>
+        char operator()(Rng & rng)
+        {
+            return '0' + bits_(rng);
+        }
+        uniform<int> bits_;
+    };
+
+Now, to make a generator for binary sequences, just do this:
+
+    // Generate strings of binary digits
+    auto bin_gen = quick_check::sequence<std::string>(binary_digit());
+
+Since the built-in sequence generator already handles resize requests, no additional logic is needed.
+
+[heading Defining Generator Adaptors]
+
+Finally, note that if you have a generator that adapts another generator, your generator's `set_size()` function may need to set the size of the adapted generators. For instance, if you have a `zip_generator` that takes two generators and produces `std::pair`s, your `set_size()` function will look something like this:
+
+    template<typename First, typename Second>
+    struct zip_generator
+    {
+        typedef std::pair</*...*/> result_type;
+
+        // ... constructor and function call operator omitted ...
+
+        friend void set_size(zip_generator & that, std::size_t size)
+        {
+            // Makes "set_size" visible:
+            using quick_check::set_size;
+            // Make unqualified calls here here so ADL finds the set_size:
+            set_size(that.first_, size);
+            set_size(that.second_, size);
+        }
+
+        First first_;   // a generator for the first element of the pair
+        Second second_; // a generator for the second element of the pair
+    };
+
+Notice how `zip_generator`'s `set_size()` function must set the size of the two generators it owns. It does this by first bringing `quick_check::set_size()` into scope with a using declaration. Then it makes /unqualified/ calls to `set_size()` on the `first_` and `second_` generators. This way, the right `set_size()` function is always found.
 
 [endsect] [/ Defining Your Own Generator]
 

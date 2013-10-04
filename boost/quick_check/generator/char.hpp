@@ -57,9 +57,6 @@ namespace quick_check
                 return chars_[dist_(rng)];
             }
 
-            friend void set_size_adl(char_class_generator &, std::size_t)
-            {}
-
         private:
             random::uniform_int_distribution<std::size_t> dist_;
             std::vector<Char> chars_;

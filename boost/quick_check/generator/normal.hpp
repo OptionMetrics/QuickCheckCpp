@@ -94,9 +94,6 @@ namespace quick_check
         {
             return this->base_type::operator()(rng);
         }
-
-        friend void set_size_adl(normal &, std::size_t)
-        {}
     };
 
     template<typename Value, std::size_t N>
@@ -123,9 +120,6 @@ namespace quick_check
             std::generate_n(res.elems.elems, N, [&] { return gen_(rng); });
             return res;
         }
-
-        friend void set_size_adl(normal &, std::size_t)
-        {}
 
     private:
         normal<Value> gen_;
