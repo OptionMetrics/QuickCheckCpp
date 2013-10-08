@@ -322,7 +322,7 @@ namespace quick_check
         indices_type;
 
     public:
-        /// The type returned by quick_check::config::operator().
+        /// The type returned by \c quick_check::config::operator().
         /// \c result_type is Fusion sequence containing arguments
         /// that will be used to evaluate a property.
         typedef

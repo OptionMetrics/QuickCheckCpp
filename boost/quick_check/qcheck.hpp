@@ -164,12 +164,13 @@ namespace quick_check
     /// more than \c config.test_count() times.
     ///
     /// \li If the property returns true, a success is recorded in a object of
-    /// type \c qcheck_results<>. Otherwise, a failure is recorded.
+    /// type \c qcheck_results<>. Otherwise, a failure is recorded along with the
+    /// set of arguments that caused the failures.
     ///
     /// \li In addition, the arguments are classified and grouped according to
     /// the property's classifier and grouper (see, for example,
-    /// \c property::classifier() and \c property::grouper()). These
-    /// classifications and grouping are also recorded in the results object.
+    /// \c property::classifier() and \c property::grouper()). Statistics about
+    /// these classifications and grouping are also recorded in the results object.
     ///
     /// \li Finally, after all tests have been run, \c qcheck() notes which limit
     /// was reached first, \c config.test_count() or \c config.max_test_count().

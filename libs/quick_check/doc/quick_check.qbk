@@ -60,6 +60,11 @@
 [def __property__           [^[classref quick_check::property<>]]]
 [def __uniform__            [^[classref quick_check::uniform<>]]]
 [def __normal__             [^[classref quick_check::normal<>]]]
+[def __qcheck_results__     [^[classref quick_check::qcheck_results<>]]]
+[def __rng__                [^[globalref quick_check::_rng]]]
+[def __test_count__         [^[globalref quick_check::_test_count]]]
+[def __max_test_count__     [^[globalref quick_check::_max_test_count]]]
+[def __sized__              [^[globalref quick_check::_sized]]]
 
 [/ Imports ]
 
@@ -445,10 +450,10 @@ A generator is a very simple type, and it's trivial to define your own. Generato
           : idx_(0, 6)
         {}
 
-        template<typename Gen>
-        std::string operator()(Gen & gen)
+        template<typename Rng>
+        std::string operator()(Rng & rng)
         {
-            switch(idx_(gen))
+            switch(idx_(rng))
             {
             case 0:  return "Sunday";
             case 1:  return "Monday";
@@ -473,7 +478,7 @@ Now, you can bind `day_of_the_week` objects to argument placeholders, as with an
 
 [heading Defining a Sequence Generator]
 
-If you're defining a generator that produces a sequence, you need to do one more thing. You need to respect a user's request to control the size of generated sequences. You do that by defining a `set_size()` free function.
+If you're defining a generator that produces a sequence, you need to do one more thing: you need to respect a user's request to control the size of generated sequences. You do that by defining a `set_size()` free function.
 
 Imagine you want to generate a sequence of binary digits. The length of the resulting sequence should be configurable. Here's how you might accomplish that:
 
@@ -567,7 +572,32 @@ Notice how `zip_generator`'s `set_size()` function must set the size of the two 
 
 [section:config_params Configuration Paramters]
 
-TODO Describe _rng, _test_count, _max_test_count, and _sized.
+After [link quick_check.users_guide.properties defining a property] and some [link quick_check.users_guide.config.generators generators for input], the next step is to make a test configuration object. The primary purpose of the configuration object is to associate placeholders (e.g., `_1`, `_2`, etc.) in the property with the input generators you've defined. But the configuration object can carry additional information as well. For instance, you might want to specify the number of tests to run to be 500:
+
+    // A configuration that causes 500 tests to be run
+    auto config = make_config(
+        _1 = uniform<int>(/*...*/),
+        _2 = normal<double>(/*...*/),
+        _test_count = 500u              // Run 500 tests
+    );
+
+The __test_count__ object is an attribute placeholder. By assigning to it in a call to __make_config__, we create a configuration that has 500 as the value of the [^[memberref quick_check::config::test_count()]] attribute.
+
+This table below describes all the attributes and what they mean.
+
+[variablelist Configuration Attributes
+    [[__rng__]              [Used to specify a custom random number generator. (Defaults to an instance of `boost::random::mt11213b`.]]
+    [[__test_count__]       [Controls the number of tests that should be run. (Defaults to 100.)]]
+    [[__max_test_count__]   [Controls the maximum number of input argument sets that should be generated. (Defaults to 1000.)]]
+    [[__sized__]            [Controls the maximum size of generated sequences. (Defaults to 50.)]]
+]
+
+The difference between __test_count__ and __max_test_count__ has to do with how the __qcheck__ algorithm handles a property's condition predicate. Consider a property like the following:
+
+    auto prop = _1 > _2 >>=         // condition
+                some_test(_1, _2);  // test
+
+The test `some_test` will only be run when the value of argument `_1` is greater than argument `_2`. Clearly, arguments need to be generated before that condition can be checked. The maximum number of argument sets generated is bounded by the value of the __max_test_count__ config attribute. But the number of times `some_test` is executed is bounded by the __test_count__ attribute. If `qcheck()` reaches `_max_test_count` before `_test_count`, the test is aborted, and the returned __qcheck_results__ will indicate that fact by returning true from its [^[memberref quick_check::qcheck_results::exhausted exhaused()]] member function.
 
 [endsect] [/ Configuration Paramters]
 
@@ -575,17 +605,106 @@ TODO Describe _rng, _test_count, _max_test_count, and _sized.
 
 [section:qcheck Running The Tests]
 
-TODO
+The following two sections describe the __qcheck__ algorithm and how to examine its results.
 
 [section:qcheck The [^qcheck] Algorithm]
 
-TODO
+After you have [link quick_check.users_guide.properties defined a property], some [link quick_check.users_guide.config.generators input generators], and a [link quick_check.users_guide.config.config_params configuration object], the final step is to call the __qcheck__ algorithm.
+
+    auto prop = /*...define a property */;
+    auto config = make_config(/*...define a config */);
+
+    // Invoke the qcheck algorithm with the property
+    // and the configuration.
+    auto results = qcheck(prop, config);
+
+The `qcheck()` algorithm is described in detail in its [funcref quick_check::qcheck reference section], but in rough terms it can be understood as follows: The `qcheck()` algorithm uses the `config` object to generate sets of input arguments. These are first passed to `prop`'s [link quick_check.users_guide.properties.conditional condition predicate] to see if they're acceptable. If not, they're discarded; otherwise, they are used to evaluate the property. If the property holds, a success is recorded in a __qcheck_results__ object. Otherwise, a failure is recorded along with the set of arguments that caused the failure.
+
+A maximum number of [^[memberref quick_check::config::max_test_count config.max_test_count()]] input argument sets are generated, and the property is evaluated a maximum of [^[memberref quick_check::config::test_count config.test_count()]] times.
+
+Regardless of whether the property held or not, each argument set is classified and grouped according to the property's [link quick_check.users_guide.properties.classify classifier] and [link quick_check.users_guide.properties.group_by group] clauses (if any). The `qcheck_results<>` object is used to track how many times each classification and group was encountered. The [^[memberref quick_check::qcheck_results::print_summary qcheck_results::print_summary()]] member can be used to display this information later.
+
+Finally, after all the tests have been run, `qcheck()` notes which limit was reached first: [^[memberref quick_check::config::test_count config.test_count()]] or [^[memberref quick_check::config::max_test_count config.max_test_count()]]. If it was `max_test_count()`, then `qcheck()` notes that the input was exhausted before the test completed. This state can be queried later with [^[memberref quick_check::qcheck_results::exhausted qcheck_results::exhausted()]].
 
 [endsect] [/The [^qcheck] Algorithm]
 
 [section:qcheck Examining The Results]
 
-TODO
+As the __qcheck__ algorithm proceeds, it records various data in a __qcheck_results__ object. This section describes the `qcheck_results<>` object.
+
+[heading Success or Failure]
+
+When the `qcheck()` algorithm finishes, it returns a `qcheck_results<>` object to the user. For example:
+
+    // Invoke the qcheck algorithm with the property
+    // and the configuration.
+    auto results = qcheck(some_prop, some_config);
+
+You will certainly want to know whether the test succeeded or failed. You can use [^[memberref quick_check::qcheck_results::success results.success()]] for that. In addition, `qcheck_results<>` objects have a conversion to a Boolean type that reports the same information, so that if you're not interested in any of the other information, you can merely do:
+
+    // Run the test, check for success
+    if(qcheck(some_prop, some_config))
+    {
+        // tests all passed! :-)
+    }
+
+[heading Examing Failures]
+
+If the test failed, you undoubtedly want to know /which/ sets of input caused the failure. You can use [^[memberref quick_check::qcheck_results::failures results.failures()]] for that:
+
+    for(auto & args : results.failures())
+    {
+        std::cout << args << std::endl;
+    }
+
+`results.failures()` returns a range of [^[classref quick_check::qcheck_args qcheck_args<>]] objects. Each object contains an argument set (`qcheck_args<>` is a Fusion sequence, not unlike a tuple). In addition, it contains the set's classifications and grouping. When you write a `qcheck_args<>` object to an `ostream`, you can see the argument set and the set's classifications and group.
+
+[heading Querying for Input Exhaustion]
+
+It's very important to know whether a sufficient number of tests were run. If not, you can't infer anything meaningful from a successful test run! If a property's [link quick_check.users_guide.properties.conditional condition predicate] rules out too many sets of input arguments (as determined by __max_test_count__), then `qcheck()` aborts and returns partial results. The partial results reports true from its [^[memberref quick_check::qcheck_results::exhausted exhausted()]] member:
+
+    // Invoke the qcheck algorithm with the property
+    // and the configuration.
+    auto results = qcheck(some_prop, some_config);
+
+    if(results.exhausted())
+    {
+        // Oops, not enough tests were run!
+    }
+
+If this happens, you might need to trade your property's condition predicate for some [link quick_check.users_guide.config.generators.user_defined_generators custom generators] that are more likely to produce acceptable input arguments.
+
+[heading Pretty-Printing a Results Summary]
+
+If you're writing a quick-n-dirty test executable, it may be sufficient to just print a test summary to `cout` and be done with it. You can use [^[memberref quick_check::qcheck_results::print_summary results.print_summary()]] for that:
+
+    // Invoke the qcheck algorithm with the property
+    // and the configuration.
+    auto results = qcheck(some_prop, some_config);
+
+    results.print_summary(std::cout);
+
+This might display something like the following:
+
+[pre OK, passed 100 tests.]
+
+or
+
+[pre Arguments exhausted after 7382 tests.
+17% 0, bar.
+17% 0, foo.
+16% 1, bar.
+17% 1, foo.
+16% 2, bar.
+16% 2, foo.]
+
+This shows that the results summary incudes:
+
+* Whether the test passed or failed.
+* Whether the input was exhaused or not.
+* The percentage of inputs in each category and group.
+
+The `std::ostream` argument to `print_summary()` is optional; it defaults to `std::cout`.
 
 [endsect] [/Examining The Results]
 
