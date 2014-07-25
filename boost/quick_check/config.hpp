@@ -282,7 +282,7 @@ namespace quick_check
                         >::type
                       , proto::functional::first
                     >::type
-                  , fusion::nil_
+                  , fusion::nil
                   , detail::fusion_join
                 >::type
             >::type
@@ -292,7 +292,7 @@ namespace quick_check
             auto a = fusion::as_vector(fusion::filter_if<mpl::quote1<is_rng_collection> >(args));
             auto b = fusion::as_vector(fusion::transform(a, detail::RngCollection()));
             auto c = fusion::as_vector(fusion::transform(b, proto::functional::first()));
-            auto d = fusion::as_vector(fusion::accumulate(c, fusion::nil_(), detail::fusion_join()));
+            auto d = fusion::as_vector(fusion::accumulate(c, fusion::nil(), detail::fusion_join()));
             return fusion::as_map(d);
         }
     }
